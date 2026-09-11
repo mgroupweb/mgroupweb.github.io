@@ -40,7 +40,7 @@ def head(p):
 <meta property="og:url" content="{url}">
 <meta property="og:image" content="{SITE}/assets/img/og.png">
 <meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="400">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@MgroupWeb">
 <meta name="twitter:title" content="{html.escape(p["title"])}">
@@ -165,6 +165,67 @@ def bc(items):
     return {"@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE + u} for i, (n, u) in enumerate(items)]}
 
+DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+def load(name):
+    with open(os.path.join(DATA, name), encoding="utf-8") as f:
+        return json.load(f)
+
+import re
+def strip_tags(s):
+    return re.sub(r"<[^>]+>", "", s)
+
+def faq_html(title, items, hid="faq-title"):
+    """Canonical FAQ accordion (visible) — pair with faq_ld() so FAQPage schema matches on-page text."""
+    rows = "".join(f'<div class="accordion__item"><details class="accordion__details"><summary class="accordion__summary">{q}</summary><div class="accordion__content"><p>{a}</p></div></details></div>' for q, a in items)
+    return f"""
+  <section class="section" id="faq" aria-labelledby="{hid}">
+    <div class="container container-narrow">
+      <header class="section__head section__head--center"><span class="eyebrow">FAQ</span><h2 class="section__title" id="{hid}">{title}</h2></header>
+      <div class="accordion">{rows}</div>
+    </div>
+  </section>
+"""
+
+def faq_ld(items):
+    return {"@type": "FAQPage", "mainEntity": [
+        {"@type": "Question", "name": strip_tags(q), "acceptedAnswer": {"@type": "Answer", "text": strip_tags(a)}} for q, a in items]}
+
+def checklist_html():
+    out = []
+    for pi, p in enumerate(load("checklist.json")):
+        tasks = "".join(
+            f'<div class="task"><input type="checkbox" id="p{pi}t{ti}" data-id="p{pi}t{ti}"><label for="p{pi}t{ti}">{t}</label></div>'
+            for ti, t in enumerate(p["tasks"]))
+        out.append(f'<details class="phase" id="phase-{pi + 1}"{" open" if pi == 0 else ""}>'
+                   f'<summary><span class="phase__num">0{pi + 1}</span><h3 class="phase__title">{p["title"]}</h3><span class="phase__count">0 / {len(p["tasks"])}</span></summary>'
+                   f'<div class="phase__body"><p class="phase__desc">{p["desc"]}</p>{tasks}</div></details>')
+    return "".join(out)
+
+def hl(line):
+    e = html.escape(line, quote=False)
+    if re.match(r"^\s*\{%-?\s*comment", line) or re.match(r"^\s*//", line):
+        return f'<span class="tok-cmt">{e}</span>'
+    e = re.sub(r"(\{%-?.*?-?%\})", r'<span class="tok-tag">\1</span>', e)
+    e = re.sub(r"(\{\{-?.*?-?\}\})", r'<span class="tok-obj">\1</span>', e)
+    return e
+
+def snippets_html():
+    data = load("snippets.json")
+    tags = ["all"]
+    for s in data:
+        for t in s["tags"]:
+            if t not in tags: tags.append(t)
+    chips = "".join(f'<button class="chip" type="button" data-tag="{t}" aria-pressed="{"true" if t == "all" else "false"}">{"All snippets" if t == "all" else t}</button>' for t in tags)
+    arts = []
+    for s in data:
+        code = "\n".join(hl(l) for l in s["code"])
+        meta = f'<span class="tag">{s["file"]}</span>' + "".join(f'<span class="tag">{t}</span>' for t in s["tags"])
+        arts.append(f'<article class="snippet" id="{s["id"]}" data-tags="{" ".join(s["tags"])}">'
+                    f'<div class="snippet__head"><div><h3>{s["title"]}</h3><div class="snippet__meta">{meta}</div></div>'
+                    f'<button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy {html.escape(s["title"])}">Copy</button></div>'
+                    f'<p class="snippet__desc">{s["desc"]}</p><pre tabindex="0"><code class="language-liquid">{code}</code></pre></article>')
+    return chips, "".join(arts)
+
 # ---------------------------------------------------------------- bento visuals (crisp dashed-line mockups, brand only)
 def visual_calc():
     return """<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
@@ -233,6 +294,36 @@ SERVICES6 = [
 ]
 services_grid = "".join(f'<article class="mg-service col-span-4"><h3 class="mg-service__title"><a href="{MG}/{u}">{t}</a></h3><p class="mg-service__desc">{d}</p></article>' for u, t, d in SERVICES6)
 
+HUB_FAQ = [
+  ("Are these Shopify developer tools really free?", "Yes. Every tool on mgroupweb.github.io is free, needs no account and sets no tracking cookies. The code is open source under the MIT license on GitHub."),
+  ("Who builds and maintains these tools?", f"<a href=\"{MG}/\">Mgroup</a>, a Shopify development agency and certified Shopify Select Partner since 2016 with a team of 20+ working exclusively on Shopify. The tools reflect the same figures, checklists and code patterns we use on client projects."),
+  ("How accurate is the Shopify Plus pricing calculator?", "It models the published structure of Shopify Plus pricing — a flat base fee of about $2,300–$2,500 per month, a 0.25% revenue-based fee above roughly $800k in monthly sales, a reported $40,000 monthly cap and the extra fee for third-party gateways. Shopify revises terms periodically, so confirm current numbers with Shopify before you sign."),
+  ("Can I use the Liquid snippets in a client theme?", "Yes. The snippets are MIT licensed and written for Online Store 2.0 themes. Test them in a duplicate theme first and adapt class names to your theme's CSS."),
+  ("Does the migration checklist save my progress?", "Progress is stored in your browser's localStorage only — nothing is sent to a server. Use \"Copy as plan\" to export the checklist as plain text for your team or project tracker."),
+]
+CALC_FAQ = [
+  ("How much does Shopify Plus cost per month?", "Shopify Plus has historically started at around $2,300 per month on a three-year term (billed annually), or roughly $2,500 per month on a standard one-year agreement. Above roughly $800,000 in monthly revenue the fee switches to about 0.25% of monthly sales, capped at a reported $40,000 per month."),
+  ("Does Shopify Plus charge transaction fees?", "You always pay card-processing rates. If you use a third-party payment gateway instead of Shopify Payments, Shopify adds an extra per-order transaction fee (around 0.2% on Plus). Using Shopify Payments avoids that fee."),
+  ("What is the total cost of ownership of Shopify Plus?", "Beyond the platform fee, budget for apps (commonly a few hundred to a few thousand dollars a month), development and maintenance, integrations (ERP, PIM, CRM, 3PL), a one-off migration in year one, and payment processing."),
+  ("When does Shopify Plus become cheaper than the Advanced plan?", "Rarely on the subscription line alone — Plus starts around $2,300 a month against roughly $399 for Advanced. Plus wins when you would otherwise pay for B2B apps, checkout customisation workarounds, multiple stores or higher API limits, or when lower negotiated processing rates offset the fee at high volume."),
+  ("Is the revenue-based fee calculated on total sales or online sales?", "Shopify describes it as a percentage of monthly sales processed through the platform. Model your own numbers with the calculator and confirm the exact definition, threshold and cap in your Shopify Plus agreement."),
+  ("Can Mgroup help me negotiate or plan a Shopify Plus contract?", f"Yes. As a <a href=\"{MG}/shopify-plus-agency/\">Shopify Plus agency</a> we scope the build, migration and integrations that sit behind the platform fee, and help you compare the real first-year cost against the revenue gains from B2B, checkout extensibility and new markets."),
+]
+CHECK_FAQ = [
+  ("What data can be migrated to Shopify?", "A standard migration includes products with variants and images, customers, order history, SEO metadata, content pages, blog posts, reviews and discount codes. Customer passwords cannot be migrated — customers receive a password reset email on first login."),
+  ("How do I migrate to Shopify without losing SEO rankings?", "Crawl the legacy site, build a full URL map, implement 301 redirects for every indexed URL, carry over meta titles, descriptions and alt text, recreate structured data and hreflang, then submit the new sitemap and monitor Search Console daily after launch."),
+  ("How long does a Shopify migration take?", "A small catalog on a clean platform can move in 3–4 weeks. Magento or Salesforce Commerce Cloud stores with custom modules, ERP integrations and multi-store setups typically take 2–4 months including theme rebuild and QA."),
+  ("Which platforms can be migrated to Shopify?", f"Mgroup migrates stores from WooCommerce, Magento (Adobe Commerce), BigCommerce, Salesforce Commerce Cloud, Wix, NetSuite SuiteCommerce and custom-built platforms. See our <a href=\"{MG}/services/shopify-migration-experts/\">Shopify migration services</a>."),
+  ("Is this Shopify migration checklist free to use?", "Yes. Tick tasks as you go — progress is saved in your browser only — and use \"Copy as plan\" to paste the whole checklist into your project tracker."),
+]
+SNIP_FAQ = [
+  ("What is Shopify Liquid?", "Liquid is Shopify's open-source template language. Theme files combine HTML with Liquid objects ({{ product.title }}), tags ({% if %}, {% for %}) and filters (| money) that Shopify renders on the server before sending the page to the browser."),
+  ("What is the difference between a Shopify section and a snippet?", "Sections live in sections/, have a {% schema %} block and appear in the theme editor where merchants add, reorder and configure them. Snippets live in snippets/, are included with {% render %} and are reusable fragments with no editor settings of their own."),
+  ("Are these snippets compatible with Online Store 2.0 themes?", "Yes. They use current Shopify APIs — image_url and image_tag filters, metafield definitions, section schema with blocks and presets — and work in Dawn-based and custom Online Store 2.0 themes."),
+  ("Can I use these Liquid snippets in a client project?", "Yes. All snippets are MIT licensed. Test in a duplicate theme, rename classes to match your theme and keep an eye on Shopify's changelog for deprecated filters."),
+  ("Do you build custom Shopify sections?", f"Yes. <a href=\"{MG}/services/custom-shopify-sections/\">Custom Shopify sections</a> and full <a href=\"{MG}/services/expert-shopify-theme-development/\">theme development</a> are core Mgroup services — every section ships with editor controls, schema docs and Core Web Vitals-safe markup."),
+]
+
 # ---- HUB
 PAGES.append({
   "path": "/", "rel": "",
@@ -248,7 +339,8 @@ PAGES.append({
      "hasPart": [
        {"@type": "WebApplication", "name": "Shopify Plus Pricing Calculator", "url": SITE + "/shopify-plus-pricing-calculator/"},
        {"@type": "HowTo", "name": "Shopify Migration Checklist", "url": SITE + "/shopify-migration-checklist/"},
-       {"@type": "TechArticle", "name": "Shopify Liquid Snippets", "url": SITE + "/shopify-liquid-snippets/"}]}
+       {"@type": "TechArticle", "name": "Shopify Liquid Snippets", "url": SITE + "/shopify-liquid-snippets/"}]},
+    faq_ld(HUB_FAQ)
   ],
   "body": f"""
   <section class="section" id="tools" aria-labelledby="tools-title">
@@ -307,7 +399,16 @@ PAGES.append({
       <div class="grid">{services_grid}</div>
     </div>
   </section>
-""" + cta("Shopify Select Partner", "Need this done on your <span class=\"grad\">Shopify store</span>?", "Custom themes, migrations, app development, CRO, and ongoing support for eCommerce brands. A senior Shopify developer replies within one business day.")
+
+  <section class="section" aria-labelledby="why-title">
+    <div class="container container-narrow prose">
+      <header class="section__head"><span class="eyebrow">Why free tools</span><h2 class="section__title" id="why-title">Why a Shopify development agency publishes free developer tools</h2></header>
+      <p>Every tool on this site started as an internal spreadsheet, checklist or theme snippet that our team reused across client projects. The <a href="shopify-plus-pricing-calculator/">Shopify Plus pricing calculator</a> is the model we walk merchants through before they sign a Plus contract. The <a href="shopify-migration-checklist/">Shopify migration checklist</a> is the runbook behind our <a href="{MG}/services/shopify-migration-experts/">Shopify migration services</a>. The <a href="shopify-liquid-snippets/">Liquid snippets</a> are patterns we ship inside <a href="{MG}/services/expert-shopify-theme-development/">custom Shopify themes</a> and <a href="{MG}/services/custom-shopify-sections/">Online Store 2.0 sections</a>.</p>
+      <p>Publishing them saves merchants a discovery call for questions that have a clear answer, and gives Shopify developers copy-paste code that follows current platform architecture. No sign-up, no tracking, no gated PDF — the source is on <a href="https://github.com/mgroupweb/mgroupweb.github.io">GitHub</a> under the MIT license, and pull requests are welcome when Shopify changes its pricing, APIs or theme conventions.</p>
+      <p>Prefer to hand the work over? Mgroup builds, migrates, optimizes and supports Shopify and Shopify Plus stores for eCommerce brands in the US, UK, EU, Canada and Australia. Start with a <a href="{CONTACT}">free store audit</a> or browse <a href="{MG}/case-studies/">Shopify case studies</a> with real results.</p>
+    </div>
+  </section>
+""" + faq_html("Shopify developer tools FAQ", HUB_FAQ) + cta("Shopify Select Partner", "Need this done on your <span class=\"grad\">Shopify store</span>?", "Custom themes, migrations, app development, CRO, and ongoing support for eCommerce brands. A senior Shopify developer replies within one business day.")
 })
 
 # ---- CALCULATOR
@@ -327,13 +428,7 @@ PAGES.append({
      "author": {"@id": MG + "/#organization"}, "isPartOf": {"@id": SITE + "/#website"}},
     ORG,
     bc([("Shopify Developer Tools", "/"), ("Shopify Plus Pricing Calculator", "/shopify-plus-pricing-calculator/")]),
-    {"@type": "FAQPage", "mainEntity": [
-      {"@type": "Question", "name": "How much does Shopify Plus cost per month?",
-       "acceptedAnswer": {"@type": "Answer", "text": "Shopify Plus has historically started at around $2,300 per month on a three-year term (billed annually), or roughly $2,500 per month on a standard one-year agreement. Above roughly $800,000 in monthly revenue the fee switches to about 0.25% of monthly sales, capped at a reported $40,000 per month."}},
-      {"@type": "Question", "name": "Does Shopify Plus charge transaction fees?",
-       "acceptedAnswer": {"@type": "Answer", "text": "You always pay card-processing rates. If you use a third-party payment gateway instead of Shopify Payments, Shopify adds an extra per-order transaction fee (around 0.2% on Plus). Using Shopify Payments avoids that fee."}},
-      {"@type": "Question", "name": "What is the total cost of ownership of Shopify Plus?",
-       "acceptedAnswer": {"@type": "Answer", "text": "Beyond the platform fee, budget for apps (commonly a few hundred to a few thousand dollars a month), development and maintenance, integrations (ERP, PIM, CRM, 3PL), a one-off migration in year one, and payment processing."}}]}
+    faq_ld(CALC_FAQ)
   ],
   "body": f"""
   <section class="section" aria-label="Calculator">
@@ -410,9 +505,35 @@ PAGES.append({
       <p><strong>Transaction fees.</strong> If you use Shopify Payments you avoid the extra per-order fee Shopify charges when payments run through a third-party gateway. On a store doing millions a year that fee alone can run into five or six figures.</p>
       <p><strong>Hidden costs.</strong> Apps, development, integrations, migration and payment processing routinely add up to more than the subscription itself. Full breakdown in our <a href="{MG}/blogs/shopify-plus-pricing-cost/">Shopify Plus pricing 2026 guide</a>.</p>
       <p class="note">Prices change. Treat these figures as well-established reference points and confirm the current numbers with Shopify before you sign — the structure of the cost is what you need to plan around.</p>
+
+      <h2 class="section__title" id="use-title" style="margin-top:2.5rem">How to use the Shopify Plus pricing calculator</h2>
+      <ul>
+        <li><strong>Monthly online revenue (GMV).</strong> Use your trailing 3-month average, not a peak month. The calculator applies the 0.25% variable fee only above the ~$800k crossover and never charges less than the base fee.</li>
+        <li><strong>Contract term.</strong> The three-year term is billed annually at ~$2,300/month; the one-year agreement is ~$2,500/month. Longer terms lower the fee but lock you in — weigh that against a planned replatform or exit.</li>
+        <li><strong>Payment gateway.</strong> Keep Shopify Payments selected unless you must use a third-party provider (regional coverage, existing acquiring contract). The extra ~0.2% is applied to the full GMV.</li>
+        <li><strong>Apps and development.</strong> Enter what you pay today; Plus rarely removes app spend by itself, but native B2B, Functions and checkout extensibility often replace two or three paid apps.</li>
+        <li><strong>One-off migration and integrations.</strong> Included in year-one TCO only. Use our <a href="../shopify-migration-checklist/">Shopify migration checklist</a> to scope the work before you estimate it.</li>
+      </ul>
+
+      <h2 class="section__title" id="compare-title" style="margin-top:2.5rem">Shopify Plus vs Shopify Advanced: what the platform fee buys</h2>
+      <div style="overflow-x:auto">
+      <table class="tools-table">
+        <thead><tr><th scope="col">Capability</th><th scope="col">Shopify Advanced (~$399/mo)</th><th scope="col">Shopify Plus (from ~$2,300/mo)</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Checkout customisation</th><td>Limited branding</td><td>Checkout extensibility — upgrade-safe UI extensions, Functions, branding API</td></tr>
+          <tr><th scope="row">B2B / wholesale</th><td>Apps or separate store</td><td>Native B2B: company accounts, price lists, catalogs, net terms</td></tr>
+          <tr><th scope="row">Automation</th><td>Shopify Flow (limited)</td><td>Flow, Launchpad, Shopify Functions for custom discounts and logic</td></tr>
+          <tr><th scope="row">Expansion stores</th><td>Each store billed separately</td><td>Additional storefronts for regions or brands under one contract</td></tr>
+          <tr><th scope="row">Limits</th><td>Standard staff accounts and API rate limits</td><td>Higher staff and API limits, organisation-level admin</td></tr>
+          <tr><th scope="row">Support</th><td>Standard</td><td>Priority support and a dedicated launch engineer</td></tr>
+          <tr><th scope="row">Transaction fee with third-party gateway</th><td>~0.6%</td><td>~0.2%</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>If you would only use a fraction of these, the maths is harder to justify. If B2B, checkout customisation and international expansion are on your roadmap, they quickly move Plus from “expensive” to “cheaper than building the same capability with apps and workarounds.” Related reading: <a href="{MG}/blogs/benefits-shopify-plus-when-should-you-migrate/">when to upgrade to Shopify Plus</a>, <a href="{MG}/blogs/best-shopify-plan-pricing/">which Shopify plan fits your store</a>, and <a href="{MG}/blogs/migrate-shopify-scripts-to-functions/">migrating Shopify Scripts to Functions</a>.</p>
     </div>
   </section>
-""" + cta("Shopify Plus Partner", "Planning a move to <span class=\"grad\">Shopify Plus</span>?", "Talk to Mgroup about custom development, B2B, checkout extensibility, ERP/CRM integrations, and retained support for scaling brands.")
+""" + faq_html("Shopify Plus pricing FAQ", CALC_FAQ) + cta("Shopify Plus Partner", "Planning a move to <span class=\"grad\">Shopify Plus</span>?", "Talk to Mgroup about custom development, B2B, checkout extensibility, ERP/CRM integrations, and retained support for scaling brands.")
 })
 
 # ---- CHECKLIST
@@ -432,7 +553,8 @@ PAGES.append({
         "Pre-migration audit", "Data inventory & export", "SEO preservation plan", "Theme & storefront rebuild", "Apps & integrations",
         "Payments, taxes & shipping", "Testing & QA", "Launch & cutover", "Post-launch monitoring"])]},
     ORG,
-    bc([("Shopify Developer Tools", "/"), ("Shopify Migration Checklist", "/shopify-migration-checklist/")])
+    bc([("Shopify Developer Tools", "/"), ("Shopify Migration Checklist", "/shopify-migration-checklist/")]),
+    faq_ld(CHECK_FAQ)
   ],
   "body": f"""
   <section class="section" aria-label="Checklist">
@@ -448,7 +570,7 @@ PAGES.append({
             </div>
             <p class="note" style="margin-top:0">Progress is stored locally in this browser only. A standard migration includes products, customers, orders, SEO metadata, content pages, blog posts, reviews and discount codes. Customer passwords cannot be migrated — customers receive a password reset email on first login.</p>
           </div>
-          <div id="phases"></div>
+          <div id="phases">{checklist_html()}</div>
         </div>
       </div>
     </div>
@@ -456,7 +578,11 @@ PAGES.append({
 
   <section class="section" aria-labelledby="guides-title">
     <div class="container container-narrow prose">
-      <header class="section__head"><span class="eyebrow">Platform notes</span><h2 class="section__title" id="guides-title">Platform-specific migration guides</h2></header>
+      <header class="section__head"><span class="eyebrow">How to use it</span><h2 class="section__title" id="howto-title">How to run a Shopify migration with this checklist</h2></header>
+      <p>Work the nine phases in order. Phases 1–3 (audit, data inventory, SEO plan) happen before any theme work and decide whether the migration protects your rankings. Phases 4–6 run in parallel: the storefront rebuild, app and integration replacement, and payments, tax and shipping setup. Phase 7 is a full QA pass on a test store with real data. Phase 8 is a single cutover day with a lowered DNS TTL and a content freeze. Phase 9 is 30–60 days of monitoring before you switch the legacy platform off.</p>
+      <p>Assign an owner to every task, tick tasks as they complete, and use <strong>Copy as plan</strong> to paste the whole list into Jira, Notion or a spreadsheet. The checklist covers what we migrate on every project: products, customers, orders, SEO metadata, content pages, blog posts, reviews, discount codes, and app data such as Klaviyo flows and Recharge subscription contracts. For a scoped plan with timeline and cost, talk to our <a href="{MG}/services/shopify-migration-experts/">Shopify migration experts</a>; to estimate what the new platform will cost, use the <a href="../shopify-plus-pricing-calculator/">Shopify Plus pricing calculator</a>.</p>
+
+      <header class="section__head" style="margin-top:2.5rem"><span class="eyebrow">Platform notes</span><h2 class="section__title" id="guides-title">Platform-specific migration guides</h2></header>
       <p>Each migration follows a platform-specific process because data structures, URL formats and extension ecosystems differ significantly.</p>
       <ul>
         <li><a href="{MG}/blogs/migrate-woocommerce-to-shopify/">WooCommerce to Shopify</a> — plugin conflicts and performance debt; move catalogs, customers, orders, blog content and SEO with full URL redirects.</li>
@@ -467,10 +593,11 @@ PAGES.append({
       </ul>
     </div>
   </section>
-""" + cta("Shopify Migration Partner", "Ready to migrate to Shopify <span class=\"grad\">without losing SEO</span>?", "Talk to Mgroup about replatforming from WooCommerce, Magento, BigCommerce, SFCC, or custom — with 301 redirect mapping, data integrity checks, and a process we've used since 2016.")
+""" + faq_html("Shopify migration FAQ", CHECK_FAQ) + cta("Shopify Migration Partner", "Ready to migrate to Shopify <span class=\"grad\">without losing SEO</span>?", "Talk to Mgroup about replatforming from WooCommerce, Magento, BigCommerce, SFCC, or custom — with 301 redirect mapping, data integrity checks, and a process we've used since 2016.")
 })
 
 # ---- SNIPPETS
+SNIP_CHIPS, SNIP_ARTS = snippets_html()
 PAGES.append({
   "path": "/shopify-liquid-snippets/", "rel": "../",
   "title": "Shopify Liquid Snippets Library | Copy-Paste OS 2.0 Code | Mgroup",
@@ -482,16 +609,19 @@ PAGES.append({
   "ld": [
     {"@type": "TechArticle", "headline": "Shopify Liquid Snippets Library", "url": SITE + "/shopify-liquid-snippets/",
      "description": "Copy-paste Liquid snippets for Shopify Online Store 2.0 themes, maintained by Mgroup.",
-     "proficiencyLevel": "Beginner", "author": {"@id": MG + "/#organization"}, "publisher": {"@id": MG + "/#organization"},
-     "isPartOf": {"@id": SITE + "/#website"}, "inLanguage": "en"},
+     "proficiencyLevel": "Beginner", "datePublished": "2026-09-11", "dateModified": "2026-09-11",
+     "author": {"@id": MG + "/#organization"}, "publisher": {"@id": MG + "/#organization"},
+     "isPartOf": {"@id": SITE + "/#website"}, "inLanguage": "en", "license": "https://opensource.org/licenses/MIT"},
     ORG,
-    bc([("Shopify Developer Tools", "/"), ("Shopify Liquid Snippets", "/shopify-liquid-snippets/")])
+    bc([("Shopify Developer Tools", "/"), ("Shopify Liquid Snippets", "/shopify-liquid-snippets/")]),
+    faq_ld(SNIP_FAQ)
   ],
   "body": f"""
-  <section class="section" aria-label="Snippets">
+  <section class="section" aria-labelledby="library-title">
     <div class="container">
-      <div class="filters" id="filters" role="group" aria-label="Filter snippets by topic"></div>
-      <div id="snippets"></div>
+      <header class="section__head"><span class="eyebrow">Snippet library</span><h2 class="section__title" id="library-title">Copy-paste Shopify Liquid code for Online Store 2.0 themes</h2><p class="section__lead">Eight production patterns: a section skeleton with blocks and presets, a cart free-shipping bar, metafields with fallbacks, responsive images, sale and low-stock badges, SEO breadcrumbs with schema, and a safe product-to-JavaScript handoff. Filter by topic, copy, paste into your theme.</p></header>
+      <div class="filters" id="filters" role="group" aria-label="Filter snippets by topic">{SNIP_CHIPS}</div>
+      <div id="snippets">{SNIP_ARTS}</div>
     </div>
   </section>
 
@@ -504,10 +634,20 @@ PAGES.append({
         <li>Work in a duplicate theme or with <a href="https://shopify.dev/docs/themes/tools/cli">Shopify CLI</a> and Git; never edit the live theme directly.</li>
         <li>Metafield definitions must exist in Settings → Custom data before <code>product.metafields.namespace.key</code> returns a value.</li>
       </ul>
-      <p>Need a section that doesn't exist yet? Read the <a href="{MG}/blogs/custom-shopify-sections-guide/">custom Shopify sections guide</a> or hire our <a href="{MG}/services/custom-shopify-sections/">Shopify section developers</a>.</p>
+      <p>Need a section that doesn't exist yet? Read the <a href="{MG}/blogs/custom-shopify-sections-guide/">custom Shopify sections guide</a> or hire our <a href="{MG}/services/custom-shopify-sections/">Shopify section developers</a>. Weighing Liquid against a headless build? See <a href="{MG}/blogs/shopify-hydrogen-vs-liquid/">Shopify Hydrogen vs Liquid</a>. Planning a replatform first? Start with the <a href="../shopify-migration-checklist/">Shopify migration checklist</a>.</p>
+
+      <h2 class="section__title" id="perf-title" style="margin-top:2.5rem">Liquid performance rules we follow in every snippet</h2>
+      <ul>
+        <li><strong>No inline JavaScript in loops.</strong> Data goes into a single <code>application/json</code> script per section; behaviour lives in a deferred file.</li>
+        <li><strong>Images via <code>image_url</code> + <code>image_tag</code></strong> with explicit <code>widths</code> and <code>sizes</code>, lazy by default, eager with <code>fetchpriority="high"</code> only for the first-fold image — the single biggest LCP win on Shopify product pages.</li>
+        <li><strong>Whitespace control</strong> (<code>{{%-</code> and <code>-%}}</code>) on every tag so the rendered HTML stays small and predictable.</li>
+        <li><strong>Escape everything merchant-editable</strong> with <code>| escape</code>; use <code>| json</code> when handing values to JavaScript.</li>
+        <li><strong>Guard metafields</strong> with <code>!= blank</code> and check <code>.value.size</code> on lists so unset definitions never print empty markup.</li>
+      </ul>
+      <p>These are the same rules behind the 90+ Lighthouse targets on our <a href="{MG}/services/expert-shopify-theme-development/">custom Shopify theme development</a> projects and the <a href="{MG}/services/ecommerce-shopify-tech-audit-consulting/">Core Web Vitals audits</a> we run for existing stores.</p>
     </div>
   </section>
-""" + cta("Shopify Section Partner", "Ready to give your editor <span class=\"grad\">real superpowers</span>?", "Talk to Mgroup about custom Shopify sections — designed for your brand, built on Online Store 2.0, easy to edit, and fast in production.")
+""" + faq_html("Shopify Liquid FAQ", SNIP_FAQ) + cta("Shopify Section Partner", "Ready to give your editor <span class=\"grad\">real superpowers</span>?", "Talk to Mgroup about custom Shopify sections — designed for your brand, built on Online Store 2.0, easy to edit, and fast in production.")
 })
 
 # ---------------------------------------------------------------- write

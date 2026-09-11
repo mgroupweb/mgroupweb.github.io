@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://mgroupweb.github.io/shopify-liquid-snippets/">
 <meta property="og:image" content="https://mgroupweb.github.io/assets/img/og.png">
 <meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="400">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@MgroupWeb">
 <meta name="twitter:title" content="Shopify Liquid Snippets Library | Copy-Paste OS 2.0 Code | Mgroup">
@@ -27,7 +27,7 @@
 <link rel="stylesheet" href="../assets/css/main-shared.css">
 <link rel="stylesheet" href="../assets/css/main-service.css">
 <link rel="stylesheet" href="../assets/css/tools.css">
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "Shopify Liquid Snippets Library", "url": "https://mgroupweb.github.io/shopify-liquid-snippets/", "description": "Copy-paste Liquid snippets for Shopify Online Store 2.0 themes, maintained by Mgroup.", "proficiencyLevel": "Beginner", "author": {"@id": "https://mgroupweb.com/#organization"}, "publisher": {"@id": "https://mgroupweb.com/#organization"}, "isPartOf": {"@id": "https://mgroupweb.github.io/#website"}, "inLanguage": "en"}, {"@type": "Organization", "@id": "https://mgroupweb.com/#organization", "name": "Mgroup", "url": "https://mgroupweb.com/", "logo": "https://mgroupweb.github.io/assets/img/mark.svg", "sameAs": ["https://www.linkedin.com/company/monkeygroup-llc/", "https://twitter.com/MgroupWeb", "https://www.facebook.com/mgroup.dp", "https://www.instagram.com/mgroupweb/", "https://www.shopify.com/partners/directory/partner/mgroup", "https://github.com/mgroupweb"]}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Shopify Developer Tools", "item": "https://mgroupweb.github.io/"}, {"@type": "ListItem", "position": 2, "name": "Shopify Liquid Snippets", "item": "https://mgroupweb.github.io/shopify-liquid-snippets/"}]}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "Shopify Liquid Snippets Library", "url": "https://mgroupweb.github.io/shopify-liquid-snippets/", "description": "Copy-paste Liquid snippets for Shopify Online Store 2.0 themes, maintained by Mgroup.", "proficiencyLevel": "Beginner", "datePublished": "2026-09-11", "dateModified": "2026-09-11", "author": {"@id": "https://mgroupweb.com/#organization"}, "publisher": {"@id": "https://mgroupweb.com/#organization"}, "isPartOf": {"@id": "https://mgroupweb.github.io/#website"}, "inLanguage": "en", "license": "https://opensource.org/licenses/MIT"}, {"@type": "Organization", "@id": "https://mgroupweb.com/#organization", "name": "Mgroup", "url": "https://mgroupweb.com/", "logo": "https://mgroupweb.github.io/assets/img/mark.svg", "sameAs": ["https://www.linkedin.com/company/monkeygroup-llc/", "https://twitter.com/MgroupWeb", "https://www.facebook.com/mgroup.dp", "https://www.instagram.com/mgroupweb/", "https://www.shopify.com/partners/directory/partner/mgroup", "https://github.com/mgroupweb"]}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Shopify Developer Tools", "item": "https://mgroupweb.github.io/"}, {"@type": "ListItem", "position": 2, "name": "Shopify Liquid Snippets", "item": "https://mgroupweb.github.io/shopify-liquid-snippets/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Shopify Liquid?", "acceptedAnswer": {"@type": "Answer", "text": "Liquid is Shopify's open-source template language. Theme files combine HTML with Liquid objects ({{ product.title }}), tags ({% if %}, {% for %}) and filters (| money) that Shopify renders on the server before sending the page to the browser."}}, {"@type": "Question", "name": "What is the difference between a Shopify section and a snippet?", "acceptedAnswer": {"@type": "Answer", "text": "Sections live in sections/, have a {% schema %} block and appear in the theme editor where merchants add, reorder and configure them. Snippets live in snippets/, are included with {% render %} and are reusable fragments with no editor settings of their own."}}, {"@type": "Question", "name": "Are these snippets compatible with Online Store 2.0 themes?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. They use current Shopify APIs — image_url and image_tag filters, metafield definitions, section schema with blocks and presets — and work in Dawn-based and custom Online Store 2.0 themes."}}, {"@type": "Question", "name": "Can I use these Liquid snippets in a client project?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. All snippets are MIT licensed. Test in a duplicate theme, rename classes to match your theme and keep an eye on Shopify's changelog for deprecated filters."}}, {"@type": "Question", "name": "Do you build custom Shopify sections?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Custom Shopify sections and full theme development are core Mgroup services — every section ships with editor controls, schema docs and Core Web Vitals-safe markup."}}]}]}</script>
 </head>
 <body class="is-page-inner service-page tools-page">
 <nav class="hero-nav" aria-label="Primary">
@@ -67,10 +67,162 @@
 
 <main id="main">
 
-  <section class="section" aria-label="Snippets">
+  <section class="section" aria-labelledby="library-title">
     <div class="container">
-      <div class="filters" id="filters" role="group" aria-label="Filter snippets by topic"></div>
-      <div id="snippets"></div>
+      <header class="section__head"><span class="eyebrow">Snippet library</span><h2 class="section__title" id="library-title">Copy-paste Shopify Liquid code for Online Store 2.0 themes</h2><p class="section__lead">Eight production patterns: a section skeleton with blocks and presets, a cart free-shipping bar, metafields with fallbacks, responsive images, sale and low-stock badges, SEO breadcrumbs with schema, and a safe product-to-JavaScript handoff. Filter by topic, copy, paste into your theme.</p></header>
+      <div class="filters" id="filters" role="group" aria-label="Filter snippets by topic"><button class="chip" type="button" data-tag="all" aria-pressed="true">All snippets</button><button class="chip" type="button" data-tag="sections" aria-pressed="false">sections</button><button class="chip" type="button" data-tag="theme" aria-pressed="false">theme</button><button class="chip" type="button" data-tag="cart" aria-pressed="false">cart</button><button class="chip" type="button" data-tag="cro" aria-pressed="false">cro</button><button class="chip" type="button" data-tag="product" aria-pressed="false">product</button><button class="chip" type="button" data-tag="metafields" aria-pressed="false">metafields</button><button class="chip" type="button" data-tag="performance" aria-pressed="false">performance</button><button class="chip" type="button" data-tag="seo" aria-pressed="false">seo</button><button class="chip" type="button" data-tag="javascript" aria-pressed="false">javascript</button></div>
+      <div id="snippets"><article class="snippet" id="section-schema" data-tags="sections theme"><div class="snippet__head"><div><h3>Online Store 2.0 section skeleton with blocks</h3><div class="snippet__meta"><span class="tag">sections/mg-feature-grid.liquid</span><span class="tag">sections</span><span class="tag">theme</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy Online Store 2.0 section skeleton with blocks">Copy</button></div><p class="snippet__desc">Minimal section with settings, repeatable blocks and presets so it appears in the theme editor. Start every <a href="https://mgroupweb.com/services/custom-shopify-sections/">custom Shopify section</a> from here.</p><pre tabindex="0"><code class="language-liquid"><span class="tok-cmt">{%- comment -%} sections/mg-feature-grid.liquid {%- endcomment -%}</span>
+&lt;section class="mg-feature-grid" id="shopify-section-<span class="tok-obj">{{ section.id }}</span>"&gt;
+  <span class="tok-tag">{%- if section.settings.heading != blank -%}</span>
+    &lt;h2 class="mg-feature-grid__title"&gt;<span class="tok-obj">{{ section.settings.heading | escape }}</span>&lt;/h2&gt;
+  <span class="tok-tag">{%- endif -%}</span>
+  &lt;div class="mg-feature-grid__items"&gt;
+    <span class="tok-tag">{%- for block in section.blocks -%}</span>
+      &lt;div class="mg-feature-grid__item" <span class="tok-obj">{{ block.shopify_attributes }}</span>&gt;
+        <span class="tok-tag">{%- if block.settings.icon != blank -%}</span>
+          <span class="tok-obj">{{ block.settings.icon | image_url: width: 96 | image_tag: loading: 'lazy', widths: '48, 96', alt: block.settings.title }}</span>
+        <span class="tok-tag">{%- endif -%}</span>
+        &lt;h3&gt;<span class="tok-obj">{{ block.settings.title | escape }}</span>&lt;/h3&gt;
+        &lt;div class="rte"&gt;<span class="tok-obj">{{ block.settings.text }}</span>&lt;/div&gt;
+      &lt;/div&gt;
+    <span class="tok-tag">{%- endfor -%}</span>
+  &lt;/div&gt;
+&lt;/section&gt;
+
+<span class="tok-tag">{% schema %}</span>
+{
+  "name": "Feature grid",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Why shop with us" }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "limit": 6,
+      "settings": [
+        { "type": "image_picker", "id": "icon", "label": "Icon" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Free shipping" },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "&lt;p&gt;On all orders over $50.&lt;/p&gt;" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Feature grid", "blocks": [{ "type": "feature" }, { "type": "feature" }, { "type": "feature" }] }]
+}
+<span class="tok-tag">{% endschema %}</span></code></pre></article><article class="snippet" id="free-shipping-bar" data-tags="cart cro"><div class="snippet__head"><div><h3>Free shipping progress bar for the cart</h3><div class="snippet__meta"><span class="tag">snippets/mg-shipping-bar.liquid</span><span class="tag">cart</span><span class="tag">cro</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy Free shipping progress bar for the cart">Copy</button></div><p class="snippet__desc">Shows how much is left to unlock free shipping. Threshold is a theme setting in cents-aware currency; call it with <code>{% render 'mg-shipping-bar', threshold: settings.free_shipping_threshold %}</code>. A classic <a href="https://mgroupweb.com/services/shopify-customer-retention-optimization/">CRO</a> win for AOV.</p><pre tabindex="0"><code class="language-liquid"><span class="tok-cmt">{%- comment -%} snippets/mg-shipping-bar.liquid — threshold in store currency units {%- endcomment -%}</span>
+<span class="tok-tag">{%- assign threshold_cents = threshold | times: 100 -%}</span>
+<span class="tok-tag">{%- assign remaining = threshold_cents | minus: cart.total_price -%}</span>
+<span class="tok-tag">{%- assign percent = cart.total_price | times: 100 | divided_by: threshold_cents | at_most: 100 -%}</span>
+&lt;div class="mg-shipping-bar" role="status" aria-live="polite"&gt;
+  <span class="tok-tag">{%- if remaining &gt; 0 -%}</span>
+    &lt;p class="mg-shipping-bar__text"&gt;Add <span class="tok-obj">{{ remaining | money }}</span> more for &lt;strong&gt;free shipping&lt;/strong&gt;&lt;/p&gt;
+  <span class="tok-tag">{%- else -%}</span>
+    &lt;p class="mg-shipping-bar__text"&gt;🎉 You've unlocked &lt;strong&gt;free shipping&lt;/strong&gt;&lt;/p&gt;
+  <span class="tok-tag">{%- endif -%}</span>
+  &lt;div class="mg-shipping-bar__track"&gt;&lt;div class="mg-shipping-bar__fill" style="width: <span class="tok-obj">{{ percent }}</span>%"&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre></article><article class="snippet" id="metafield-fallback" data-tags="product metafields"><div class="snippet__head"><div><h3>Product metafield with safe fallback</h3><div class="snippet__meta"><span class="tag">snippets/mg-metafield.liquid</span><span class="tag">product</span><span class="tag">metafields</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy Product metafield with safe fallback">Copy</button></div><p class="snippet__desc">Renders a metafield only when the definition exists and has a value; falls back to a default. Works for single-line text, rich text and lists.</p><pre tabindex="0"><code class="language-liquid"><span class="tok-cmt">{%- comment -%} Single-line text or number {%- endcomment -%}</span>
+<span class="tok-tag">{%- assign material = product.metafields.specs.material -%}</span>
+<span class="tok-tag">{%- if material != blank -%}</span>
+  &lt;dt&gt;Material&lt;/dt&gt;&lt;dd&gt;<span class="tok-obj">{{ material.value | escape }}</span>&lt;/dd&gt;
+<span class="tok-tag">{%- else -%}</span>
+  &lt;dt&gt;Material&lt;/dt&gt;&lt;dd&gt;See product description&lt;/dd&gt;
+<span class="tok-tag">{%- endif -%}</span>
+
+<span class="tok-cmt">{%- comment -%} Rich text (metafield_tag renders proper HTML) {%- endcomment -%}</span>
+<span class="tok-tag">{%- if product.metafields.specs.care_guide != blank -%}</span>
+  &lt;div class="rte"&gt;<span class="tok-obj">{{ product.metafields.specs.care_guide | metafield_tag }}</span>&lt;/div&gt;
+<span class="tok-tag">{%- endif -%}</span>
+
+<span class="tok-cmt">{%- comment -%} List of single-line text {%- endcomment -%}</span>
+<span class="tok-tag">{%- if product.metafields.specs.features.value.size &gt; 0 -%}</span>
+  &lt;ul&gt;
+    <span class="tok-tag">{%- for feature in product.metafields.specs.features.value -%}</span>
+      &lt;li&gt;<span class="tok-obj">{{ feature | escape }}</span>&lt;/li&gt;
+    <span class="tok-tag">{%- endfor -%}</span>
+  &lt;/ul&gt;
+<span class="tok-tag">{%- endif -%}</span></code></pre></article><article class="snippet" id="responsive-image" data-tags="performance theme"><div class="snippet__head"><div><h3>Responsive image with srcset and lazy loading</h3><div class="snippet__meta"><span class="tag">snippets/mg-image.liquid</span><span class="tag">performance</span><span class="tag">theme</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy Responsive image with srcset and lazy loading">Copy</button></div><p class="snippet__desc">Uses <code>image_url</code> + <code>image_tag</code> so Shopify serves the right size per viewport; first-fold images get <code>loading: eager</code> and <code>fetchpriority</code> for better LCP. Part of every <a href="https://mgroupweb.com/services/ecommerce-shopify-tech-audit-consulting/">performance audit</a> we run.</p><pre tabindex="0"><code class="language-liquid"><span class="tok-cmt">{%- comment -%} {% render 'mg-image', image: product.featured_image, sizes: '(min-width: 990px) 50vw, 100vw', eager: true %} {%- endcomment -%}</span>
+<span class="tok-tag">{%- if image != blank -%}</span>
+  <span class="tok-tag">{%- assign loading = 'lazy' -%}</span>
+  <span class="tok-tag">{%- assign priority = 'auto' -%}</span>
+  <span class="tok-tag">{%- if eager -%}</span><span class="tok-tag">{%- assign loading = 'eager' -%}</span><span class="tok-tag">{%- assign priority = 'high' -%}</span><span class="tok-tag">{%- endif -%}</span>
+  {{ image
+    | image_url: width: 1800
+    | image_tag:
+        widths: '360, 540, 720, 900, 1080, 1296, 1512, 1800',
+        sizes: sizes | default: '100vw',
+        loading: loading,
+        fetchpriority: priority,
+        alt: image.alt | default: product.title | escape
+  }}
+<span class="tok-tag">{%- endif -%}</span></code></pre></article><article class="snippet" id="sale-badge" data-tags="product cro"><div class="snippet__head"><div><h3>Sale badge with discount percentage</h3><div class="snippet__meta"><span class="tag">snippets/mg-sale-badge.liquid</span><span class="tag">product</span><span class="tag">cro</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy Sale badge with discount percentage">Copy</button></div><p class="snippet__desc">Computes the discount from <code>compare_at_price</code> for the selected variant and only renders when there is a real saving. Use <code>money_without_trailing_zeros</code> for cleaner prices.</p><pre tabindex="0"><code class="language-liquid"><span class="tok-tag">{%- assign v = product.selected_or_first_available_variant -%}</span>
+<span class="tok-tag">{%- if v.compare_at_price &gt; v.price -%}</span>
+  <span class="tok-tag">{%- assign saving = v.compare_at_price | minus: v.price -%}</span>
+  <span class="tok-tag">{%- assign percent = saving | times: 100 | divided_by: v.compare_at_price -%}</span>
+  &lt;span class="mg-badge mg-badge--sale"&gt;Save <span class="tok-obj">{{ percent }}</span>%&lt;/span&gt;
+  &lt;s class="mg-price__compare"&gt;<span class="tok-obj">{{ v.compare_at_price | money_without_trailing_zeros }}</span>&lt;/s&gt;
+<span class="tok-tag">{%- endif -%}</span>
+&lt;span class="mg-price"&gt;<span class="tok-obj">{{ v.price | money_without_trailing_zeros }}</span>&lt;/span&gt;</code></pre></article><article class="snippet" id="low-stock" data-tags="product cro"><div class="snippet__head"><div><h3>Low-stock and sold-out badges</h3><div class="snippet__meta"><span class="tag">snippets/mg-stock-badge.liquid</span><span class="tag">product</span><span class="tag">cro</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy Low-stock and sold-out badges">Copy</button></div><p class="snippet__desc">Urgency badge that respects inventory policy: sold out when unavailable, "only N left" under a threshold, silent otherwise. Threshold defaults to 5.</p><pre tabindex="0"><code class="language-liquid"><span class="tok-tag">{%- assign v = product.selected_or_first_available_variant -%}</span>
+<span class="tok-tag">{%- assign low = low_threshold | default: 5 -%}</span>
+<span class="tok-tag">{%- if v.available == false -%}</span>
+  &lt;span class="mg-badge mg-badge--soldout"&gt;Sold out&lt;/span&gt;
+<span class="tok-tag">{%- elsif v.inventory_management == 'shopify' and v.inventory_policy == 'deny' and v.inventory_quantity &lt;= low -%}</span>
+  &lt;span class="mg-badge mg-badge--low"&gt;Only <span class="tok-obj">{{ v.inventory_quantity }}</span> left&lt;/span&gt;
+<span class="tok-tag">{%- endif -%}</span></code></pre></article><article class="snippet" id="breadcrumbs" data-tags="seo theme"><div class="snippet__head"><div><h3>SEO breadcrumbs with BreadcrumbList JSON-LD</h3><div class="snippet__meta"><span class="tag">snippets/mg-breadcrumbs.liquid</span><span class="tag">seo</span><span class="tag">theme</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy SEO breadcrumbs with BreadcrumbList JSON-LD">Copy</button></div><p class="snippet__desc">Visible breadcrumbs plus matching structured data for product, collection, page and article templates. Uses the collection the customer came from when available. See our <a href="https://mgroupweb.com/services/shopify-seo-ecommerce-marketing/">Shopify SEO services</a>.</p><pre tabindex="0"><code class="language-liquid"><span class="tok-tag">{%- unless template == 'index' -%}</span>
+<span class="tok-tag">{%- assign crumbs = '' -%}</span>
+&lt;nav class="mg-crumbs" aria-label="Breadcrumb"&gt;&lt;ol&gt;
+  &lt;li&gt;&lt;a href="<span class="tok-obj">{{ routes.root_url }}</span>"&gt;Home&lt;/a&gt;&lt;/li&gt;
+  <span class="tok-tag">{%- case template.name -%}</span>
+    <span class="tok-tag">{%- when 'product' -%}</span>
+      <span class="tok-tag">{%- if collection -%}</span>&lt;li&gt;&lt;a href="<span class="tok-obj">{{ collection.url }}</span>"&gt;<span class="tok-obj">{{ collection.title | escape }}</span>&lt;/a&gt;&lt;/li&gt;<span class="tok-tag">{%- endif -%}</span>
+      &lt;li aria-current="page"&gt;<span class="tok-obj">{{ product.title | escape }}</span>&lt;/li&gt;
+    <span class="tok-tag">{%- when 'collection' -%}</span>
+      &lt;li aria-current="page"&gt;<span class="tok-obj">{{ collection.title | escape }}</span>&lt;/li&gt;
+    <span class="tok-tag">{%- when 'article' -%}</span>
+      &lt;li&gt;&lt;a href="<span class="tok-obj">{{ blog.url }}</span>"&gt;<span class="tok-obj">{{ blog.title | escape }}</span>&lt;/a&gt;&lt;/li&gt;
+      &lt;li aria-current="page"&gt;<span class="tok-obj">{{ article.title | escape }}</span>&lt;/li&gt;
+    <span class="tok-tag">{%- when 'page' -%}</span>
+      &lt;li aria-current="page"&gt;<span class="tok-obj">{{ page.title | escape }}</span>&lt;/li&gt;
+  <span class="tok-tag">{%- endcase -%}</span>
+&lt;/ol&gt;&lt;/nav&gt;
+&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "<span class="tok-obj">{{ shop.url }}</span><span class="tok-obj">{{ routes.root_url }}</span>" }
+    <span class="tok-tag">{%- if template.name == 'product' and collection -%}</span>,
+    { "@type": "ListItem", "position": 2, "name": <span class="tok-obj">{{ collection.title | json }}</span>, "item": "<span class="tok-obj">{{ shop.url }}</span><span class="tok-obj">{{ collection.url }}</span>" },
+    { "@type": "ListItem", "position": 3, "name": <span class="tok-obj">{{ product.title | json }}</span>, "item": "<span class="tok-obj">{{ shop.url }}</span><span class="tok-obj">{{ product.url }}</span>" }
+    <span class="tok-tag">{%- elsif template.name == 'product' -%}</span>,
+    { "@type": "ListItem", "position": 2, "name": <span class="tok-obj">{{ product.title | json }}</span>, "item": "<span class="tok-obj">{{ shop.url }}</span><span class="tok-obj">{{ product.url }}</span>" }
+    <span class="tok-tag">{%- elsif template.name == 'collection' -%}</span>,
+    { "@type": "ListItem", "position": 2, "name": <span class="tok-obj">{{ collection.title | json }}</span>, "item": "<span class="tok-obj">{{ shop.url }}</span><span class="tok-obj">{{ collection.url }}</span>" }
+    <span class="tok-tag">{%- endif -%}</span>
+  ]
+}
+&lt;/script&gt;
+<span class="tok-tag">{%- endunless -%}</span></code></pre></article><article class="snippet" id="product-json" data-tags="product javascript"><div class="snippet__head"><div><h3>Hand product data to JavaScript safely</h3><div class="snippet__meta"><span class="tag">sections/main-product.liquid</span><span class="tag">product</span><span class="tag">javascript</span></div></div><button class="btn btn--dark btn--sm copy-btn" type="button" aria-label="Copy Hand product data to JavaScript safely">Copy</button></div><p class="snippet__desc">Emit variant data as JSON in a <code>&lt;script type="application/json"&gt;</code> tag instead of inline JS — safe against quotes, cacheable, and easy to read in your variant picker.</p><pre tabindex="0"><code class="language-liquid">&lt;script type="application/json" id="mg-product-<span class="tok-obj">{{ section.id }}</span>"&gt;
+  <span class="tok-obj">{{ product | json }}</span>
+&lt;/script&gt;
+&lt;script type="application/json" id="mg-variants-<span class="tok-obj">{{ section.id }}</span>"&gt;
+  <span class="tok-obj">{{ product.variants | json }}</span>
+&lt;/script&gt;
+
+&lt;script&gt;
+  (function () {
+    var product = JSON.parse(document.getElementById('mg-product-<span class="tok-obj">{{ section.id }}</span>').textContent);
+    var variants = JSON.parse(document.getElementById('mg-variants-<span class="tok-obj">{{ section.id }}</span>').textContent);
+<span class="tok-cmt">    // Example: find the variant matching selected options</span>
+    function findVariant(options) {
+      return variants.find(function (v) {
+        return v.options.every(function (o, i) { return o === options[i]; });
+      });
+    }
+    window.mgProduct = { product: product, variants: variants, findVariant: findVariant };
+  })();
+&lt;/script&gt;</code></pre></article></div>
     </div>
   </section>
 
@@ -83,7 +235,24 @@
         <li>Work in a duplicate theme or with <a href="https://shopify.dev/docs/themes/tools/cli">Shopify CLI</a> and Git; never edit the live theme directly.</li>
         <li>Metafield definitions must exist in Settings → Custom data before <code>product.metafields.namespace.key</code> returns a value.</li>
       </ul>
-      <p>Need a section that doesn't exist yet? Read the <a href="https://mgroupweb.com/blogs/custom-shopify-sections-guide/">custom Shopify sections guide</a> or hire our <a href="https://mgroupweb.com/services/custom-shopify-sections/">Shopify section developers</a>.</p>
+      <p>Need a section that doesn't exist yet? Read the <a href="https://mgroupweb.com/blogs/custom-shopify-sections-guide/">custom Shopify sections guide</a> or hire our <a href="https://mgroupweb.com/services/custom-shopify-sections/">Shopify section developers</a>. Weighing Liquid against a headless build? See <a href="https://mgroupweb.com/blogs/shopify-hydrogen-vs-liquid/">Shopify Hydrogen vs Liquid</a>. Planning a replatform first? Start with the <a href="../shopify-migration-checklist/">Shopify migration checklist</a>.</p>
+
+      <h2 class="section__title" id="perf-title" style="margin-top:2.5rem">Liquid performance rules we follow in every snippet</h2>
+      <ul>
+        <li><strong>No inline JavaScript in loops.</strong> Data goes into a single <code>application/json</code> script per section; behaviour lives in a deferred file.</li>
+        <li><strong>Images via <code>image_url</code> + <code>image_tag</code></strong> with explicit <code>widths</code> and <code>sizes</code>, lazy by default, eager with <code>fetchpriority="high"</code> only for the first-fold image — the single biggest LCP win on Shopify product pages.</li>
+        <li><strong>Whitespace control</strong> (<code>{%-</code> and <code>-%}</code>) on every tag so the rendered HTML stays small and predictable.</li>
+        <li><strong>Escape everything merchant-editable</strong> with <code>| escape</code>; use <code>| json</code> when handing values to JavaScript.</li>
+        <li><strong>Guard metafields</strong> with <code>!= blank</code> and check <code>.value.size</code> on lists so unset definitions never print empty markup.</li>
+      </ul>
+      <p>These are the same rules behind the 90+ Lighthouse targets on our <a href="https://mgroupweb.com/services/expert-shopify-theme-development/">custom Shopify theme development</a> projects and the <a href="https://mgroupweb.com/services/ecommerce-shopify-tech-audit-consulting/">Core Web Vitals audits</a> we run for existing stores.</p>
+    </div>
+  </section>
+
+  <section class="section" id="faq" aria-labelledby="faq-title">
+    <div class="container container-narrow">
+      <header class="section__head section__head--center"><span class="eyebrow">FAQ</span><h2 class="section__title" id="faq-title">Shopify Liquid FAQ</h2></header>
+      <div class="accordion"><div class="accordion__item"><details class="accordion__details"><summary class="accordion__summary">What is Shopify Liquid?</summary><div class="accordion__content"><p>Liquid is Shopify's open-source template language. Theme files combine HTML with Liquid objects ({{ product.title }}), tags ({% if %}, {% for %}) and filters (| money) that Shopify renders on the server before sending the page to the browser.</p></div></details></div><div class="accordion__item"><details class="accordion__details"><summary class="accordion__summary">What is the difference between a Shopify section and a snippet?</summary><div class="accordion__content"><p>Sections live in sections/, have a {% schema %} block and appear in the theme editor where merchants add, reorder and configure them. Snippets live in snippets/, are included with {% render %} and are reusable fragments with no editor settings of their own.</p></div></details></div><div class="accordion__item"><details class="accordion__details"><summary class="accordion__summary">Are these snippets compatible with Online Store 2.0 themes?</summary><div class="accordion__content"><p>Yes. They use current Shopify APIs — image_url and image_tag filters, metafield definitions, section schema with blocks and presets — and work in Dawn-based and custom Online Store 2.0 themes.</p></div></details></div><div class="accordion__item"><details class="accordion__details"><summary class="accordion__summary">Can I use these Liquid snippets in a client project?</summary><div class="accordion__content"><p>Yes. All snippets are MIT licensed. Test in a duplicate theme, rename classes to match your theme and keep an eye on Shopify's changelog for deprecated filters.</p></div></details></div><div class="accordion__item"><details class="accordion__details"><summary class="accordion__summary">Do you build custom Shopify sections?</summary><div class="accordion__content"><p>Yes. <a href="https://mgroupweb.com/services/custom-shopify-sections/">Custom Shopify sections</a> and full <a href="https://mgroupweb.com/services/expert-shopify-theme-development/">theme development</a> are core Mgroup services — every section ships with editor controls, schema docs and Core Web Vitals-safe markup.</p></div></details></div></div>
     </div>
   </section>
 

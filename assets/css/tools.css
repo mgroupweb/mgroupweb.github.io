@@ -103,3 +103,12 @@
 .bento__chips a{text-decoration:none}
 
 @media (prefers-reduced-motion:reduce){.bar__fill,.progress__fill{transition:none}}
+
+/* SEO content tables + h3 snippet titles */
+.tools-table{width:100%;border-collapse:collapse;font-size:var(--fs-small);background:var(--c-white);border:1px solid var(--c-line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);margin:0 0 1.25rem}
+.tools-table th,.tools-table td{text-align:left;vertical-align:top;padding:.8rem 1rem;border-bottom:1px solid var(--c-line);color:var(--c-text-muted);line-height:1.5}
+.tools-table thead th{font-family:var(--font-display);font-weight:700;color:var(--c-white);background:var(--c-navy);border-bottom:0}
+.tools-table tbody th{font-family:var(--font-display);font-weight:700;color:var(--c-navy);white-space:nowrap}
+.tools-table tbody tr:last-child td,.tools-table tbody tr:last-child th{border-bottom:0}
+.snippet__head h3{font-family:var(--font-display);font-size:var(--fs-h4);color:var(--c-navy);margin:0 0 .35rem;letter-spacing:var(--tracking-tight)}
+.prose h2.section__title{max-width:none}
