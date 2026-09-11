@@ -1,0 +1,241 @@
+/* Shopify Liquid Snippets — filterable, copyable */
+(function () {
+  'use strict';
+  var MG = 'https://mgroupweb.com';
+  var SNIPPETS = [
+    { id: 'section-schema', title: 'Online Store 2.0 section skeleton with blocks', tags: ['sections', 'theme'], file: 'sections/mg-feature-grid.liquid',
+      desc: 'Minimal section with settings, repeatable blocks and presets so it appears in the theme editor. Start every <a href="' + MG + '/services/custom-shopify-sections/">custom Shopify section</a> from here.',
+      code: [
+        '{%- comment -%} sections/mg-feature-grid.liquid {%- endcomment -%}',
+        '<section class="mg-feature-grid" id="shopify-section-{{ section.id }}">',
+        '  {%- if section.settings.heading != blank -%}',
+        '    <h2 class="mg-feature-grid__title">{{ section.settings.heading | escape }}</h2>',
+        '  {%- endif -%}',
+        '  <div class="mg-feature-grid__items">',
+        '    {%- for block in section.blocks -%}',
+        '      <div class="mg-feature-grid__item" {{ block.shopify_attributes }}>',
+        '        {%- if block.settings.icon != blank -%}',
+        '          {{ block.settings.icon | image_url: width: 96 | image_tag: loading: \'lazy\', widths: \'48, 96\', alt: block.settings.title }}',
+        '        {%- endif -%}',
+        '        <h3>{{ block.settings.title | escape }}</h3>',
+        '        <div class="rte">{{ block.settings.text }}</div>',
+        '      </div>',
+        '    {%- endfor -%}',
+        '  </div>',
+        '</section>',
+        '',
+        '{% schema %}',
+        '{',
+        '  "name": "Feature grid",',
+        '  "tag": "section",',
+        '  "class": "section",',
+        '  "settings": [',
+        '    { "type": "text", "id": "heading", "label": "Heading", "default": "Why shop with us" }',
+        '  ],',
+        '  "blocks": [',
+        '    {',
+        '      "type": "feature",',
+        '      "name": "Feature",',
+        '      "limit": 6,',
+        '      "settings": [',
+        '        { "type": "image_picker", "id": "icon", "label": "Icon" },',
+        '        { "type": "text", "id": "title", "label": "Title", "default": "Free shipping" },',
+        '        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>On all orders over $50.</p>" }',
+        '      ]',
+        '    }',
+        '  ],',
+        '  "presets": [{ "name": "Feature grid", "blocks": [{ "type": "feature" }, { "type": "feature" }, { "type": "feature" }] }]',
+        '}',
+        '{% endschema %}'
+      ]},
+    { id: 'free-shipping-bar', title: 'Free shipping progress bar for the cart', tags: ['cart', 'cro'], file: 'snippets/mg-shipping-bar.liquid',
+      desc: 'Shows how much is left to unlock free shipping. Threshold is a theme setting in cents-aware currency; call it with <code>{% render \'mg-shipping-bar\', threshold: settings.free_shipping_threshold %}</code>. A classic <a href="' + MG + '/services/shopify-customer-retention-optimization/">CRO</a> win for AOV.',
+      code: [
+        '{%- comment -%} snippets/mg-shipping-bar.liquid — threshold in store currency units {%- endcomment -%}',
+        '{%- assign threshold_cents = threshold | times: 100 -%}',
+        '{%- assign remaining = threshold_cents | minus: cart.total_price -%}',
+        '{%- assign percent = cart.total_price | times: 100 | divided_by: threshold_cents | at_most: 100 -%}',
+        '<div class="mg-shipping-bar" role="status" aria-live="polite">',
+        '  {%- if remaining > 0 -%}',
+        '    <p class="mg-shipping-bar__text">Add {{ remaining | money }} more for <strong>free shipping</strong></p>',
+        '  {%- else -%}',
+        '    <p class="mg-shipping-bar__text">🎉 You\'ve unlocked <strong>free shipping</strong></p>',
+        '  {%- endif -%}',
+        '  <div class="mg-shipping-bar__track"><div class="mg-shipping-bar__fill" style="width: {{ percent }}%"></div></div>',
+        '</div>'
+      ]},
+    { id: 'metafield-fallback', title: 'Product metafield with safe fallback', tags: ['product', 'metafields'], file: 'snippets/mg-metafield.liquid',
+      desc: 'Renders a metafield only when the definition exists and has a value; falls back to a default. Works for single-line text, rich text and lists.',
+      code: [
+        '{%- comment -%} Single-line text or number {%- endcomment -%}',
+        '{%- assign material = product.metafields.specs.material -%}',
+        '{%- if material != blank -%}',
+        '  <dt>Material</dt><dd>{{ material.value | escape }}</dd>',
+        '{%- else -%}',
+        '  <dt>Material</dt><dd>See product description</dd>',
+        '{%- endif -%}',
+        '',
+        '{%- comment -%} Rich text (metafield_tag renders proper HTML) {%- endcomment -%}',
+        '{%- if product.metafields.specs.care_guide != blank -%}',
+        '  <div class="rte">{{ product.metafields.specs.care_guide | metafield_tag }}</div>',
+        '{%- endif -%}',
+        '',
+        '{%- comment -%} List of single-line text {%- endcomment -%}',
+        '{%- if product.metafields.specs.features.value.size > 0 -%}',
+        '  <ul>',
+        '    {%- for feature in product.metafields.specs.features.value -%}',
+        '      <li>{{ feature | escape }}</li>',
+        '    {%- endfor -%}',
+        '  </ul>',
+        '{%- endif -%}'
+      ]},
+    { id: 'responsive-image', title: 'Responsive image with srcset and lazy loading', tags: ['performance', 'theme'], file: 'snippets/mg-image.liquid',
+      desc: 'Uses <code>image_url</code> + <code>image_tag</code> so Shopify serves the right size per viewport; first-fold images get <code>loading: eager</code> and <code>fetchpriority</code> for better LCP. Part of every <a href="' + MG + '/services/ecommerce-shopify-tech-audit-consulting/">performance audit</a> we run.',
+      code: [
+        '{%- comment -%} {% render \'mg-image\', image: product.featured_image, sizes: \'(min-width: 990px) 50vw, 100vw\', eager: true %} {%- endcomment -%}',
+        '{%- if image != blank -%}',
+        '  {%- assign loading = \'lazy\' -%}',
+        '  {%- assign priority = \'auto\' -%}',
+        '  {%- if eager -%}{%- assign loading = \'eager\' -%}{%- assign priority = \'high\' -%}{%- endif -%}',
+        '  {{ image',
+        '    | image_url: width: 1800',
+        '    | image_tag:',
+        '        widths: \'360, 540, 720, 900, 1080, 1296, 1512, 1800\',',
+        '        sizes: sizes | default: \'100vw\',',
+        '        loading: loading,',
+        '        fetchpriority: priority,',
+        '        alt: image.alt | default: product.title | escape',
+        '  }}',
+        '{%- endif -%}'
+      ]},
+    { id: 'sale-badge', title: 'Sale badge with discount percentage', tags: ['product', 'cro'], file: 'snippets/mg-sale-badge.liquid',
+      desc: 'Computes the discount from <code>compare_at_price</code> for the selected variant and only renders when there is a real saving. Use <code>money_without_trailing_zeros</code> for cleaner prices.',
+      code: [
+        '{%- assign v = product.selected_or_first_available_variant -%}',
+        '{%- if v.compare_at_price > v.price -%}',
+        '  {%- assign saving = v.compare_at_price | minus: v.price -%}',
+        '  {%- assign percent = saving | times: 100 | divided_by: v.compare_at_price -%}',
+        '  <span class="mg-badge mg-badge--sale">Save {{ percent }}%</span>',
+        '  <s class="mg-price__compare">{{ v.compare_at_price | money_without_trailing_zeros }}</s>',
+        '{%- endif -%}',
+        '<span class="mg-price">{{ v.price | money_without_trailing_zeros }}</span>'
+      ]},
+    { id: 'low-stock', title: 'Low-stock and sold-out badges', tags: ['product', 'cro'], file: 'snippets/mg-stock-badge.liquid',
+      desc: 'Urgency badge that respects inventory policy: sold out when unavailable, "only N left" under a threshold, silent otherwise. Threshold defaults to 5.',
+      code: [
+        '{%- assign v = product.selected_or_first_available_variant -%}',
+        '{%- assign low = low_threshold | default: 5 -%}',
+        '{%- if v.available == false -%}',
+        '  <span class="mg-badge mg-badge--soldout">Sold out</span>',
+        '{%- elsif v.inventory_management == \'shopify\' and v.inventory_policy == \'deny\' and v.inventory_quantity <= low -%}',
+        '  <span class="mg-badge mg-badge--low">Only {{ v.inventory_quantity }} left</span>',
+        '{%- endif -%}'
+      ]},
+    { id: 'breadcrumbs', title: 'SEO breadcrumbs with BreadcrumbList JSON-LD', tags: ['seo', 'theme'], file: 'snippets/mg-breadcrumbs.liquid',
+      desc: 'Visible breadcrumbs plus matching structured data for product, collection, page and article templates. Uses the collection the customer came from when available. See our <a href="' + MG + '/services/shopify-seo-ecommerce-marketing/">Shopify SEO services</a>.',
+      code: [
+        '{%- unless template == \'index\' -%}',
+        '{%- assign crumbs = \'\' -%}',
+        '<nav class="mg-crumbs" aria-label="Breadcrumb"><ol>',
+        '  <li><a href="{{ routes.root_url }}">Home</a></li>',
+        '  {%- case template.name -%}',
+        '    {%- when \'product\' -%}',
+        '      {%- if collection -%}<li><a href="{{ collection.url }}">{{ collection.title | escape }}</a></li>{%- endif -%}',
+        '      <li aria-current="page">{{ product.title | escape }}</li>',
+        '    {%- when \'collection\' -%}',
+        '      <li aria-current="page">{{ collection.title | escape }}</li>',
+        '    {%- when \'article\' -%}',
+        '      <li><a href="{{ blog.url }}">{{ blog.title | escape }}</a></li>',
+        '      <li aria-current="page">{{ article.title | escape }}</li>',
+        '    {%- when \'page\' -%}',
+        '      <li aria-current="page">{{ page.title | escape }}</li>',
+        '  {%- endcase -%}',
+        '</ol></nav>',
+        '<script type="application/ld+json">',
+        '{',
+        '  "@context": "https://schema.org",',
+        '  "@type": "BreadcrumbList",',
+        '  "itemListElement": [',
+        '    { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ shop.url }}{{ routes.root_url }}" }',
+        '    {%- if template.name == \'product\' and collection -%},',
+        '    { "@type": "ListItem", "position": 2, "name": {{ collection.title | json }}, "item": "{{ shop.url }}{{ collection.url }}" },',
+        '    { "@type": "ListItem", "position": 3, "name": {{ product.title | json }}, "item": "{{ shop.url }}{{ product.url }}" }',
+        '    {%- elsif template.name == \'product\' -%},',
+        '    { "@type": "ListItem", "position": 2, "name": {{ product.title | json }}, "item": "{{ shop.url }}{{ product.url }}" }',
+        '    {%- elsif template.name == \'collection\' -%},',
+        '    { "@type": "ListItem", "position": 2, "name": {{ collection.title | json }}, "item": "{{ shop.url }}{{ collection.url }}" }',
+        '    {%- endif -%}',
+        '  ]',
+        '}',
+        '</script>',
+        '{%- endunless -%}'
+      ]},
+    { id: 'product-json', title: 'Hand product data to JavaScript safely', tags: ['product', 'javascript'], file: 'sections/main-product.liquid',
+      desc: 'Emit variant data as JSON in a <code>&lt;script type="application/json"&gt;</code> tag instead of inline JS — safe against quotes, cacheable, and easy to read in your variant picker.',
+      code: [
+        '<script type="application/json" id="mg-product-{{ section.id }}">',
+        '  {{ product | json }}',
+        '</script>',
+        '<script type="application/json" id="mg-variants-{{ section.id }}">',
+        '  {{ product.variants | json }}',
+        '</script>',
+        '',
+        '<script>',
+        '  (function () {',
+        '    var product = JSON.parse(document.getElementById(\'mg-product-{{ section.id }}\').textContent);',
+        '    var variants = JSON.parse(document.getElementById(\'mg-variants-{{ section.id }}\').textContent);',
+        '    // Example: find the variant matching selected options',
+        '    function findVariant(options) {',
+        '      return variants.find(function (v) {',
+        '        return v.options.every(function (o, i) { return o === options[i]; });',
+        '      });',
+        '    }',
+        '    window.mgProduct = { product: product, variants: variants, findVariant: findVariant };',
+        '  })();',
+        '</script>'
+      ]}
+  ];
+
+  var TAGS = ['all'];
+  SNIPPETS.forEach(function (s) { s.tags.forEach(function (t) { if (TAGS.indexOf(t) < 0) TAGS.push(t); }); });
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function hl(line) {
+    var e = esc(line);
+    if (/^\s*\{%-?\s*comment/.test(line) || /^\s*\/\//.test(line)) return '<span class="tok-cmt">' + e + '</span>';
+    return e
+      .replace(/(\{%-?[\s\S]*?-?%\})/g, '<span class="tok-tag">$1</span>')
+      .replace(/(\{\{-?[\s\S]*?-?\}\})/g, '<span class="tok-obj">$1</span>')
+      .replace(/(&quot;[^&]*?&quot;|"[^"]*"|'[^']*')/g, function (m) { return m.indexOf('tok-') > -1 ? m : '<span class="tok-str">' + m + '</span>'; });
+  }
+
+  var filters = document.getElementById('filters');
+  filters.innerHTML = TAGS.map(function (t) { return '<button class="chip" type="button" data-tag="' + t + '" aria-pressed="' + (t === 'all') + '">' + (t === 'all' ? 'All snippets' : t) + '</button>'; }).join('');
+
+  var list = document.getElementById('snippets');
+  list.innerHTML = SNIPPETS.map(function (s) {
+    return '<article class="snippet" id="' + s.id + '" data-tags="' + s.tags.join(' ') + '">' +
+      '<div class="snippet__head"><div><h2>' + s.title + '</h2><div class="snippet__meta"><span class="tag">' + s.file + '</span>' + s.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</div></div>' +
+      '<button class="btn btn--dark btn--sm copy-btn" type="button" data-copy="' + s.id + '">Copy</button></div>' +
+      '<p class="snippet__desc">' + s.desc + '</p>' +
+      '<pre tabindex="0"><code>' + s.code.map(hl).join('\n') + '</code></pre></article>';
+  }).join('');
+
+  filters.addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    filters.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-pressed', c === b); });
+    var tag = b.dataset.tag;
+    list.querySelectorAll('.snippet').forEach(function (a) { a.hidden = tag !== 'all' && a.dataset.tags.split(' ').indexOf(tag) < 0; });
+  });
+
+  list.addEventListener('click', function (e) {
+    var b = e.target.closest('.copy-btn'); if (!b) return;
+    var s = SNIPPETS.filter(function (x) { return x.id === b.dataset.copy; })[0];
+    var text = s.code.join('\n');
+    var done = function () { b.classList.add('is-copied'); b.textContent = 'Copied'; setTimeout(function () { b.classList.remove('is-copied'); b.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, done); }
+    else { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (err) {} ta.remove(); done(); }
+  });
+
+  if (location.hash) { var t = document.querySelector(location.hash); if (t) t.scrollIntoView(); }
+})();
