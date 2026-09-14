@@ -159,7 +159,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260914f"
+    ver = "20260914g"
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
@@ -296,7 +296,7 @@ SERVICES6 = [
 services_grid = "".join(f'<article class="mg-service col-span-4"><h3 class="mg-service__title"><a href="{MG}/{u}">{t}</a></h3><p class="mg-service__desc">{d}</p></article>' for u, t, d in SERVICES6)
 
 HUB_FAQ = [
-  ("What do DA, PA, DR, UR and Spam Score mean?", "DA (Domain Authority) and PA (Page Authority) are Moz's 1–100 predictions of how well a domain or page will rank, built from its link profile; Spam Score is Moz's 0–100% estimate of how similar a site is to sites Google has penalised. DR (Domain Rating) and UR (URL Rating) are Ahrefs' 0–100 backlink-strength scores. Different indexes, so the numbers rarely match each other — use them together, not in isolation."),
+  ("What do DA, PA, Spam Score and OPR mean?", "DA (Domain Authority) and PA (Page Authority) are Moz's 1–100 predictions of how well a domain or page will rank, built from its link profile; Spam Score is Moz's 0–100% estimate of how similar a site is to sites Google has penalised. OPR is Open PageRank, a 0–10 PageRank calculated on the open Common Crawl link graph — a free, independent counterpart to Ahrefs DR. Different indexes, so the numbers rarely match — use them together, not in isolation."),
   ("How does the Domain Authority Checker calculate its own authority score?", "The authority score is 100 minus 10 times the base-10 logarithm of the domain's position in the Tranco list, a research-grade ranking of the most visited domains built from several traffic sources. Rank 1 scores 100, rank 1,000 scores 70, rank 1,000,000 scores 40. It is a traffic-based proxy comparable in spirit to Moz DA or Ahrefs DR, but it is not those metrics and does not measure backlinks."),
   ("Is the domain authority check free and private?", "Yes. Up to 25 domains per run, no sign-up and no API key. Traffic rank and domain age are fetched by your browser directly from the public Tranco API and registry RDAP; DA, PA, Spam and Radar rank pass through Mgroup's proxy, which caches results and does not log who checked what."),
   ("What happens when the Moz quota runs out?", "The free Moz tier gives a small monthly allowance, so the checker shows how many rows are left, serves DA/PA/Spam from a 30-day cache for domains seen recently, and falls back to Cloudflare Radar's domain-ranking bucket plus the Tranco-based authority score for everything else. A banner tells you when that fallback is active."),
@@ -355,8 +355,8 @@ PAGES.append({
     <div class="container">
       <header class="section__head section__head--center">
         <span class="eyebrow">Free SEO tool</span>
-        <h2 class="section__title" id="authority-title">Domain Authority Checker: DA, PA, DR, UR, Spam Score and traffic rank in bulk</h2>
-        <p class="section__lead">Paste up to 25 domains and get Moz DA, PA and Spam Score, Ahrefs DR and UR, a Tranco-based authority score, traffic rank trend, domain age and HTTPS status in one table. No sign-up, nothing stored. We use it to vet backlink donors before paying for a placement.</p>
+        <h2 class="section__title" id="authority-title">Domain Authority Checker: DA, PA, Spam Score, PageRank and traffic rank in bulk</h2>
+        <p class="section__lead">Paste up to 25 domains and get Moz DA, PA and Spam Score, Open PageRank (a free link-graph score comparable to DR), Cloudflare Radar rank bucket, a Tranco-based authority score, traffic rank trend, domain age and HTTPS status in one table. No sign-up, nothing stored. We use it to vet backlink donors before paying for a placement.</p>
       </header>
       <div class="tool tool--wide">
         <form class="panel" id="auth-form" novalidate>
@@ -372,9 +372,9 @@ PAGES.append({
         <div class="panel" id="auth-results" hidden>
           <div class="alert" id="auth-alert" role="status" aria-live="polite" hidden></div>
           <div class="result-hero" id="auth-summary"></div>
-          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Domain</th><th scope="col" title="Moz Domain Authority">DA</th><th scope="col" title="Moz Page Authority">PA</th><th scope="col" title="Moz Spam Score">Spam</th><th scope="col" title="Ahrefs Domain Rating">DR</th><th scope="col" title="Ahrefs URL Rating">UR</th><th scope="col" title="Cloudflare Radar domain ranking bucket">Radar</th><th scope="col" title="Tranco-based authority">Authority</th><th scope="col">Tranco rank</th><th scope="col">30-day</th><th scope="col">Age</th><th scope="col">HTTPS</th><th scope="col">Verdict</th></tr></thead><tbody id="auth-tbody"></tbody></table></div>
+          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Domain</th><th scope="col" title="Moz Domain Authority">DA</th><th scope="col" title="Moz Page Authority">PA</th><th scope="col" title="Moz Spam Score">Spam</th><th scope="col" title="Open PageRank 0–10, link-graph score built on Common Crawl">OPR</th><th scope="col" title="Cloudflare Radar domain ranking bucket">Radar</th><th scope="col" title="Tranco-based authority">Authority</th><th scope="col">Tranco rank</th><th scope="col">30-day</th><th scope="col">Age</th><th scope="col">HTTPS</th><th scope="col">Verdict</th></tr></thead><tbody id="auth-tbody"></tbody></table></div>
           <div class="toolbar"><button class="btn btn--ghost btn--sm" type="button" id="auth-copy">Copy CSV</button><button class="btn btn--ghost btn--sm" type="button" id="auth-download">Download CSV</button></div>
-          <p class="note">DA, PA and Spam Score come from the Moz API (free tier, cached 30 days); DR and UR from the Ahrefs API; Radar is Cloudflare's domain-ranking bucket (top 200 … top 1M) and keeps working when the Moz quota is spent. Authority = 100 − 10·log₁₀(Tranco rank): rank 1 → 100, rank 1,000 → 70, rank 1,000,000 → 40 — a traffic-based score that works even when the proxy is offline, but it does not see backlinks. Before buying a link, also check that the site's articles link out with dofollow. Read our <a href="{MG}/blogs/shopify-partner-directory/">guide to vetting a Shopify agency</a> or ask Mgroup's <a href="{MG}/services/shopify-seo-ecommerce-marketing/">Shopify SEO team</a>.</p>
+          <p class="note">DA, PA and Spam Score come from the Moz API (free tier, cached 30 days); OPR is Open PageRank, a 0–10 PageRank computed on the Common Crawl link graph — the closest free analogue of Ahrefs DR; Radar is Cloudflare's domain-ranking bucket (top 200 … top 1M) and keeps working when the Moz quota is spent. Authority = 100 − 10·log₁₀(Tranco rank): rank 1 → 100, rank 1,000 → 70, rank 1,000,000 → 40 — a traffic-based score that works even when the proxy is offline, but it does not see backlinks. Before buying a link, also check that the site's articles link out with dofollow. Read our <a href="{MG}/blogs/shopify-partner-directory/">guide to vetting a Shopify agency</a> or ask Mgroup's <a href="{MG}/services/shopify-seo-ecommerce-marketing/">Shopify SEO team</a>.</p>
         </div>
       </div>
     </div>

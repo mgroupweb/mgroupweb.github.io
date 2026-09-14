@@ -114,7 +114,7 @@
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<th scope="row">' + esc(r.domain) + '</th>' +
-        mcell(r.domain, 'da') + mcell(r.domain, 'pa') + mcell(r.domain, 'spam', 'score-pill--spam') + mcell(r.domain, 'dr') + mcell(r.domain, 'ur') + radarCell(r.domain) +
+        mcell(r.domain, 'da') + mcell(r.domain, 'pa') + mcell(r.domain, 'spam', 'score-pill--spam') + mcell(r.domain, 'opr') + radarCell(r.domain) +
         '<td><span class="score-pill score-pill--' + band(r.score) + '">' + (r.score == null ? '—' : r.score) + '</span></td>' +
         '<td>' + (r.rank ? '#' + fmt(r.rank) : r.trancoOk ? 'not ranked' : 'n/a') + '</td>' +
         '<td class="' + (delta == null ? '' : delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : '') + '">' + (delta == null ? '—' : (delta > 0 ? '▲ ' : delta < 0 ? '▼ ' : '') + fmt(Math.abs(delta))) + '</td>' +
@@ -125,17 +125,17 @@
     });
     summary.innerHTML = '<span class="eyebrow">Result</span><div class="result-hero__num">' + rows.length + ' domain' + (rows.length === 1 ? '' : 's') + ' checked</div>' +
       '<div class="result-hero__sub">' + strong + ' strong · ' + risky + ' with warnings · ' +
-      (providers ? ('Moz ' + (providers.moz ? 'on' : 'off') + (mozQuota && mozQuota.allotted ? ' (' + Math.max(0, mozQuota.allotted - mozQuota.used) + ' of ' + mozQuota.allotted + ' rows left this month)' : '') + ' · Radar ' + (providers.radar ? 'on' : 'off') + ' · Ahrefs ' + (providers.ahrefs ? 'on' : 'off')) : 'DA/PA/Spam (Moz) and DR/UR (Ahrefs) columns need the metrics proxy — see the note below') + '</div>';
+      (providers ? ('Moz ' + (providers.moz ? 'on' : 'off') + (mozQuota && mozQuota.allotted ? ' (' + Math.max(0, mozQuota.allotted - mozQuota.used) + ' of ' + mozQuota.allotted + ' rows left this month)' : '') + ' · OPR ' + (providers.opr ? 'on' : 'off') + ' · Radar ' + (providers.radar ? 'on' : 'off')) : 'DA/PA/Spam (Moz) and DR/UR (Ahrefs) columns need the metrics proxy — see the note below') + '</div>';
     results.hidden = false;
   }
   function band(s) { return s == null ? 'none' : s >= 55 ? 'high' : s >= 45 ? 'mid' : 'low'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function csv() {
-    var head = ['domain', 'moz_da', 'moz_pa', 'moz_spam_score', 'ahrefs_dr', 'ahrefs_ur', 'cf_radar_bucket', 'authority_score', 'tranco_rank', 'rank_30d_ago', 'registered', 'age_years', 'https_reachable', 'verdict', 'flags'];
+    var head = ['domain', 'moz_da', 'moz_pa', 'moz_spam_score', 'open_pagerank', 'cf_radar_bucket', 'authority_score', 'tranco_rank', 'rank_30d_ago', 'registered', 'age_years', 'https_reachable', 'verdict', 'flags'];
     var lines = [head.join(',')].concat(rows.map(function (r) {
       var v = verdict(r);
-      return [r.domain, m(r.domain,'da') ?? '', m(r.domain,'pa') ?? '', m(r.domain,'spam') ?? '', m(r.domain,'dr') ?? '', m(r.domain,'ur') ?? '', m(r.domain,'radarBucket') ?? '', r.score == null ? '' : r.score, r.rank || '', r.rankMonth || '', r.created ? r.created.toISOString().slice(0, 10) : '',
+      return [r.domain, m(r.domain,'da') ?? '', m(r.domain,'pa') ?? '', m(r.domain,'spam') ?? '', m(r.domain,'opr') ?? '', m(r.domain,'radarBucket') ?? '', r.score == null ? '' : r.score, r.rank || '', r.rankMonth || '', r.created ? r.created.toISOString().slice(0, 10) : '',
         r.age == null ? '' : r.age.toFixed(2), r.live === true ? 'yes' : r.live === false ? 'no' : '', v.label, '"' + v.flags.join('; ') + '"'].join(',');
     }));
     return lines.join('\n');
