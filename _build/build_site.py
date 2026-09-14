@@ -159,7 +159,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260914c"
+    ver = "20260914d"
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
@@ -369,6 +369,7 @@ PAGES.append({
           <p class="note" id="auth-status" aria-live="polite">Results appear here in a few seconds.</p>
         </form>
         <div class="panel" id="auth-results" hidden>
+          <div class="alert" id="auth-alert" role="status" aria-live="polite" hidden></div>
           <div class="result-hero" id="auth-summary"></div>
           <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Domain</th><th scope="col" title="Moz Domain Authority">DA</th><th scope="col" title="Moz Page Authority">PA</th><th scope="col" title="Moz Spam Score">Spam</th><th scope="col" title="Ahrefs Domain Rating">DR</th><th scope="col" title="Ahrefs URL Rating">UR</th><th scope="col" title="Tranco-based authority">Authority</th><th scope="col">Tranco rank</th><th scope="col">30-day</th><th scope="col">Age</th><th scope="col">HTTPS</th><th scope="col">Verdict</th></tr></thead><tbody id="auth-tbody"></tbody></table></div>
           <div class="toolbar"><button class="btn btn--ghost btn--sm" type="button" id="auth-copy">Copy CSV</button><button class="btn btn--ghost btn--sm" type="button" id="auth-download">Download CSV</button></div>

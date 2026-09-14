@@ -9,6 +9,8 @@ const ALLOWED_ORIGINS = ['https://mgroupweb.github.io', 'http://localhost:8765']
 const MAX_DOMAINS = 25;
 const THROTTLE = new Map();
 const MEMO = new Map();
+let LAST_ALERT = 0;          // owner alert de-dupe (per isolate)
+let MOZ_STATUS = 'ok';       // ok | quota | error
 
 export default {
   async fetch(req, env, ctx) {
@@ -23,12 +25,15 @@ export default {
     if (req.method !== 'POST') return json({ error: 'POST only' }, 405, cors);
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: 'origin not allowed' }, 403, cors);
 
-    // per-IP throttle: 10 requests / 10 minutes (in-memory per isolate; Cache API is not available on workers.dev)
+    // per-IP throttle: 10 requests / 10 minutes (KV-backed; falls back to isolate memory without KV)
     const ip = req.headers.get('CF-Connecting-IP') || 'x';
     const now = Date.now();
-    const hits = (THROTTLE.get(ip) || []).filter(t => now - t < 600000);
+    const tKey = 'throttle:' + ip;
+    let hits = env.KV ? (JSON.parse((await env.KV.get(tKey)) || '[]')) : (THROTTLE.get(ip) || []);
+    hits = hits.filter(t => now - t < 600000);
     if (hits.length >= 10) return json({ error: 'rate limit: 10 checks per 10 minutes' }, 429, cors);
-    hits.push(now); THROTTLE.set(ip, hits);
+    hits.push(now);
+    if (env.KV) ctx.waitUntil(env.KV.put(tKey, JSON.stringify(hits), { expirationTtl: 660 })); else THROTTLE.set(ip, hits);
 
     let body; try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400, cors); }
     const domains = [...new Set((body.domains || []).map(normalize).filter(Boolean))].slice(0, MAX_DOMAINS);
@@ -37,19 +42,45 @@ export default {
     const out = {};
     const todo = [];
     for (const d of domains) {
-      const c = MEMO.get(d);
+      let c = null;
+      if (env.KV) { const v = await env.KV.get('m:' + d); if (v) c = { v: JSON.parse(v), t: now }; }
+      else c = MEMO.get(d) || null;
       if (c && now - c.t < 86400000) out[d] = c.v; else todo.push(d);
     }
     if (todo.length) {
       const [moz, ahrefs, opr] = await Promise.all([mozMetrics(todo, env), ahrefsMetrics(todo, env), oprMetrics(todo, env)]);
       for (const d of todo) {
         out[d] = { ...(moz[d] || {}), ...(ahrefs[d] || {}), ...(opr[d] || {}) };
-        if (Object.keys(out[d]).length) MEMO.set(d, { t: now, v: out[d] });
+        if (Object.keys(out[d]).length) {
+          if (env.KV) ctx.waitUntil(env.KV.put('m:' + d, JSON.stringify(out[d]), { expirationTtl: 86400 })); else MEMO.set(d, { t: now, v: out[d] });
+        }
       }
     }
-    return json({ providers: { moz: !!env.MOZ_TOKEN, ahrefs: !!env.AHREFS_TOKEN, opr: !!env.OPR_KEY }, metrics: out }, 200, cors);
+    const status = { moz: env.MOZ_TOKEN ? MOZ_STATUS : 'off', ahrefs: env.AHREFS_TOKEN ? 'ok' : 'off', opr: env.OPR_KEY ? 'ok' : 'off' };
+    let notice = null;
+    if (status.moz === 'quota') {
+      const next = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
+      notice = 'Moz monthly API quota is used up — DA, PA and Spam Score are unavailable until ' + next + '. Authority, rank and age still work.';
+      ctx.waitUntil(alertOwner(env, notice));
+    } else if (status.moz === 'error') {
+      notice = 'Moz API did not respond — DA, PA and Spam Score are temporarily unavailable.';
+    }
+    delete out.__moz_debug;
+    return json({ providers: { moz: !!env.MOZ_TOKEN, ahrefs: !!env.AHREFS_TOKEN, opr: !!env.OPR_KEY }, status, notice, metrics: out }, 200, cors);
   },
 };
+
+/* Owner alert: Slack-compatible incoming webhook (secret ALERT_WEBHOOK). At most once per 24h per isolate. */
+async function alertOwner(env, text) {
+  if (!env.ALERT_WEBHOOK) return;
+  const now = Date.now();
+  if (env.KV) { if (await env.KV.get('alerted')) return; await env.KV.put('alerted', '1', { expirationTtl: 86400 }); }
+  else { if (now - LAST_ALERT < 86400000) return; LAST_ALERT = now; }
+  try {
+    await fetch(env.ALERT_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: ':warning: mgroupweb.github.io Domain Authority Checker — ' + text }) });
+  } catch {}
+}
 
 function normalize(s) {
   s = String(s || '').trim().toLowerCase().replace(/^[a-z]+:\/\//, '').replace(/^www\./, '').split(/[\/?#]/)[0];
@@ -71,7 +102,14 @@ async function mozMetrics(domains, env) {
         params: { data: { site_queries: domains.map(d => ({ query: d, scope: 'domain' })) } } }),
     });
     const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch { j = {}; }
-    const out = {}; if (!r.ok || j.error) { out.__moz_debug = { status: r.status, body: txt.slice(0, 300) }; return out; }
+    const out = {};
+    if (!r.ok || j.error) {
+      const msg = ((j.error && j.error.message) || txt).slice(0, 200);
+      MOZ_STATUS = (r.status === 402 || r.status === 429 || /quota|limit|exceed|insufficient/i.test(msg)) ? 'quota' : 'error';
+      out.__moz_debug = { status: r.status, body: msg };
+      return out;
+    }
+    MOZ_STATUS = 'ok';
     ((j.result || {}).results_by_site || []).forEach((row, i) => {
       const m = row.site_metrics || {}; const key = (row.site_query && row.site_query.original_site_query && row.site_query.original_site_query.query) || domains[i];
       out[key] = { da: m.domain_authority ?? null, pa: m.page_authority ?? null, spam: (m.spam_score == null || m.spam_score < 0) ? null : m.spam_score,

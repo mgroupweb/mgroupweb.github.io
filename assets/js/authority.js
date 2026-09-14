@@ -7,7 +7,7 @@
       sampleBtn = document.getElementById('auth-sample'), status = document.getElementById('auth-status'),
       results = document.getElementById('auth-results'), tbody = document.getElementById('auth-tbody'),
       summary = document.getElementById('auth-summary'), copyBtn = document.getElementById('auth-copy'),
-      dlBtn = document.getElementById('auth-download');
+      dlBtn = document.getElementById('auth-download'), alertBox = document.getElementById('auth-alert');
   var MAX = 25, rows = [], metrics = {}, providers = null;
   /* Optional metrics proxy (worker/metrics-worker.js) — supplies Moz DA/PA/Spam Score, Ahrefs DR/UR, Open PageRank.
      Leave empty until the Worker is deployed; the table then shows "—" for those columns. */
@@ -69,12 +69,16 @@
       .then(function (v) { clearTimeout(t); return v; });
   }
 
+  function showAlert(msg) { if (!alertBox) return; if (!msg) { alertBox.hidden = true; alertBox.textContent = ''; return; } alertBox.textContent = msg; alertBox.hidden = false; }
   function fetchMetrics(list) {
-    providers = null; metrics = {};
+    providers = null; metrics = {}; showAlert(null);
     if (!METRICS_ENDPOINT) return Promise.resolve();
     return withTimeout(fetch(METRICS_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ domains: list }) }), 25000)
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (j) { if (j) { metrics = j.metrics || {}; providers = j.providers || null; } })
+      .then(function (r) {
+        if (r.status === 429) { showAlert('Limit reached: 10 checks per 10 minutes from one network. Authority, rank and age still work; DA, PA and Spam Score return after the pause.'); return null; }
+        return r.ok ? r.json() : null;
+      })
+      .then(function (j) { if (j) { metrics = j.metrics || {}; providers = j.providers || null; if (j.notice) showAlert(j.notice); } })
       .catch(function () {});
   }
   function m(d, k) { var x = metrics[d]; return x && x[k] != null ? x[k] : null; }
@@ -140,7 +144,7 @@
     var mp = fetchMetrics(list);
     var i = 0;
     function next() {
-      if (i >= list.length) { mp.then(function () { render(); }); status.textContent = 'Done. ' + list.length + ' domain' + (list.length === 1 ? '' : 's') + ' checked in your browser; nothing was stored.'; runBtn.disabled = false; render(); return; }
+      if (i >= list.length) { mp.then(function () { render(); var unk = rows.filter(function (r) { return !r.trancoOk; }).length; if (unk) showAlert((alertBox && !alertBox.hidden ? alertBox.textContent + ' ' : '') + 'Tranco ranking service rate-limited ' + unk + ' domain' + (unk === 1 ? '' : 's') + ' (shown as Unknown). Wait a minute and check them again.'); }); status.textContent = 'Done. ' + list.length + ' domain' + (list.length === 1 ? '' : 's') + ' checked in your browser; nothing was stored.'; runBtn.disabled = false; render(); return; }
       var d = list[i++]; status.textContent = 'Checking ' + d + ' (' + i + '/' + list.length + ')…';
       Promise.all([tranco(d), rdap(d), reachable(d)]).then(function (res) {
         var t = res[0], created = res[1];
