@@ -11,7 +11,7 @@
   var MAX = 25, rows = [], metrics = {}, providers = null;
   /* Optional metrics proxy (worker/metrics-worker.js) — supplies Moz DA/PA/Spam Score, Ahrefs DR/UR, Open PageRank.
      Leave empty until the Worker is deployed; the table then shows "—" for those columns. */
-  var METRICS_ENDPOINT = '';
+  var METRICS_ENDPOINT = 'https://mgroup-metrics.stupak-ol.workers.dev';
   var RISKY_TLD = ['xyz','top','icu','buzz','click','cyou','monster','rest','fun','sbs','cfd','bond','lol','quest','uno','gq','tk','ml','cf','ga'];
 
   function normalize(line) {

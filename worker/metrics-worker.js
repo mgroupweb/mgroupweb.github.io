@@ -7,6 +7,8 @@
 */
 const ALLOWED_ORIGINS = ['https://mgroupweb.github.io', 'http://localhost:8765'];
 const MAX_DOMAINS = 25;
+const THROTTLE = new Map();
+const MEMO = new Map();
 
 export default {
   async fetch(req, env, ctx) {
@@ -21,14 +23,12 @@ export default {
     if (req.method !== 'POST') return json({ error: 'POST only' }, 405, cors);
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: 'origin not allowed' }, 403, cors);
 
-    // simple per-IP throttle: 10 requests / 10 minutes via Cache API
+    // per-IP throttle: 10 requests / 10 minutes (in-memory per isolate; Cache API is not available on workers.dev)
     const ip = req.headers.get('CF-Connecting-IP') || 'x';
-    const throttleKey = new Request('https://throttle.local/' + ip);
-    const cache = caches.default;
-    const hit = await cache.match(throttleKey);
-    const count = hit ? parseInt(await hit.text(), 10) : 0;
-    if (count >= 10) return json({ error: 'rate limit: 10 checks per 10 minutes' }, 429, cors);
-    ctx.waitUntil(cache.put(throttleKey, new Response(String(count + 1), { headers: { 'Cache-Control': 'max-age=600' } })));
+    const now = Date.now();
+    const hits = (THROTTLE.get(ip) || []).filter(t => now - t < 600000);
+    if (hits.length >= 10) return json({ error: 'rate limit: 10 checks per 10 minutes' }, 429, cors);
+    hits.push(now); THROTTLE.set(ip, hits);
 
     let body; try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400, cors); }
     const domains = [...new Set((body.domains || []).map(normalize).filter(Boolean))].slice(0, MAX_DOMAINS);
@@ -37,15 +37,14 @@ export default {
     const out = {};
     const todo = [];
     for (const d of domains) {
-      const c = await cache.match(new Request('https://metrics.local/' + d));
-      if (c) out[d] = await c.json(); else todo.push(d);
+      const c = MEMO.get(d);
+      if (c && now - c.t < 86400000) out[d] = c.v; else todo.push(d);
     }
     if (todo.length) {
       const [moz, ahrefs, opr] = await Promise.all([mozMetrics(todo, env), ahrefsMetrics(todo, env), oprMetrics(todo, env)]);
       for (const d of todo) {
         out[d] = { ...(moz[d] || {}), ...(ahrefs[d] || {}), ...(opr[d] || {}) };
-        ctx.waitUntil(cache.put(new Request('https://metrics.local/' + d),
-          new Response(JSON.stringify(out[d]), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'max-age=86400' } })));
+        if (Object.keys(out[d]).length) MEMO.set(d, { t: now, v: out[d] });
       }
     }
     return json({ providers: { moz: !!env.MOZ_TOKEN, ahrefs: !!env.AHREFS_TOKEN, opr: !!env.OPR_KEY }, metrics: out }, 200, cors);
@@ -60,19 +59,22 @@ function json(o, status, headers) {
   return new Response(JSON.stringify(o), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 }
 
-/* Moz Links API v2 — POST /v2/url_metrics, Basic auth with the API token. Free tier: 2,500 rows/month. */
+/* Moz API (JSON-RPC, x-moz-token) — data.site.metrics.fetch.multiple. Free tier available at moz.com/api. */
 async function mozMetrics(domains, env) {
   if (!env.MOZ_TOKEN) return {};
   try {
-    const r = await fetch('https://lsapi.seomoz.com/v2/url_metrics', {
+    const r = await fetch('https://api.moz.com/jsonrpc', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + btoa(env.MOZ_TOKEN) },
-      body: JSON.stringify({ targets: domains.map(d => d + '/') }),
+      headers: { 'Content-Type': 'application/json', 'x-moz-token': env.MOZ_TOKEN },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 'mgroup-metrics-' + Date.now().toString().padStart(24, '0'),
+        method: 'data.site.metrics.fetch.multiple',
+        params: { data: { site_queries: domains.map(d => ({ query: d, scope: 'domain' })) } } }),
     });
-    if (!r.ok) return {};
-    const j = await r.json(); const out = {};
-    (j.results || []).forEach((m, i) => {
-      out[domains[i]] = { da: m.domain_authority ?? null, pa: m.page_authority ?? null, spam: m.spam_score ?? null,
+    const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch { j = {}; }
+    const out = {}; if (!r.ok || j.error) { out.__moz_debug = { status: r.status, body: txt.slice(0, 300) }; return out; }
+    ((j.result || {}).results_by_site || []).forEach((row, i) => {
+      const m = row.site_metrics || {}; const key = (row.site_query && row.site_query.original_site_query && row.site_query.original_site_query.query) || domains[i];
+      out[key] = { da: m.domain_authority ?? null, pa: m.page_authority ?? null, spam: (m.spam_score == null || m.spam_score < 0) ? null : m.spam_score,
         rootDomainsLinking: m.root_domains_to_root_domain ?? null };
     });
     return out;
