@@ -159,7 +159,8 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
+    ver = "20260914c"
+    return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
     return {"@type": "BreadcrumbList", "itemListElement": [
