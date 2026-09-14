@@ -75,30 +75,16 @@ MEGA = [
 
 def nav(p):
     r = p["rel"] or "./"
-    parts = []
-    for u, t, s, b in MEGA:
-        feat = " nav-mega__link--featured" if b == "PLUS" else ""
-        badge = '<span class="nav-mega__badge">' + b + '</span>' if b else ""
-        parts.append(f'<a class="nav-mega__link{feat}" href="{MG}/{u}" role="menuitem"><strong>{t}{badge}</strong><span>{s}</span></a>')
-    mega = "".join(parts)
     return f"""<nav class="hero-nav" aria-label="Primary">
   <a class="hero-nav__logo" href="{r}" aria-label="Mgroup Shopify Developer Tools — home"><span class="hero-nav__logo-mark" aria-hidden="true">{MARK}</span></a>
   <div class="hero-nav__menu" id="nav-menu">
     <div class="hero-nav__menu-bar" aria-hidden="true"><a class="hero-nav__menu-logo" href="{r}" aria-label="Mgroup home">{MARK}</a></div>
     <ul class="hero-nav__links">
-      <li><a href="{r}"{' aria-current="page"' if p["path"] == "/" else ""}>Tools</a></li>
-      <li><a href="{MG}/shopify-plus-agency/">About us</a></li>
-      <li class="nav-item nav-item--dropdown">
-        <button class="nav-link-btn" aria-expanded="false" aria-controls="nav-services-menu" type="button">Services<svg class="nav-caret" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <div class="nav-mega" id="nav-services-menu" role="menu">
-          <a class="nav-mega__heading" href="{MG}/services/">Core Shopify Services</a>
-          <div class="nav-mega__grid">{mega}</div>
-          <div class="nav-mega__foot"><strong>Shopify Plus experts</strong><p>We are a Shopify Plus Agency specializing in custom development, B2B, checkout extensibility, ERP/CRM integrations, and retained support for scaling brands.</p><a class="nav-mega__cta" href="{CONTACT}">Book a Free Consultation →</a></div>
-        </div>
-      </li>
-      <li><a href="{MG}/blogs/">Insights</a></li>
-      <li><a href="{MG}/vacancies/">Careers</a></li>
-      <li><a href="{CONTACT}">Contact</a></li>
+      <li><a href="{r}#authority"{' aria-current="page"' if p["path"] == "/" else ""}>Domain Authority</a></li>
+      <li><a href="{r}backlink-checker/"{' aria-current="page"' if p["path"] == "/backlink-checker/" else ""}>Backlink Checker</a></li>
+      <li><a href="{r}shopify-plus-pricing-calculator/"{' aria-current="page"' if p["path"] == "/shopify-plus-pricing-calculator/" else ""}>Plus Pricing</a></li>
+      <li><a href="{r}shopify-migration-checklist/"{' aria-current="page"' if p["path"] == "/shopify-migration-checklist/" else ""}>Migration Checklist</a></li>
+      <li><a href="{r}shopify-liquid-snippets/"{' aria-current="page"' if p["path"] == "/shopify-liquid-snippets/" else ""}>Liquid Snippets</a></li>
     </ul>
     <a class="hero-nav__cta" href="{CONTACT}">Get in touch{ARROW}</a>
   </div>
@@ -159,7 +145,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260914i"
+    ver = "20260914j"
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
