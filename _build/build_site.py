@@ -295,7 +295,8 @@ SERVICES6 = [
 services_grid = "".join(f'<article class="mg-service col-span-4"><h3 class="mg-service__title"><a href="{MG}/{u}">{t}</a></h3><p class="mg-service__desc">{d}</p></article>' for u, t, d in SERVICES6)
 
 HUB_FAQ = [
-  ("How does the Domain Authority Checker calculate its score?", "The authority score is 100 minus 10 times the base-10 logarithm of the domain's position in the Tranco list, a research-grade ranking of the most visited domains built from several traffic sources. Rank 1 scores 100, rank 1,000 scores 70, rank 1,000,000 scores 40. It is a traffic-based proxy comparable in spirit to Moz DA or Ahrefs DR, but it is not those metrics and does not measure backlinks."),
+  ("What do DA, PA, DR, UR and Spam Score mean?", "DA (Domain Authority) and PA (Page Authority) are Moz's 1–100 predictions of how well a domain or page will rank, built from its link profile; Spam Score is Moz's 0–100% estimate of how similar a site is to sites Google has penalised. DR (Domain Rating) and UR (URL Rating) are Ahrefs' 0–100 backlink-strength scores. Different indexes, so the numbers rarely match each other — use them together, not in isolation."),
+  ("How does the Domain Authority Checker calculate its own authority score?", "The authority score is 100 minus 10 times the base-10 logarithm of the domain's position in the Tranco list, a research-grade ranking of the most visited domains built from several traffic sources. Rank 1 scores 100, rank 1,000 scores 70, rank 1,000,000 scores 40. It is a traffic-based proxy comparable in spirit to Moz DA or Ahrefs DR, but it is not those metrics and does not measure backlinks."),
   ("Is the domain authority check free and private?", "Yes. Up to 25 domains per run, no sign-up and no API key. Requests go from your browser directly to the public Tranco API and the registry RDAP service; Mgroup never receives or stores the domains you check."),
   ("What does the verdict column mean?", "Strong means a well-ranked, established domain with no warning flags. Moderate and Low describe weaker traffic. Weak, Unranked and Avoid usually point to link farms, expired domains or brand-new sites — always confirm that a site links out with dofollow and has real editorial content before paying for a placement."),
   ("Are these Shopify developer tools really free?", "Yes. Every tool on mgroupweb.github.io is free, needs no account and sets no tracking cookies. The code is open source under the MIT license on GitHub."),
@@ -352,10 +353,10 @@ PAGES.append({
     <div class="container">
       <header class="section__head section__head--center">
         <span class="eyebrow">Free SEO tool</span>
-        <h2 class="section__title" id="authority-title">Domain Authority Checker: bulk website authority, traffic rank and domain age</h2>
-        <p class="section__lead">Paste up to 25 domains. No sign-up, no API key, nothing stored — the check runs in your browser against public data: the <a href="https://tranco-list.eu/" rel="noopener">Tranco</a> traffic ranking and registry RDAP records. We use it to vet backlink donors before paying for a placement.</p>
+        <h2 class="section__title" id="authority-title">Domain Authority Checker: DA, PA, DR, UR, Spam Score and traffic rank in bulk</h2>
+        <p class="section__lead">Paste up to 25 domains and get Moz DA, PA and Spam Score, Ahrefs DR and UR, a Tranco-based authority score, traffic rank trend, domain age and HTTPS status in one table. No sign-up, nothing stored. We use it to vet backlink donors before paying for a placement.</p>
       </header>
-      <div class="tool">
+      <div class="tool tool--wide">
         <form class="panel" id="auth-form" novalidate>
           <h2>Domains to check</h2>
           <div class="field">
@@ -368,9 +369,9 @@ PAGES.append({
         </form>
         <div class="panel" id="auth-results" hidden>
           <div class="result-hero" id="auth-summary"></div>
-          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Domain</th><th scope="col">Authority</th><th scope="col">Tranco rank</th><th scope="col">30-day</th><th scope="col">Age</th><th scope="col">HTTPS</th><th scope="col">Verdict</th></tr></thead><tbody id="auth-tbody"></tbody></table></div>
+          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Domain</th><th scope="col" title="Moz Domain Authority">DA</th><th scope="col" title="Moz Page Authority">PA</th><th scope="col" title="Moz Spam Score">Spam</th><th scope="col" title="Ahrefs Domain Rating">DR</th><th scope="col" title="Ahrefs URL Rating">UR</th><th scope="col" title="Tranco-based authority">Authority</th><th scope="col">Tranco rank</th><th scope="col">30-day</th><th scope="col">Age</th><th scope="col">HTTPS</th><th scope="col">Verdict</th></tr></thead><tbody id="auth-tbody"></tbody></table></div>
           <div class="toolbar"><button class="btn btn--ghost btn--sm" type="button" id="auth-copy">Copy CSV</button><button class="btn btn--ghost btn--sm" type="button" id="auth-download">Download CSV</button></div>
-          <p class="note">Authority = 100 − 10·log₁₀(Tranco rank): rank 1 → 100, rank 1,000 → 70, rank 1,000,000 → 40. A traffic-based proxy, not Moz DA or Ahrefs DR — it does not see backlinks. Before buying a link, also check that the site's articles link out with dofollow. Read our <a href="{MG}/blogs/shopify-partner-directory/">guide to vetting a Shopify agency</a> or ask Mgroup's <a href="{MG}/services/shopify-seo-ecommerce-marketing/">Shopify SEO team</a>.</p>
+          <p class="note">DA, PA and Spam Score come from the Moz Links API; DR and UR from the Ahrefs API, both via Mgroup's metrics proxy. Authority = 100 − 10·log₁₀(Tranco rank): rank 1 → 100, rank 1,000 → 70, rank 1,000,000 → 40 — a traffic-based score that works even when the proxy is offline, but it does not see backlinks. Before buying a link, also check that the site's articles link out with dofollow. Read our <a href="{MG}/blogs/shopify-partner-directory/">guide to vetting a Shopify agency</a> or ask Mgroup's <a href="{MG}/services/shopify-seo-ecommerce-marketing/">Shopify SEO team</a>.</p>
         </div>
       </div>
     </div>

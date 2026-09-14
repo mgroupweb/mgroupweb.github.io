@@ -1,0 +1,4 @@
+name = "mgroup-metrics"
+main = "metrics-worker.js"
+compatibility_date = "2026-09-01"
+# secrets: wrangler secret put MOZ_TOKEN ; wrangler secret put AHREFS_TOKEN ; wrangler secret put OPR_KEY

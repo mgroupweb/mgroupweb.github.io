@@ -8,7 +8,10 @@
       results = document.getElementById('auth-results'), tbody = document.getElementById('auth-tbody'),
       summary = document.getElementById('auth-summary'), copyBtn = document.getElementById('auth-copy'),
       dlBtn = document.getElementById('auth-download');
-  var MAX = 25, rows = [];
+  var MAX = 25, rows = [], metrics = {}, providers = null;
+  /* Optional metrics proxy (worker/metrics-worker.js) — supplies Moz DA/PA/Spam Score, Ahrefs DR/UR, Open PageRank.
+     Leave empty until the Worker is deployed; the table then shows "—" for those columns. */
+  var METRICS_ENDPOINT = '';
   var RISKY_TLD = ['xyz','top','icu','buzz','click','cyou','monster','rest','fun','sbs','cfd','bond','lol','quest','uno','gq','tk','ml','cf','ga'];
 
   function normalize(line) {
@@ -66,6 +69,16 @@
       .then(function (v) { clearTimeout(t); return v; });
   }
 
+  function fetchMetrics(list) {
+    providers = null; metrics = {};
+    if (!METRICS_ENDPOINT) return Promise.resolve();
+    return withTimeout(fetch(METRICS_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ domains: list }) }), 25000)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j) { metrics = j.metrics || {}; providers = j.providers || null; } })
+      .catch(function () {});
+  }
+  function m(d, k) { var x = metrics[d]; return x && x[k] != null ? x[k] : null; }
+  function mcell(d, k, cls) { var v = m(d, k); return '<td>' + (v == null ? '<span class="muted">—</span>' : '<span class="score-pill ' + (cls || '') + '">' + v + '</span>') + '</td>'; }
   function verdict(r) {
     var flags = [];
     var tld = r.domain.split('.').pop();
@@ -75,6 +88,7 @@
     else if (!r.rank) flags.push('not in Tranco top ranking');
     else if (r.rank > 2000000) flags.push('very low traffic');
     if (r.live === false) flags.push('not reachable over HTTPS');
+    var sp = m(r.domain, 'spam'); if (sp != null && sp >= 30) flags.push('Moz spam score ' + sp + '%');
     var label;
     if (!r.trancoOk) label = 'Unknown';
     else if (r.score == null) label = flags.length > 1 ? 'Avoid' : 'Unranked';
@@ -94,6 +108,7 @@
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<th scope="row">' + esc(r.domain) + '</th>' +
+        mcell(r.domain, 'da') + mcell(r.domain, 'pa') + mcell(r.domain, 'spam', 'score-pill--spam') + mcell(r.domain, 'dr') + mcell(r.domain, 'ur') +
         '<td><span class="score-pill score-pill--' + band(r.score) + '">' + (r.score == null ? '—' : r.score) + '</span></td>' +
         '<td>' + (r.rank ? '#' + fmt(r.rank) : r.trancoOk ? 'not ranked' : 'n/a') + '</td>' +
         '<td class="' + (delta == null ? '' : delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : '') + '">' + (delta == null ? '—' : (delta > 0 ? '▲ ' : delta < 0 ? '▼ ' : '') + fmt(Math.abs(delta))) + '</td>' +
@@ -103,17 +118,18 @@
       tbody.appendChild(tr);
     });
     summary.innerHTML = '<span class="eyebrow">Result</span><div class="result-hero__num">' + rows.length + ' domain' + (rows.length === 1 ? '' : 's') + ' checked</div>' +
-      '<div class="result-hero__sub">' + strong + ' strong · ' + risky + ' with warnings · authority = 100 − 10·log₁₀(Tranco rank)</div>';
+      '<div class="result-hero__sub">' + strong + ' strong · ' + risky + ' with warnings · ' +
+      (providers ? ('Moz ' + (providers.moz ? 'on' : 'off') + ' · Ahrefs ' + (providers.ahrefs ? 'on' : 'off')) : 'DA/PA/Spam (Moz) and DR/UR (Ahrefs) columns need the metrics proxy — see the note below') + '</div>';
     results.hidden = false;
   }
   function band(s) { return s == null ? 'none' : s >= 55 ? 'high' : s >= 45 ? 'mid' : 'low'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function csv() {
-    var head = ['domain', 'authority_score', 'tranco_rank', 'rank_30d_ago', 'registered', 'age_years', 'https_reachable', 'verdict', 'flags'];
+    var head = ['domain', 'moz_da', 'moz_pa', 'moz_spam_score', 'ahrefs_dr', 'ahrefs_ur', 'authority_score', 'tranco_rank', 'rank_30d_ago', 'registered', 'age_years', 'https_reachable', 'verdict', 'flags'];
     var lines = [head.join(',')].concat(rows.map(function (r) {
       var v = verdict(r);
-      return [r.domain, r.score == null ? '' : r.score, r.rank || '', r.rankMonth || '', r.created ? r.created.toISOString().slice(0, 10) : '',
+      return [r.domain, m(r.domain,'da') ?? '', m(r.domain,'pa') ?? '', m(r.domain,'spam') ?? '', m(r.domain,'dr') ?? '', m(r.domain,'ur') ?? '', r.score == null ? '' : r.score, r.rank || '', r.rankMonth || '', r.created ? r.created.toISOString().slice(0, 10) : '',
         r.age == null ? '' : r.age.toFixed(2), r.live === true ? 'yes' : r.live === false ? 'no' : '', v.label, '"' + v.flags.join('; ') + '"'].join(',');
     }));
     return lines.join('\n');
@@ -121,9 +137,10 @@
 
   function run(list) {
     rows = []; results.hidden = true; runBtn.disabled = true;
+    var mp = fetchMetrics(list);
     var i = 0;
     function next() {
-      if (i >= list.length) { status.textContent = 'Done. ' + list.length + ' domain' + (list.length === 1 ? '' : 's') + ' checked in your browser; nothing was stored.'; runBtn.disabled = false; render(); return; }
+      if (i >= list.length) { mp.then(function () { render(); }); status.textContent = 'Done. ' + list.length + ' domain' + (list.length === 1 ? '' : 's') + ' checked in your browser; nothing was stored.'; runBtn.disabled = false; render(); return; }
       var d = list[i++]; status.textContent = 'Checking ' + d + ' (' + i + '/' + list.length + ')…';
       Promise.all([tranco(d), rdap(d), reachable(d)]).then(function (res) {
         var t = res[0], created = res[1];

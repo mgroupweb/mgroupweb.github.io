@@ -126,3 +126,7 @@ textarea.input{resize:vertical;min-height:9.5rem;font-family:var(--font-mono);fo
 .score-pill--low{color:var(--c-slate)}
 .score-pill--none{color:var(--c-slate);background:transparent;box-shadow:inset 0 0 0 1px var(--c-line)}
 #auth-results .result-hero{margin-bottom:1rem}
+
+.auth-table .muted{color:var(--c-slate)}
+.score-pill--spam{background:transparent;box-shadow:inset 0 0 0 1px var(--c-line);color:var(--c-charcoal)}
+.tool--wide .panel + .panel{margin-top:var(--grid-gap)}
