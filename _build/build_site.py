@@ -295,6 +295,9 @@ SERVICES6 = [
 services_grid = "".join(f'<article class="mg-service col-span-4"><h3 class="mg-service__title"><a href="{MG}/{u}">{t}</a></h3><p class="mg-service__desc">{d}</p></article>' for u, t, d in SERVICES6)
 
 HUB_FAQ = [
+  ("How does the Domain Authority Checker calculate its score?", "The authority score is 100 minus 10 times the base-10 logarithm of the domain's position in the Tranco list, a research-grade ranking of the most visited domains built from several traffic sources. Rank 1 scores 100, rank 1,000 scores 70, rank 1,000,000 scores 40. It is a traffic-based proxy comparable in spirit to Moz DA or Ahrefs DR, but it is not those metrics and does not measure backlinks."),
+  ("Is the domain authority check free and private?", "Yes. Up to 25 domains per run, no sign-up and no API key. Requests go from your browser directly to the public Tranco API and the registry RDAP service; Mgroup never receives or stores the domains you check."),
+  ("What does the verdict column mean?", "Strong means a well-ranked, established domain with no warning flags. Moderate and Low describe weaker traffic. Weak, Unranked and Avoid usually point to link farms, expired domains or brand-new sites — always confirm that a site links out with dofollow and has real editorial content before paying for a placement."),
   ("Are these Shopify developer tools really free?", "Yes. Every tool on mgroupweb.github.io is free, needs no account and sets no tracking cookies. The code is open source under the MIT license on GitHub."),
   ("Who builds and maintains these tools?", f"<a href=\"{MG}/\">Mgroup</a>, a Shopify development agency and certified Shopify Select Partner since 2016 with a team of 20+ working exclusively on Shopify. The tools reflect the same figures, checklists and code patterns we use on client projects."),
   ("How accurate is the Shopify Plus pricing calculator?", "It models the published structure of Shopify Plus pricing — a flat base fee of about $2,300–$2,500 per month, a 0.25% revenue-based fee above roughly $800k in monthly sales, a reported $40,000 monthly cap and the extra fee for third-party gateways. Shopify revises terms periodically, so confirm current numbers with Shopify before you sign."),
@@ -327,22 +330,52 @@ SNIP_FAQ = [
 # ---- HUB
 PAGES.append({
   "path": "/", "rel": "",
-  "title": "Free Shopify Developer Tools by Mgroup | Plus Pricing, Migration, Liquid",
-  "desc": "Free Shopify developer tools from Mgroup, a Shopify Select Partner since 2016: Shopify Plus pricing calculator, migration checklist and copy-paste Liquid snippets.",
+  "title": "Free Shopify Developer Tools by Mgroup | Domain Authority Checker, Plus Pricing, Migration",
+  "desc": "Free tools from Mgroup, a Shopify Select Partner since 2016: bulk domain authority checker (no sign-up), Shopify Plus pricing calculator, migration checklist and copy-paste Liquid snippets.",
   "hero": {"title": '<span class="grad">Free Shopify</span><br>Developer Tools',
-           "desc": "Practical, no-login tools we use in real Shopify projects — built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. Model your Shopify Plus bill, migrate without losing SEO, or drop production-ready Liquid into your theme.",
-           "actions": [("btn-pill--white", "shopify-plus-pricing-calculator/", "Plus Pricing Calculator"), ("btn-pill--ghost-light", "#tools", "See all tools")]},
+           "desc": "Practical, no-login tools we use in real Shopify projects — built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. Check the authority of any domain in bulk, model your Shopify Plus bill, migrate without losing SEO, or drop production-ready Liquid into your theme.",
+           "actions": [("btn-pill--white", "#authority", "Domain Authority Checker"), ("btn-pill--ghost-light", "#tools", "See all tools")]},
   "ld": [
     {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "Mgroup Shopify Developer Tools", "publisher": {"@id": MG + "/#organization"}, "inLanguage": "en"},
     ORG,
     {"@type": "CollectionPage", "url": SITE + "/", "name": "Free Shopify Developer Tools by Mgroup", "isPartOf": {"@id": SITE + "/#website"}, "about": {"@id": MG + "/#organization"},
      "hasPart": [
+       {"@type": "WebApplication", "name": "Domain Authority Checker", "url": SITE + "/#authority", "applicationCategory": "SEO tool", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
        {"@type": "WebApplication", "name": "Shopify Plus Pricing Calculator", "url": SITE + "/shopify-plus-pricing-calculator/"},
        {"@type": "HowTo", "name": "Shopify Migration Checklist", "url": SITE + "/shopify-migration-checklist/"},
        {"@type": "TechArticle", "name": "Shopify Liquid Snippets", "url": SITE + "/shopify-liquid-snippets/"}]},
     faq_ld(HUB_FAQ)
   ],
+  "scripts": ["assets/js/authority.js"],
   "body": f"""
+  <section class="section" id="authority" aria-labelledby="authority-title">
+    <div class="container">
+      <header class="section__head section__head--center">
+        <span class="eyebrow">Free SEO tool</span>
+        <h2 class="section__title" id="authority-title">Domain Authority Checker: bulk website authority, traffic rank and domain age</h2>
+        <p class="section__lead">Paste up to 25 domains. No sign-up, no API key, nothing stored — the check runs in your browser against public data: the <a href="https://tranco-list.eu/" rel="noopener">Tranco</a> traffic ranking and registry RDAP records. We use it to vet backlink donors before paying for a placement.</p>
+      </header>
+      <div class="tool">
+        <form class="panel" id="auth-form" novalidate>
+          <h2>Domains to check</h2>
+          <div class="field">
+            <label for="auth-input">One domain per line (max 25)</label>
+            <textarea class="input" id="auth-input" rows="8" placeholder="shopify.com&#10;example.co.uk&#10;yourstore.com" spellcheck="false" autocomplete="off"></textarea>
+            <p class="hint">Full URLs are fine — protocol, www and paths are stripped. Subdomains are checked at the registrable domain.</p>
+          </div>
+          <div class="toolbar"><button class="btn btn--dark" type="submit" id="auth-run">Check authority{ARROW_BTN}</button><button class="btn btn--ghost" type="button" id="auth-sample">Try a sample</button></div>
+          <p class="note" id="auth-status" aria-live="polite">Results appear here in a few seconds.</p>
+        </form>
+        <div class="panel" id="auth-results" hidden>
+          <div class="result-hero" id="auth-summary"></div>
+          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Domain</th><th scope="col">Authority</th><th scope="col">Tranco rank</th><th scope="col">30-day</th><th scope="col">Age</th><th scope="col">HTTPS</th><th scope="col">Verdict</th></tr></thead><tbody id="auth-tbody"></tbody></table></div>
+          <div class="toolbar"><button class="btn btn--ghost btn--sm" type="button" id="auth-copy">Copy CSV</button><button class="btn btn--ghost btn--sm" type="button" id="auth-download">Download CSV</button></div>
+          <p class="note">Authority = 100 − 10·log₁₀(Tranco rank): rank 1 → 100, rank 1,000 → 70, rank 1,000,000 → 40. A traffic-based proxy, not Moz DA or Ahrefs DR — it does not see backlinks. Before buying a link, also check that the site's articles link out with dofollow. Read our <a href="{MG}/blogs/shopify-partner-directory/">guide to vetting a Shopify agency</a> or ask Mgroup's <a href="{MG}/services/shopify-seo-ecommerce-marketing/">Shopify SEO team</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="tools" aria-labelledby="tools-title">
     <div class="container">
       <header class="section__head section__head--center">
@@ -668,7 +701,7 @@ with open(os.path.join(OUT, "404.html"), "w") as f:
 
 with open(os.path.join(OUT, "sitemap.xml"), "w") as f:
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-            "".join(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>{'1.0' if p['path']=='/' else '0.8'}</priority></url>\n" for p in PAGES) +
+            "".join(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-09-14</lastmod><changefreq>monthly</changefreq><priority>{'1.0' if p['path']=='/' else '0.8'}</priority></url>\n" for p in PAGES) +
             "</urlset>\n")
 with open(os.path.join(OUT, "robots.txt"), "w") as f:
     f.write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
