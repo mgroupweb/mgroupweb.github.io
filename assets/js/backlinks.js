@@ -47,6 +47,46 @@
     });
   });
 
+  /* ---------- backlinks list (Moz) ---------- */
+  var lf = document.getElementById('bl-list-form'), lIn = document.getElementById('bl-list-domain'), lLimit = document.getElementById('bl-list-limit'),
+      lStatus = document.getElementById('bl-list-status'), lOut = document.getElementById('bl-list-out'), lBody = document.getElementById('bl-list-tbody'),
+      lSum = document.getElementById('bl-list-summary'), lMore = document.getElementById('bl-list-more'), lAlert = document.getElementById('bl-list-alert'), lCopy = document.getElementById('bl-list-copy');
+  var lRows = [], lNext = null, lDomain = null;
+  function lAlertShow(m) { if (!m) { lAlert.hidden = true; return; } lAlert.textContent = m; lAlert.hidden = false; }
+  function loadLinks(fresh) {
+    var d = norm(lIn.value); if (!d) { lStatus.textContent = 'Enter a domain like example.com'; return; }
+    var limit = parseInt(lLimit.value, 10) || 10;
+    if (fresh) { lRows = []; lNext = null; lDomain = d; lOut.hidden = true; lAlertShow(null); }
+    lStatus.textContent = 'Loading backlinks for ' + d + '…'; lMore.disabled = true;
+    post('/backlinks', { domain: d, limit: limit, token: lNext }).then(function (r) { return r.status === 429 ? { status: 'rate' } : r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (j) {
+      lMore.disabled = false;
+      if (!j) { lStatus.textContent = 'The proxy did not respond. Try again in a moment.'; return; }
+      if (j.status === 'rate') { lAlertShow('Limit reached: 10 checks per minute from one network.'); lStatus.textContent = ''; lOut.hidden = false; return; }
+      if (j.notice) lAlertShow(j.notice);
+      lRows = lRows.concat(j.links || []); lNext = j.nextToken || null;
+      var q = j.mozQuota;
+      lBody.innerHTML = lRows.map(function (l) {
+        return '<tr><th scope="row"><a href="https://' + esc(l.sourcePage) + '" rel="nofollow noopener" target="_blank">' + esc((l.sourcePage || '').slice(0, 70)) + '</a>' + (l.sourceTitle ? '<br><small>' + esc(l.sourceTitle.slice(0, 80)) + '</small>' : '') + '</th>' +
+          '<td><span class="score-pill ' + (l.sourceDA >= 40 ? 'score-pill--high' : l.sourceDA >= 20 ? 'score-pill--mid' : 'score-pill--low') + '">' + (l.sourceDA == null ? '—' : l.sourceDA) + '</span></td>' +
+          '<td>' + (l.sourceSpam == null ? '—' : l.sourceSpam + '%') + '</td>' +
+          '<td>' + esc(l.anchor || '—') + '</td>' +
+          '<td><span class="score-pill ' + (l.nofollow ? 'score-pill--low' : 'score-pill--high') + '">' + (l.nofollow ? 'nofollow' : 'follow') + '</span>' + (l.redirect ? ' <small>redirect</small>' : '') + '</td>' +
+          '<td>' + esc((l.targetPage || '').replace(/^[^\/]+/, '') || '/') + '</td>' +
+          '<td>' + esc(l.firstSeen || '—') + (l.disappeared ? '<br><small>gone ' + esc(l.disappeared) + '</small>' : '') + '</td></tr>';
+      }).join('');
+      var follow = lRows.filter(function (l) { return !l.nofollow; }).length, doms = {}; lRows.forEach(function (l) { doms[l.sourceDomain] = 1; });
+      lSum.innerHTML = '<span class="eyebrow">' + esc(lDomain) + '</span><div class="result-hero__num">' + lRows.length + ' backlink' + (lRows.length === 1 ? '' : 's') + ' shown</div><div class="result-hero__sub">' + follow + ' follow · ' + (lRows.length - follow) + ' nofollow · ' + Object.keys(doms).length + ' linking domain' + (Object.keys(doms).length === 1 ? '' : 's') + ' in this sample · sorted by source DA · Moz Link Index' + (q && q.allotted ? ' · ' + Math.max(0, q.allotted - q.used) + ' of ' + q.allotted + ' Moz rows left this month' : '') + (j.cached ? ' · from cache' : '') + '</div>';
+      lMore.hidden = !lNext; lOut.hidden = false;
+      lStatus.textContent = lRows.length ? 'Done.' : (j.status === 'ok' ? 'No links found in the Moz index for this domain.' : '');
+    });
+  }
+  lf.addEventListener('submit', function (e) { e.preventDefault(); loadLinks(true); });
+  lMore.addEventListener('click', function () { loadLinks(false); });
+  lCopy.addEventListener('click', function () {
+    var text = ['source_page,source_da,source_spam,anchor,rel,target_page,first_seen,last_seen'].concat(lRows.map(function (l) { return [l.sourcePage, l.sourceDA == null ? '' : l.sourceDA, l.sourceSpam == null ? '' : l.sourceSpam, '"' + String(l.anchor || '').replace(/"/g, '""') + '"', l.nofollow ? 'nofollow' : 'follow', l.targetPage || '', l.firstSeen || '', l.lastSeen || ''].join(','); })).join('\n');
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { lCopy.textContent = 'Copied'; setTimeout(function () { lCopy.textContent = 'Copy CSV'; }, 1500); }, function () { window.prompt('Copy the CSV below', text); });
+  });
+
   /* ---------- verify ---------- */
   vf.addEventListener('submit', function (e) {
     e.preventDefault(); showAlert(null);

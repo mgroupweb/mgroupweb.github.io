@@ -145,7 +145,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260914j"
+    ver = "20260914l"
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
@@ -682,7 +682,7 @@ PAGES.append({
 
 # ---- BACKLINK CHECKER
 BL_FAQ = [
-  ("Can I see the full list of backlinks for any domain here?", "No — and no free tool really can. Complete backlink lists come from paid link indexes (Ahrefs, Moz Links API, Semrush, Majestic); free checkers that show lists resell those APIs with tight caps. This page gives you the free part honestly: link-profile metrics from Open PageRank (Common Crawl), Moz DA/PA/Spam via our proxy, the Tranco ranking, and a verifier that inspects the exact pages you already know about."),
+  ("Where does the backlinks list come from?", "From the Moz Link Index through Mgroup's proxy, sorted by the authority of the linking page, with anchor text, follow status, target URL and first-seen date. Moz bills one row per link, so the free allowance is a sample rather than the full profile; results are cached for a week and shared between visitors. Complete lists of hundreds of thousands of links exist only in paid indexes (Ahrefs, Moz, Semrush, Majestic)."),
   ("What does the backlink verifier check?", "It fetches the source page like a crawler and reports the HTTP status, whether an actual <a href> to your domain exists in the HTML, the rel attribute (follow, nofollow, sponsored, ugc), the anchor text, where the link sits (content, nav, footer), whether the page is indexable (meta robots / X-Robots-Tag) and where its canonical points. Links injected by JavaScript are not seen, which is the same thing Google ignores for link equity."),
   ("Why does a link show as ‘No link’ when I can see it on the page?", "Usually the link is rendered by JavaScript after load, sits behind a redirect script (r.example.com/redirect?...) or is a plain-text mention without an anchor tag. None of those pass authority. Some sites also serve different HTML to crawlers; the verifier identifies itself as a bot."),
   ("Is a nofollow backlink worthless?", "Not worthless, but it passes no ranking signal by itself. Nofollow links from real sites still bring referral traffic, brand mentions that AI answer engines pick up, and diversity in your link profile. For ranking, prioritise dofollow links inside editorial content on topically related sites."),
@@ -690,12 +690,12 @@ BL_FAQ = [
 ]
 PAGES.append({
   "path": "/backlink-checker/", "rel": "../",
-  "title": "Free Backlink Checker: Verify Dofollow Links, Anchors and Link Profile | Mgroup",
-  "desc": "Free backlink checker: see a domain's link profile (Open PageRank, referring domains, Moz DA, Spam Score, Tranco rank) and verify specific backlinks — dofollow or nofollow, anchor text, indexability. No sign-up.",
+  "title": "Free Backlink Checker: Backlinks List, Dofollow Verification and Link Profile | Mgroup",
+  "desc": "Free backlink checker: list backlinks to any site with source DA, anchor and follow status (Moz Link Index), see the link profile (Open PageRank, referring domains, Spam Score) and verify specific backlinks. No sign-up.",
   "scripts": ["assets/js/backlinks.js"],
   "hero": {"title": 'Free <span class="grad">Backlink</span><br>Checker',
-           "desc": "Check a domain's link profile and verify the backlinks you are buying or building: does the page really link to you, is it dofollow, what is the anchor, is the page indexable. Built by Mgroup, a Shopify SEO agency, from the checklist we run before paying for any placement.",
-           "actions": [("btn-pill--white", "#verify", "Verify my backlinks"), ("btn-pill--ghost-light", "#profile", "Check a link profile")]},
+           "desc": "See who links to a site — source page, DA, anchor, follow status — check the domain's link profile, and verify the backlinks you are buying or building: does the page really link to you, is it dofollow, is it indexable. Built by Mgroup, a Shopify SEO agency, from the checklist we run before paying for any placement.",
+           "actions": [("btn-pill--white", "#backlinks", "Show backlinks"), ("btn-pill--ghost-light", "#verify", "Verify my backlinks")]},
   "ld": [
     ORG,
     {"@type": "WebApplication", "name": "Backlink Checker", "url": SITE + "/backlink-checker/", "applicationCategory": "SEO tool", "operatingSystem": "Any", "isAccessibleForFree": True,
@@ -719,6 +719,31 @@ PAGES.append({
           <p class="note" id="bl-profile-status" aria-live="polite">Results appear here in a few seconds.</p>
         </form>
         <div class="panel" id="bl-profile-out" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="backlinks" aria-labelledby="backlinks-title">
+    <div class="container">
+      <header class="section__head section__head--center">
+        <span class="eyebrow">Backlinks list</span>
+        <h2 class="section__title" id="backlinks-title">Backlinks to a site from other sites: source page, DA, anchor, follow status</h2>
+        <p class="section__lead">Live from the Moz Link Index, sorted by the authority of the linking page. Each backlink is one Moz row, so the free tier shows a sample; results are cached for a week and shared between visitors.</p>
+      </header>
+      <div class="tool tool--wide">
+        <form class="panel" id="bl-list-form" novalidate>
+          <div class="field"><label for="bl-list-domain">Domain</label><input class="input" id="bl-list-domain" type="text" placeholder="example.com" autocomplete="off" spellcheck="false"></div>
+          <div class="field"><label for="bl-list-limit">Links per page</label><select class="input" id="bl-list-limit"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select></div>
+          <div class="toolbar"><button class="btn btn--dark" type="submit">Show backlinks{ARROW_BTN}</button></div>
+          <p class="note" id="bl-list-status" aria-live="polite">Results appear here in a few seconds.</p>
+        </form>
+        <div class="panel" id="bl-list-out" hidden>
+          <div class="alert" id="bl-list-alert" role="status" aria-live="polite" hidden></div>
+          <div class="result-hero" id="bl-list-summary"></div>
+          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Source page</th><th scope="col">DA</th><th scope="col">Spam</th><th scope="col">Anchor</th><th scope="col">rel</th><th scope="col">Target</th><th scope="col">First seen</th></tr></thead><tbody id="bl-list-tbody"></tbody></table></div>
+          <div class="toolbar"><button class="btn btn--dark btn--sm" type="button" id="bl-list-more" hidden>Load more</button><button class="btn btn--ghost btn--sm" type="button" id="bl-list-copy">Copy CSV</button></div>
+          <p class="note">Data: Moz Link Index via Mgroup's proxy. Moz counts one row per link; the shared free allowance is small, so use "Load more" deliberately. When the monthly allowance is spent, cached results keep working and the profile and verifier sections above and below are unaffected.</p>
+        </div>
       </div>
     </div>
   </section>

@@ -27,6 +27,7 @@ export default {
     const path = new URL(req.url).pathname;
     if (path === '/verify') return verifyBacklinks(req, env, ctx, cors);
     if (path === '/profile') return linkProfile(req, env, ctx, cors);
+    if (path === '/backlinks') return backlinkList(req, env, ctx, cors);
 
     // per-IP throttle: Workers Rate Limiting binding (10 checks / 60 s), KV fallback (10 / 10 min)
     const ip = req.headers.get('CF-Connecting-IP') || 'x';
@@ -164,6 +165,41 @@ async function checkOne(source, target) {
     r.indexable = res.status === 200 && !noindex;
   } catch (e) { r.error = String(e && e.name === 'AbortError' ? 'timeout' : (e && e.message) || e).slice(0, 120); }
   return r;
+}
+
+/* ---------- Backlink list (Moz Link Index, data.site.link.list). 1 link = 1 Moz row; cached 7 days per page of results. ---------- */
+async function backlinkList(req, env, ctx, cors) {
+  let body; try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400, cors); }
+  const d = normalize(body.domain || ''); if (!d) return json({ error: 'no domain' }, 400, cors);
+  const limit = [5, 10, 25, 50].includes(body.limit) ? body.limit : 10;
+  const token = typeof body.token === 'string' && /^[A-Za-z0-9_-]{4,64}$/.test(body.token) ? body.token : null;
+  if (!env.MOZ_TOKEN) return json({ domain: d, links: [], status: 'off' }, 200, cors);
+  const key = 'bl:' + d + ':' + limit + ':' + (token || '0');
+  if (env.KV) { const c = await env.KV.get(key); if (c) { const o = JSON.parse(c); o.cached = true; o.mozQuota = await mozQuota(env); return json(o, 200, cors); } }
+  const quota = await mozQuota(env);
+  if (quota && quota.allotted && quota.used + limit > quota.allotted) {
+    return json({ domain: d, links: [], status: 'quota', mozQuota: quota, notice: 'Moz monthly quota cannot cover ' + limit + ' more rows (' + Math.max(0, quota.allotted - quota.used) + ' left until ' + (quota.reset || 'next month') + '). Cached results still show.' }, 200, cors);
+  }
+  const call = async (opts) => {
+    const r = await fetch('https://api.moz.com/jsonrpc', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-moz-token': env.MOZ_TOKEN },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 'mgroup-links-' + Date.now().toString().padStart(24, '0'), method: 'data.site.link.list',
+        params: { data: { site_query: { query: d, scope: 'domain' }, ...(opts ? { options: opts } : {}), offset: { limit, ...(token ? { token } : {}) } } } }) });
+    return r.json();
+  };
+  let j = await call({ filter: 'external', sort: 'source_domain_authority' });
+  if (j.error) j = await call(null);
+  if (j.error) {
+    const msg = (j.error.message || '').slice(0, 200); const q = /quota|limit|exceed|insufficient/i.test(msg);
+    return json({ domain: d, links: [], status: q ? 'quota' : 'error', notice: q ? 'Moz quota exhausted.' : 'Moz API error: ' + msg, mozQuota: quota }, 200, cors);
+  }
+  const res = j.result || {};
+  const links = (res.links || []).map(l => { const sm = l.source_site_metrics || {}, tm = l.target_site_metrics || {}; return {
+    sourcePage: sm.page || null, sourceDomain: sm.root_domain || null, sourceTitle: (sm.title || '').slice(0, 120), sourceDA: sm.domain_authority ?? null, sourcePA: sm.page_authority ?? null, sourceSpam: (sm.spam_score == null || sm.spam_score < 0) ? null : sm.spam_score,
+    targetPage: tm.page || null, anchor: (l.anchor_text || '').slice(0, 160), nofollow: !!l.nofollow, redirect: !!l.redirect, firstSeen: l.date_first_seen || null, lastSeen: l.date_last_seen || null, disappeared: l.date_disappeared || null }; });
+  const out = { domain: d, links, nextToken: res.offset && res.offset.token ? res.offset.token : null, status: 'ok' };
+  if (env.KV) { ctx.waitUntil(env.KV.put(key, JSON.stringify(out), { expirationTtl: 604800 })); if (quota) { quota.used += links.length; ctx.waitUntil(env.KV.put('moz:quota', JSON.stringify(quota), { expirationTtl: 3600 })); } }
+  out.mozQuota = quota ? { ...quota, used: quota.used } : null;
+  return json(out, 200, cors);
 }
 
 /* ---------- Link profile summary for a target domain: Open PageRank current + 12-month history (free) ---------- */
