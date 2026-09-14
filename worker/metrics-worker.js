@@ -9,7 +9,6 @@ const ALLOWED_ORIGINS = ['https://mgroupweb.github.io', 'http://localhost:8765']
 const MAX_DOMAINS = 25;
 const THROTTLE = new Map();
 const MEMO = new Map();
-let LAST_ALERT = 0;          // owner alert de-dupe (per isolate)
 let MOZ_STATUS = 'ok';       // ok | quota | error
 
 export default {
@@ -66,7 +65,6 @@ export default {
     if (status.moz === 'quota') {
       const next = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
       notice = 'Moz monthly API quota is used up — DA, PA and Spam Score are unavailable until ' + next + '. Authority, rank and age still work.';
-      ctx.waitUntil(alertOwner(env, notice));
     } else if (status.moz === 'error') {
       notice = 'Moz API did not respond — DA, PA and Spam Score are temporarily unavailable.';
     }
@@ -74,18 +72,6 @@ export default {
     return json({ providers: { moz: !!env.MOZ_TOKEN, ahrefs: !!env.AHREFS_TOKEN, opr: !!env.OPR_KEY }, status, notice, metrics: out }, 200, cors);
   },
 };
-
-/* Owner alert: Slack-compatible incoming webhook (secret ALERT_WEBHOOK). At most once per 24h per isolate. */
-async function alertOwner(env, text) {
-  if (!env.ALERT_WEBHOOK) return;
-  const now = Date.now();
-  if (env.KV) { if (await env.KV.get('alerted')) return; await env.KV.put('alerted', '1', { expirationTtl: 86400 }); }
-  else { if (now - LAST_ALERT < 86400000) return; LAST_ALERT = now; }
-  try {
-    await fetch(env.ALERT_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: ':warning: mgroupweb.github.io Domain Authority Checker — ' + text }) });
-  } catch {}
-}
 
 function normalize(s) {
   s = String(s || '').trim().toLowerCase().replace(/^[a-z]+:\/\//, '').replace(/^www\./, '').split(/[\/?#]/)[0];
