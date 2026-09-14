@@ -24,6 +24,9 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     if (req.method !== 'POST') return json({ error: 'POST only' }, 405, cors);
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: 'origin not allowed' }, 403, cors);
+    const path = new URL(req.url).pathname;
+    if (path === '/verify') return verifyBacklinks(req, env, ctx, cors);
+    if (path === '/profile') return linkProfile(req, env, ctx, cors);
 
     // per-IP throttle: Workers Rate Limiting binding (10 checks / 60 s), KV fallback (10 / 10 min)
     const ip = req.headers.get('CF-Connecting-IP') || 'x';
@@ -117,6 +120,67 @@ async function radarMetrics(domains, env) {
     } catch {}
   }));
   return out;
+}
+
+/* ---------- Backlink verification: fetch each source page and look for links to the target domain ---------- */
+async function verifyBacklinks(req, env, ctx, cors) {
+  let body; try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400, cors); }
+  const pairs = (body.pairs || []).slice(0, 25).map(p => ({ source: String(p.source || '').trim(), target: normalize(p.target || '') })).filter(p => /^https?:\/\//i.test(p.source) && p.target);
+  if (!pairs.length) return json({ error: 'no pairs' }, 400, cors);
+  const results = await Promise.all(pairs.map(p => checkOne(p.source, p.target)));
+  return json({ results }, 200, cors);
+}
+async function checkOne(source, target) {
+  const r = { source, target, status: null, found: false, links: [], robots: null, xRobots: null, canonical: null, indexable: null, error: null, finalUrl: null };
+  try {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), 12000);
+    const res = await fetch(source, { redirect: 'follow', signal: c.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MgroupBacklinkChecker/1.0; +https://mgroupweb.github.io/backlink-checker/)', 'Accept': 'text/html,*/*' } });
+    clearTimeout(t);
+    r.status = res.status; r.finalUrl = res.url;
+    r.xRobots = res.headers.get('x-robots-tag');
+    const html = (await res.text()).slice(0, 2500000);
+    const m = html.match(/<meta[^>]+name=["']?robots["']?[^>]*content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]*name=["']?robots["']?/i);
+    r.robots = m ? m[1] : null;
+    const cm = html.match(/<link[^>]+rel=["']?canonical["']?[^>]*href=["']([^"']+)["']/i) || html.match(/<link[^>]+href=["']([^"']+)["'][^>]*rel=["']?canonical["']?/i);
+    r.canonical = cm ? cm[1] : null;
+    const bodyStart = Math.max(0, html.search(/<body[\s>]/i));
+    const tagRe = /<a\b[^>]*href=["']?([^"'\s>]+)["']?[^>]*>([\s\S]*?)<\/a>/gi; let a;
+    const esc = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const hostRe = new RegExp('^(?:https?:)?//(?:[a-z0-9-]+\\.)*' + esc + '(?:[/?#:]|$)', 'i');
+    while ((a = tagRe.exec(html)) !== null) {
+      const href = a[1]; if (!hostRe.test(href)) continue;
+      const tag = a[0].slice(0, a[0].indexOf('>') + 1);
+      const relM = tag.match(/\brel=["']?([^"'>]+)["']?/i); const rel = relM ? relM[1].toLowerCase() : '';
+      const anchor = a[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) || (/<img/i.test(a[2]) ? '[image]' : '');
+      const pos = a.index; const inBody = pos >= bodyStart;
+      const ctxBefore = html.slice(Math.max(0, pos - 4000), pos).toLowerCase();
+      const inFooter = /<footer[\s>]/.test(ctxBefore) && !/<\/footer>/.test(ctxBefore);
+      const inNav = /<nav[\s>]/.test(ctxBefore) && !/<\/nav>/.test(ctxBefore);
+      r.links.push({ href: href.slice(0, 200), rel: rel || 'follow', follow: !/nofollow|sponsored|ugc/.test(rel), anchor, area: inFooter ? 'footer' : inNav ? 'nav' : inBody ? 'content' : 'head' });
+      if (r.links.length >= 10) break;
+    }
+    r.found = r.links.length > 0;
+    const noindex = /noindex/i.test(r.robots || '') || /noindex/i.test(r.xRobots || '');
+    r.indexable = res.status === 200 && !noindex;
+  } catch (e) { r.error = String(e && e.name === 'AbortError' ? 'timeout' : (e && e.message) || e).slice(0, 120); }
+  return r;
+}
+
+/* ---------- Link profile summary for a target domain: Open PageRank current + 12-month history (free) ---------- */
+async function linkProfile(req, env, ctx, cors) {
+  let body; try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400, cors); }
+  const d = normalize(body.domain || ''); if (!d) return json({ error: 'no domain' }, 400, cors);
+  if (!env.OPR_KEY) return json({ domain: d, opr: null }, 200, cors);
+  try {
+    const key = 'p:' + d; if (env.KV) { const c = await env.KV.get(key); if (c) return json(JSON.parse(c), 200, cors); }
+    const r = await fetch('https://openpagerank.keywordseverywhere.com/v1/domains/bulk', { method: 'POST', headers: { 'Authorization': 'Bearer ' + env.OPR_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ domains: [d], include_history: true }) });
+    if (!r.ok) return json({ domain: d, opr: null, error: 'opr ' + r.status }, 200, cors);
+    const j = await r.json(); const x = (j.results || [])[0] || {};
+    const hist = Array.isArray(x.history) ? x.history.slice(-12).map(h => ({ date: h.date || h.as_of || null, opr: h.open_page_rank ?? null, rank: h.rank ?? null, refdom: h.referring_domains ?? null })) : [];
+    const out = { domain: d, asOf: j.as_of || null, opr: x.open_page_rank ?? null, rank: x.rank ?? null, referringDomains: x.referring_domains ?? null, history: hist };
+    if (env.KV) ctx.waitUntil(env.KV.put(key, JSON.stringify(out), { expirationTtl: 604800 }));
+    return json(out, 200, cors);
+  } catch { return json({ domain: d, opr: null }, 200, cors); }
 }
 
 function normalize(s) {
