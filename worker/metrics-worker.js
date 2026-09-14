@@ -68,6 +68,16 @@ export default {
       }
       if (mozAllowed && quota && env.KV) { quota.used += todo.length; ctx.waitUntil(env.KV.put('moz:quota', JSON.stringify(quota), { expirationTtl: 3600 })); }
     }
+    // Back-fill free providers for cached rows that predate them (never re-spends Moz rows)
+    const fillOpr = domains.filter(d => !todo.includes(d) && env.OPR_KEY && out[d] && out[d].opr == null);
+    const fillRadar = domains.filter(d => !todo.includes(d) && env.CF_RADAR_TOKEN && out[d] && out[d].radarBucket === undefined);
+    if (fillOpr.length || fillRadar.length) {
+      const [opr2, radar2] = await Promise.all([fillOpr.length ? oprMetrics(fillOpr, env) : {}, fillRadar.length ? radarMetrics(fillRadar, env) : {}]);
+      for (const d of new Set([...fillOpr, ...fillRadar])) {
+        out[d] = { ...(radar2[d] || {}), ...out[d], ...(opr2[d] || {}) };
+        if (env.KV) ctx.waitUntil(env.KV.put('m:' + d, JSON.stringify(out[d]), { expirationTtl: out[d].da != null ? 2592000 : 604800 }));
+      }
+    }
     const status = { moz: env.MOZ_TOKEN ? MOZ_STATUS : 'off', ahrefs: env.AHREFS_TOKEN ? 'ok' : 'off', opr: env.OPR_KEY ? 'ok' : 'off', radar: env.CF_RADAR_TOKEN ? 'ok' : 'off' };
     let notice = null;
     if (status.moz === 'quota') {
