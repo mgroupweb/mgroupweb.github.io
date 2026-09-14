@@ -25,15 +25,20 @@ export default {
     if (req.method !== 'POST') return json({ error: 'POST only' }, 405, cors);
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: 'origin not allowed' }, 403, cors);
 
-    // per-IP throttle: 10 requests / 10 minutes (KV-backed; falls back to isolate memory without KV)
+    // per-IP throttle: Workers Rate Limiting binding (10 checks / 60 s), KV fallback (10 / 10 min)
     const ip = req.headers.get('CF-Connecting-IP') || 'x';
     const now = Date.now();
-    const tKey = 'throttle:' + ip;
-    let hits = env.KV ? (JSON.parse((await env.KV.get(tKey)) || '[]')) : (THROTTLE.get(ip) || []);
-    hits = hits.filter(t => now - t < 600000);
-    if (hits.length >= 10) return json({ error: 'rate limit: 10 checks per 10 minutes' }, 429, cors);
-    hits.push(now);
-    if (env.KV) ctx.waitUntil(env.KV.put(tKey, JSON.stringify(hits), { expirationTtl: 660 })); else THROTTLE.set(ip, hits);
+    if (env.RL) {
+      const { success } = await env.RL.limit({ key: ip });
+      if (!success) return json({ error: 'rate limit: 10 checks per minute' }, 429, cors);
+    } else {
+      const tKey = 'throttle:' + ip;
+      let hits = env.KV ? (JSON.parse((await env.KV.get(tKey)) || '[]')) : (THROTTLE.get(ip) || []);
+      hits = hits.filter(t => now - t < 600000);
+      if (hits.length >= 10) return json({ error: 'rate limit: 10 checks per 10 minutes' }, 429, cors);
+      hits.push(now);
+      if (env.KV) ctx.waitUntil(env.KV.put(tKey, JSON.stringify(hits), { expirationTtl: 660 })); else THROTTLE.set(ip, hits);
+    }
 
     let body; try { body = await req.json(); } catch { return json({ error: 'bad json' }, 400, cors); }
     const domains = [...new Set((body.domains || []).map(normalize).filter(Boolean))].slice(0, MAX_DOMAINS);

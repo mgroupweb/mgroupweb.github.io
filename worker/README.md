@@ -18,6 +18,6 @@ Rows: one domain = one Moz row. 2,500 free rows ≈ 100 checks of 25 domains per
 
 ## Limits and alerts
 - Moz free tier: 2,500 rows/month, 1 domain = 1 row; the Worker caches each domain 24h. When Moz answers with a quota error the page shows a banner and, if ALERT_WEBHOOK is set, the owner gets a Slack message (max once per day).
-- Worker throttle: 10 checks per IP per 10 minutes → the page shows a banner with the wait time.
+- Worker throttle: Rate Limiting binding, 10 checks per IP per minute (KV fallback 10 per 10 min) → the page shows a banner with the wait time.
 - Tranco: public API rate-limits bursts (429); the page retries 3× with backoff and marks unresolved domains as Unknown.
 - With `./deploy-api.sh` secrets are read from `worker/.moz-token`, `.ahrefs-token`, `.opr-key`, `.alert-webhook` (all gitignored).

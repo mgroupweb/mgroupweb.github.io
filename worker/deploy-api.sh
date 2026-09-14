@@ -17,7 +17,7 @@ echo "→ upload script"
 KVID="$(curl -s "${H[@]}" "$API/storage/kv/namespaces?per_page=100" | python3 -c "import sys,json; d=json.load(sys.stdin); m=[n['id'] for n in d.get('result',[]) if n['title']=='mgroup-metrics-kv']; print(m[0] if m else '')")"
 if [ -z "$KVID" ]; then KVID="$(curl -s -X POST "${H[@]}" -H 'Content-Type: application/json' "$API/storage/kv/namespaces" --data '{"title":"mgroup-metrics-kv"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['result']['id'])")"; fi
 echo "  KV namespace ${KVID:0:8}…"
-printf '{"main_module":"metrics-worker.js","compatibility_date":"2026-09-01","bindings":[{"type":"kv_namespace","name":"KV","namespace_id":"%s"}]}' "$KVID" > /tmp/metadata.json
+printf '{"main_module":"metrics-worker.js","compatibility_date":"2026-09-01","bindings":[{"type":"kv_namespace","name":"KV","namespace_id":"%s"},{"type":"ratelimit","name":"RL","namespace_id":"1001","simple":{"limit":10,"period":60}}]}' "$KVID" > /tmp/metadata.json
 curl -s -X PUT "${H[@]}" "$API/workers/scripts/$NAME" \
   -F "metadata=@/tmp/metadata.json;type=application/json" \
   -F "metrics-worker.js=@metrics-worker.js;type=application/javascript+module" \

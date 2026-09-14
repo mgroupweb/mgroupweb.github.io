@@ -75,7 +75,7 @@
     if (!METRICS_ENDPOINT) return Promise.resolve();
     return withTimeout(fetch(METRICS_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ domains: list }) }), 25000)
       .then(function (r) {
-        if (r.status === 429) { showAlert('Limit reached: 10 checks per 10 minutes from one network. Authority, rank and age still work; DA, PA and Spam Score return after the pause.'); return null; }
+        if (r.status === 429) { showAlert('Limit reached: 10 checks per minute from one network. Authority, rank and age still work; DA, PA and Spam Score return after the pause.'); return null; }
         return r.ok ? r.json() : null;
       })
       .then(function (j) { if (j) { metrics = j.metrics || {}; providers = j.providers || null; if (j.notice) showAlert(j.notice); } })
