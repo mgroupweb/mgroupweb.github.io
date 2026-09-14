@@ -78,10 +78,12 @@
         if (r.status === 429) { showAlert('Limit reached: 10 checks per minute from one network. Authority, rank and age still work; DA, PA and Spam Score return after the pause.'); return null; }
         return r.ok ? r.json() : null;
       })
-      .then(function (j) { if (j) { metrics = j.metrics || {}; providers = j.providers || null; if (j.notice) showAlert(j.notice); } })
+      .then(function (j) { if (j) { metrics = j.metrics || {}; providers = j.providers || null; mozQuota = j.mozQuota || null; if (j.notice) showAlert(j.notice); } })
       .catch(function () {});
   }
   function m(d, k) { var x = metrics[d]; return x && x[k] != null ? x[k] : null; }
+  function radarCell(d) { var b = m(d, 'radarBucket'), r = m(d, 'radarRank'); if (b == null && r == null) return '<td><span class="muted">—</span></td>'; return '<td>' + (r ? '#' + fmt(r) : 'top ' + (b >= 1000000 ? '1M' : b >= 1000 ? Math.round(b / 1000) + 'K' : b)) + '</td>'; }
+  var mozQuota = null;
   function mcell(d, k, cls) { var v = m(d, k); return '<td>' + (v == null ? '<span class="muted">—</span>' : '<span class="score-pill ' + (cls || '') + '">' + v + '</span>') + '</td>'; }
   function verdict(r) {
     var flags = [];
@@ -112,7 +114,7 @@
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<th scope="row">' + esc(r.domain) + '</th>' +
-        mcell(r.domain, 'da') + mcell(r.domain, 'pa') + mcell(r.domain, 'spam', 'score-pill--spam') + mcell(r.domain, 'dr') + mcell(r.domain, 'ur') +
+        mcell(r.domain, 'da') + mcell(r.domain, 'pa') + mcell(r.domain, 'spam', 'score-pill--spam') + mcell(r.domain, 'dr') + mcell(r.domain, 'ur') + radarCell(r.domain) +
         '<td><span class="score-pill score-pill--' + band(r.score) + '">' + (r.score == null ? '—' : r.score) + '</span></td>' +
         '<td>' + (r.rank ? '#' + fmt(r.rank) : r.trancoOk ? 'not ranked' : 'n/a') + '</td>' +
         '<td class="' + (delta == null ? '' : delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : '') + '">' + (delta == null ? '—' : (delta > 0 ? '▲ ' : delta < 0 ? '▼ ' : '') + fmt(Math.abs(delta))) + '</td>' +
@@ -123,17 +125,17 @@
     });
     summary.innerHTML = '<span class="eyebrow">Result</span><div class="result-hero__num">' + rows.length + ' domain' + (rows.length === 1 ? '' : 's') + ' checked</div>' +
       '<div class="result-hero__sub">' + strong + ' strong · ' + risky + ' with warnings · ' +
-      (providers ? ('Moz ' + (providers.moz ? 'on' : 'off') + ' · Ahrefs ' + (providers.ahrefs ? 'on' : 'off')) : 'DA/PA/Spam (Moz) and DR/UR (Ahrefs) columns need the metrics proxy — see the note below') + '</div>';
+      (providers ? ('Moz ' + (providers.moz ? 'on' : 'off') + (mozQuota && mozQuota.allotted ? ' (' + Math.max(0, mozQuota.allotted - mozQuota.used) + ' of ' + mozQuota.allotted + ' rows left this month)' : '') + ' · Radar ' + (providers.radar ? 'on' : 'off') + ' · Ahrefs ' + (providers.ahrefs ? 'on' : 'off')) : 'DA/PA/Spam (Moz) and DR/UR (Ahrefs) columns need the metrics proxy — see the note below') + '</div>';
     results.hidden = false;
   }
   function band(s) { return s == null ? 'none' : s >= 55 ? 'high' : s >= 45 ? 'mid' : 'low'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function csv() {
-    var head = ['domain', 'moz_da', 'moz_pa', 'moz_spam_score', 'ahrefs_dr', 'ahrefs_ur', 'authority_score', 'tranco_rank', 'rank_30d_ago', 'registered', 'age_years', 'https_reachable', 'verdict', 'flags'];
+    var head = ['domain', 'moz_da', 'moz_pa', 'moz_spam_score', 'ahrefs_dr', 'ahrefs_ur', 'cf_radar_bucket', 'authority_score', 'tranco_rank', 'rank_30d_ago', 'registered', 'age_years', 'https_reachable', 'verdict', 'flags'];
     var lines = [head.join(',')].concat(rows.map(function (r) {
       var v = verdict(r);
-      return [r.domain, m(r.domain,'da') ?? '', m(r.domain,'pa') ?? '', m(r.domain,'spam') ?? '', m(r.domain,'dr') ?? '', m(r.domain,'ur') ?? '', r.score == null ? '' : r.score, r.rank || '', r.rankMonth || '', r.created ? r.created.toISOString().slice(0, 10) : '',
+      return [r.domain, m(r.domain,'da') ?? '', m(r.domain,'pa') ?? '', m(r.domain,'spam') ?? '', m(r.domain,'dr') ?? '', m(r.domain,'ur') ?? '', m(r.domain,'radarBucket') ?? '', r.score == null ? '' : r.score, r.rank || '', r.rankMonth || '', r.created ? r.created.toISOString().slice(0, 10) : '',
         r.age == null ? '' : r.age.toFixed(2), r.live === true ? 'yes' : r.live === false ? 'no' : '', v.label, '"' + v.flags.join('; ') + '"'].join(',');
     }));
     return lines.join('\n');

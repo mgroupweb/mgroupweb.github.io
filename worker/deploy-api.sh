@@ -24,7 +24,8 @@ curl -s -X PUT "${H[@]}" "$API/workers/scripts/$NAME" \
   | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['success'], d.get('errors'); print('  ok', d['result'].get('id'))"
 
 echo "→ secrets"
-for pair in "MOZ_TOKEN:.moz-token" "AHREFS_TOKEN:.ahrefs-token" "OPR_KEY:.opr-key"; do
+[ -s .cf-radar-token ] || cp .cf-token .cf-radar-token
+for pair in "MOZ_TOKEN:.moz-token" "AHREFS_TOKEN:.ahrefs-token" "OPR_KEY:.opr-key" "CF_RADAR_TOKEN:.cf-radar-token"; do
   key="${pair%%:*}"; file="${pair##*:}"
   if [ -s "$file" ]; then
     val="$(tr -d '[:space:]' < "$file")"
