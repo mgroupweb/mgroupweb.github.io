@@ -3,7 +3,7 @@
    Deploy: wrangler deploy (see worker/README.md). Secrets:
      MOZ_TOKEN      — Moz Links API v2 token (free tier: 2,500 rows/month)   -> DA, PA, Spam Score
      AHREFS_TOKEN   — Ahrefs API v3 token (paid plan)                         -> DR, UR   (optional)
-     OPR_KEY        — Open PageRank API key (free)                            -> OPR 0–10 (optional)
+     OPR_KEY        — Open PageRank key (opr_live_…, free, openpagerank.keywordseverywhere.com) -> OPR 0–10
      CF_RADAR_TOKEN — Cloudflare API token (Radar read)                        -> Radar rank bucket (fallback when Moz quota is out)
 */
 const ALLOWED_ORIGINS = ['https://mgroupweb.github.io', 'http://localhost:8765'];
@@ -163,15 +163,20 @@ async function ahrefsMetrics(domains, env) {
   return out;
 }
 
-/* Open PageRank — free key, up to 100 domains per call. */
+/* Open PageRank (openpagerank.keywordseverywhere.com) — POST /v1/domains/bulk, Bearer key, up to 100 domains. */
 async function oprMetrics(domains, env) {
   if (!env.OPR_KEY) return {};
   try {
-    const q = domains.map(d => 'domains[]=' + encodeURIComponent(d)).join('&');
-    const r = await fetch('https://openpagerank.com/api/v1.0/getPageRank?' + q, { headers: { 'API-OPR': env.OPR_KEY } });
+    const r = await fetch('https://openpagerank.keywordseverywhere.com/v1/domains/bulk', {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + env.OPR_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ domains, include_history: false }),
+    });
     if (!r.ok) return {};
     const j = await r.json(); const out = {};
-    (j.response || []).forEach(x => { if (x.status_code === 200) out[x.domain] = { opr: x.page_rank_decimal ?? null }; });
+    (j.results || []).forEach(x => {
+      const key = domains.find(d => d === x.domain || d.endsWith('.' + x.domain) || x.domain.endsWith('.' + d)) || x.domain;
+      if (x.open_page_rank != null) out[key] = { opr: Math.round(x.open_page_rank * 10) / 10, oprRank: x.rank ?? null, oprRefDomains: x.referring_domains ?? null };
+    });
     return out;
   } catch { return {}; }
 }
