@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "shopify-plus-cost-estimate",
+      "type": "skill-md",
+      "description": "Estimate the monthly and first-year cost of running a store on Shopify Plus (platform fee, revenue-based fee, gateway fee, apps, development, migration). Use when a user asks what Shopify Plus costs, whether Plus is worth it versus the Advanced plan, or wants a Shopify Plus budget or TCO for a given monthly revenue.",
+      "url": "/.well-known/agent-skills/shopify-plus-cost-estimate/SKILL.md",
+      "digest": "sha256:731d675d716584675d604ec8c75c172856584a1f94b8c6139f8b98257b5d87ac"
+    },
+    {
+      "name": "shopify-migration-checklist",
+      "type": "skill-md",
+      "description": "Step-by-step checklist (9 phases, ~70 tasks) for migrating an eCommerce store to Shopify from Magento, WooCommerce, BigCommerce, Salesforce Commerce Cloud or a custom platform, with SEO preservation and zero-downtime cutover. Use when planning, scoping, auditing or executing a Shopify migration or replatforming project.",
+      "url": "/.well-known/agent-skills/shopify-migration-checklist/SKILL.md",
+      "digest": "sha256:d32e0fccda7177d53017eaf7429f13a5854c26540052f00d8d1bb2c51747b442"
+    },
+    {
+      "name": "shopify-liquid-snippets",
+      "type": "skill-md",
+      "description": "Production-ready Shopify Liquid snippets for Online Store 2.0 themes (section schema with blocks, free-shipping progress bar, metafield fallback, responsive image with srcset, sale badge, low-stock badge, SEO breadcrumbs with JSON-LD, product JSON for JavaScript). Use when writing or reviewing Shopify theme code in Liquid.",
+      "url": "/.well-known/agent-skills/shopify-liquid-snippets/SKILL.md",
+      "digest": "sha256:87b0da2290ac75d6f8cedafbffed44588af2a4e7139a64389441777aa34af725"
+    }
+  ]
+}

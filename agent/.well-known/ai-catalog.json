@@ -1,0 +1,10 @@
+{
+  "specVersion": "1.0",
+  "entries": [
+    {
+      "identifier": "urn:air:mgroupweb.com:mcp:mgroup-shopify-agency",
+      "type": "application/mcp-server-card+json",
+      "url": "https://mgroupweb.com/mcp/server-card"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://mgroupweb.com/.well-known/api-catalog",
+      "item": [
+        {
+          "href": "https://mgroupweb.com/wp-json/",
+          "title": "WordPress REST API (public, read-only content)"
+        },
+        {
+          "href": "https://mgroupweb.com/mcp",
+          "title": "Mgroup MCP server (Model Context Protocol, streamable HTTP)"
+        },
+        {
+          "href": "https://mgroupweb.com/wp-json/mcp/mcp-adapter-default-server",
+          "title": "WordPress core MCP server (OAuth 2.1, Mgroup staff only)"
+        }
+      ]
+    },
+    {
+      "anchor": "https://mgroupweb.com/wp-json/",
+      "service-desc": [
+        {
+          "href": "https://mgroupweb.com/wp-json/",
+          "type": "application/json",
+          "title": "Route index with argument schemas"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://developer.wordpress.org/rest-api/",
+          "type": "text/html"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://mgroupweb.com/auth.md",
+          "type": "text/markdown",
+          "title": "Access and authentication notes"
+        }
+      ]
+    },
+    {
+      "anchor": "https://mgroupweb.com/mcp",
+      "service-desc": [
+        {
+          "href": "https://mgroupweb.com/mcp/server-card",
+          "type": "application/mcp-server-card+json",
+          "title": "MCP server card (tools, transport)"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://mgroupweb.com/auth.md",
+          "type": "text/markdown"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://mgroupweb.com/.well-known/ai-catalog.json",
+          "type": "application/json"
+        }
+      ]
+    },
+    {
+      "anchor": "https://mgroupweb.com/wp-json/mcp/mcp-adapter-default-server",
+      "service-meta": [
+        {
+          "href": "https://mgroupweb.com/.well-known/oauth-protected-resource",
+          "type": "application/json"
+        },
+        {
+          "href": "https://mgroupweb.com/.well-known/oauth-authorization-server",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://mgroupweb.com/auth.md",
+          "type": "text/markdown"
+        }
+      ]
+    }
+  ]
+}

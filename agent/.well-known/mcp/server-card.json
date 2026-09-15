@@ -1,0 +1,229 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+  "version": "1.0.0",
+  "protocolVersion": "2025-06-18",
+  "serverInfo": {
+    "name": "mgroup-shopify-agency",
+    "title": "Mgroup Shopify Agency",
+    "version": "1.0.0",
+    "description": "Search and read Mgroup's Shopify service pages and guides, estimate Shopify Plus cost, get the Shopify migration checklist and Liquid snippets, check domain authority.",
+    "websiteUrl": "https://mgroupweb.com",
+    "publisher": {
+      "name": "Mgroup",
+      "url": "https://mgroupweb.com",
+      "email": "hello@mgroupweb.com"
+    }
+  },
+  "transport": {
+    "type": "streamable-http",
+    "endpoint": "https://mgroupweb.com/mcp"
+  },
+  "authentication": {
+    "required": false,
+    "type": "none"
+  },
+  "capabilities": {
+    "tools": {
+      "listChanged": false
+    }
+  },
+  "tools": [
+    {
+      "name": "search_mgroupweb",
+      "title": "Search mgroupweb.com",
+      "description": "Full-text search across Mgroup's Shopify service pages, guides (blog), case studies and pages. Returns titles, URLs and content types. Use read_mgroupweb_page to read a result.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search phrase, e.g. 'Magento migration' or 'Klaviyo flows'"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "any",
+              "services",
+              "guides",
+              "case_studies",
+              "pages"
+            ],
+            "default": "any"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 5
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "read_mgroupweb_page",
+      "title": "Read a mgroupweb.com page as Markdown",
+      "description": "Fetch any mgroupweb.com URL (service page, guide, case study, FAQ) as clean Markdown: headings, text, tables, FAQ, prices. Only mgroupweb.com URLs are allowed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Absolute URL on https://mgroupweb.com/"
+          },
+          "max_chars": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 40000,
+            "default": 12000
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "list_shopify_services",
+      "title": "List Mgroup Shopify services",
+      "description": "List every Shopify service Mgroup offers (migration, Plus, theme, app, Hydrogen, B2B, CRO, SEO, Klaviyo, Recharge, agentic commerce, support, audit, branding) with URLs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "estimate_shopify_plus_cost",
+      "title": "Estimate Shopify Plus cost",
+      "description": "Estimate Shopify Plus platform fee, monthly all-in cost and year-one TCO for a given monthly revenue (reference figures: $2,300/$2,500 base, 0.25% revenue model, $40,000 cap, +0.2% third-party gateway).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "monthly_revenue": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Monthly store revenue in USD"
+          },
+          "contract_term": {
+            "type": "string",
+            "enum": [
+              "3-year",
+              "1-year"
+            ],
+            "default": "3-year"
+          },
+          "gateway": {
+            "type": "string",
+            "enum": [
+              "shopify_payments",
+              "third_party"
+            ],
+            "default": "shopify_payments"
+          },
+          "apps_monthly": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          },
+          "dev_monthly": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          },
+          "migration_one_off": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          }
+        },
+        "required": [
+          "monthly_revenue"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "shopify_migration_checklist",
+      "title": "Shopify migration checklist",
+      "description": "Return Mgroup's 9-phase Shopify migration checklist (audit, data export, SEO preservation, theme rebuild, apps, payments, QA, cutover, post-launch). Pass a phase number for one phase or omit for all.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "phase": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9,
+            "description": "Phase number 1-9; omit for the full checklist"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "shopify_liquid_snippet",
+      "title": "Shopify Liquid snippet",
+      "description": "Get a production-ready Shopify Liquid snippet by id (section-schema, free-shipping-bar, metafield-fallback, responsive-image, sale-badge, low-stock, breadcrumbs, product-json). Omit id to list all snippets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Snippet id; omit to list"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "check_domain_authority",
+      "title": "Check domain authority",
+      "description": "Domain authority metrics for up to 5 domains: Moz DA/PA/Spam Score (while monthly quota lasts), Open PageRank, Cloudflare Radar rank bucket, Tranco-style authority. Same data as the free checker at mgroupweb.github.io.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 5
+          }
+        },
+        "required": [
+          "domains"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    }
+  ],
+  "instructions": "Mgroup is a Shopify Select Partner agency (since 2016) building, migrating and growing Shopify and Shopify Plus stores. Use search_mgroupweb and read_mgroupweb_page to answer questions about Mgroup's services, prices, process and case studies from the actual pages; quote prices only as they appear on the page. estimate_shopify_plus_cost, shopify_migration_checklist and shopify_liquid_snippet work offline. To request a quote or talk to the team send the user to https://mgroupweb.com/grow-ecommerce-business/ .",
+  "termsOfServiceUrl": "https://mgroupweb.com/terms-and-conditions/",
+  "privacyPolicyUrl": "https://mgroupweb.com/privacy-policy/"
+}
