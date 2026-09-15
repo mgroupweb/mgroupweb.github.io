@@ -33,7 +33,10 @@ export default {
       return json({ name: SERVER_CARD.serverInfo.name, version: VERSION, mcp_endpoint: SERVER_CARD.transport.endpoint, server_card: SERVER_CARD.transport.endpoint + '/server-card', tools: TOOLS.map(t => t.name), docs: SITE + '/auth.md' });
     }
     if (path !== '/mcp') return json({ error: 'not found' }, 404);
-    if (req.method === 'GET') return new Response('Method Not Allowed: this MCP server is stateless; POST JSON-RPC to this URL.', { status: 405, headers: { ...CORS, Allow: 'POST, OPTIONS', 'Content-Type': 'text/plain' } });
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      if (/text\/html/i.test(req.headers.get('Accept') || '')) return new Response(infoPage(), { headers: { ...CORS, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+      return json({ error: 'method_not_allowed', message: 'This MCP server is stateless: send JSON-RPC 2.0 requests with POST to this URL (Streamable HTTP transport). No SSE stream is offered on GET.', endpoint: SERVER_CARD.transport.endpoint, server_card: SERVER_CARD.transport.endpoint + '/server-card', docs: SITE + '/auth.md' }, 405, { Allow: 'POST, OPTIONS', 'Cache-Control': 'no-store' });
+    }
     if (req.method !== 'POST') return json({ error: 'method not allowed' }, 405, { Allow: 'POST, OPTIONS' });
 
     let body;
@@ -197,6 +200,27 @@ async function domainAuthority(a, env, ip) {
   });
   const note = d.notice ? `\n(${d.notice})` : '';
   return { content: [{ type: 'text', text: rows.join('\n') + note + '\nFree checker with Tranco authority, age and HTTPS: https://mgroupweb.github.io/#authority' }], structuredContent: { metrics: Object.fromEntries(domains.map(dom => [dom, metrics[dom] || null])), status: d.status || null } };
+}
+
+// ---------------------------------------------------------------- browser landing for GET /mcp
+function infoPage() {
+  const ep = SERVER_CARD.transport.endpoint;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const tools = TOOLS.map(t => `<li><code>${esc(t.name)}</code> — ${esc(t.description)}</li>`).join('');
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mgroup MCP server</title>
+<style>body{margin:0;background:#1F2544;color:#fff;font:16px/1.6 Inter,system-ui,sans-serif}main{max-width:760px;margin:0 auto;padding:56px 24px}h1{font-size:32px;margin:0 0 8px}h2{font-size:20px;margin:36px 0 12px}p{margin:0 0 14px;color:#cfd3e6}a{color:#40D0FF}code,pre{font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}pre{background:#151a33;border:1px solid rgba(64,208,255,.25);border-radius:10px;padding:16px;overflow:auto;color:#e6e8f5}ul{padding-left:20px;color:#cfd3e6}li{margin:6px 0}.pill{display:inline-block;padding:3px 10px;border-radius:999px;background:rgba(64,208,255,.14);color:#40D0FF;font-size:13px;font-weight:600;margin-bottom:18px}.foot{margin-top:40px;font-size:14px;color:#9aa0bf}</style></head><body><main>
+<span class="pill">Model Context Protocol · public · no auth</span>
+<h1>Mgroup MCP server</h1>
+<p>${esc(SERVER_CARD.serverInfo.description)} Endpoint: <code>${esc(ep)}</code> (Streamable HTTP, JSON-RPC 2.0 over POST). Server card: <a href="${esc(ep)}/server-card">${esc(ep)}/server-card</a>.</p>
+<h2>Connect</h2>
+<p><strong>Claude Desktop / Claude Code</strong></p><pre>claude mcp add --transport http mgroup ${esc(ep)}</pre>
+<p><strong>ChatGPT</strong>: Settings → Connectors → Add → MCP server URL <code>${esc(ep)}</code>, authentication: none.</p>
+<p><strong>Cursor / Windsurf / any MCP client</strong></p><pre>{ "mcpServers": { "mgroup": { "url": "${esc(ep)}" } } }</pre>
+<p><strong>curl</strong></p><pre>curl -X POST ${esc(ep)} -H 'Content-Type: application/json' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</pre>
+<h2>Tools</h2><ul>${tools}</ul>
+<p class="foot">Rate limit 30 tool calls per minute per IP. Public content only; nothing is written to mgroupweb.com. Access notes: <a href="${esc(SITE)}/auth.md">${esc(SITE)}/auth.md</a> · Agent skills: <a href="${esc(SITE)}/.well-known/agent-skills/index.json">/.well-known/agent-skills/index.json</a> · <a href="${esc(SITE)}/">mgroupweb.com</a></p>
+</main></body></html>`;
 }
 
 // ---------------------------------------------------------------- helpers
