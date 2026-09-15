@@ -1,4 +1,4 @@
-# Access and authentication for automated agents — mgroupweb.com
+# auth.md — access and authentication for automated agents on mgroupweb.com
 
 Last updated: 2026-09-15. Contact: hello@mgroupweb.com
 

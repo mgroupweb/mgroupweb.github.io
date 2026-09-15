@@ -398,7 +398,7 @@ def build_catalog():
     write(os.path.join(WK, "api-catalog"), json.dumps(linkset, indent=2) + "\n")
 
 
-AUTH_MD = f"""# Access and authentication for automated agents — mgroupweb.com
+AUTH_MD = f"""# auth.md — access and authentication for automated agents on mgroupweb.com
 
 Last updated: 2026-09-15. Contact: hello@mgroupweb.com
 
