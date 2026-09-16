@@ -1,15 +1,15 @@
 """Brand story block for /footer-credit/ — short version in 9 languages (switchable), long version in EN and UK."""
 
 TAGLINE = {
-    "en": "The monkey that became a letter.",
-    "uk": "Мавпа, яка стала літерою.",
-    "de": "Der Affe, der zum Buchstaben wurde.",
-    "fr": "Le singe devenu lettre.",
-    "es": "El mono que se convirtió en letra.",
-    "it": "La scimmia che divenne una lettera.",
-    "pt": "O macaco que se tornou letra.",
-    "nl": "De aap die een letter werd.",
-    "pl": "Małpa, która stała się literą.",
+    "en": "The monkey as the evolution of intelligence. We grow your business from primitive to perfected.",
+    "uk": "Мавпа як еволюція інтелекту. Розвиваємо ваш бізнес від примітивного до досконалого.",
+    "de": "Der Affe als Evolution der Intelligenz. Wir entwickeln Ihr Geschäft vom Primitiven zum Vollendeten.",
+    "fr": "Le singe comme évolution de l'intelligence. Nous faisons évoluer votre entreprise du primitif à l'abouti.",
+    "es": "El mono como evolución de la inteligencia. Hacemos evolucionar su negocio de lo primitivo a lo perfecto.",
+    "it": "La scimmia come evoluzione dell'intelligenza. Facciamo evolvere il vostro business dal primitivo al perfetto.",
+    "pt": "O macaco como evolução da inteligência. Evoluímos o seu negócio do primitivo ao perfeito.",
+    "nl": "De aap als evolutie van intelligentie. Wij ontwikkelen uw bedrijf van primitief naar perfect.",
+    "pl": "Małpa jako ewolucja inteligencji. Rozwijamy Twój biznes od prymitywnego do doskonałego.",
 }
 
 LANG_NAMES = {"en": "English", "uk": "Українська", "de": "Deutsch", "fr": "Français", "es": "Español", "it": "Italiano", "pt": "Português", "nl": "Nederlands", "pl": "Polski"}
@@ -78,7 +78,7 @@ LONG = {
    "We do not know what commerce will look like in five years. We only know it will change, and that the mark in the footer of our sites will mean the same thing: a team that moves businesses up to the next step was here."]),
   ("The mark in the footer", [
    "When you see the small monkey in a circle at the bottom of a store, it is not an agency advert. It is a stage marker. This store went through an evolution and survived. 500+ stores carry the mark. More than $100 million in sales has passed through them since 2016.",
-   "We are Mgroup. The monkey that became a letter. The team that builds stores able to survive the next step."]),
+   "We are Mgroup. The monkey as the evolution of intelligence. We grow your business from primitive to perfected."]),
  ],
  "uk": [
   ("Спочатку була мавпа", [
@@ -95,7 +95,7 @@ LONG = {
    "Ми не знаємо, як виглядатиме комерція через п'ять років. Знаємо лише, що вона зміниться, і що знак на футері наших сайтів означатиме те саме: тут була команда, яка вміє переводити бізнес на наступну сходинку."]),
   ("Знак у футері", [
    "Коли ви бачите маленьку мавпу в колі внизу магазину, це не реклама агенції. Це позначка етапу. Цей магазин пройшов еволюцію й вижив. 500+ магазинів несуть цей знак. Понад $100 мільйонів продажів пройшло через них із 2016 року.",
-   "Ми — Mgroup. Мавпа, яка стала літерою. Команда, яка робить магазини, здатні пережити наступний виток."]),
+   "Ми — Mgroup. Мавпа як еволюція інтелекту. Розвиваємо ваш бізнес від примітивного до досконалого."]),
  ],
 }
 
@@ -116,7 +116,7 @@ CSS = """.story{max-width:760px;margin:0 auto}
 .story__block[hidden]{display:none}
 .story__short p{font-size:1.0625rem;line-height:1.7;margin:0 0 1.1rem}
 .story__short p strong{font-family:var(--font-display);color:var(--c-navy)}
-.story__tagline{font-family:var(--font-display);font-weight:700;font-size:1.35rem;color:var(--c-indigo);margin:1.5rem 0 0;text-align:center}
+.story__tagline{font-family:var(--font-display);font-weight:700;font-size:1.25rem;line-height:1.45;color:var(--c-indigo);margin:1.5rem auto 0;text-align:center;max-width:620px}
 .story__long{margin-top:1.75rem;border-top:1px solid var(--c-line);padding-top:.5rem}
 .story__long summary{cursor:pointer;font-family:var(--font-display);font-weight:700;color:var(--c-indigo);padding:.85rem 0;list-style:none;display:flex;align-items:center;gap:.5rem}
 .story__long summary::-webkit-details-marker{display:none}
