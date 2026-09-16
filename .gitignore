@@ -3,3 +3,4 @@ worker/.moz-token
 worker/.ahrefs-token
 worker/.opr-key
 worker/.cf-radar-token
+_build/__pycache__/
