@@ -227,7 +227,7 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
         "path": "/footer-credit/", "rel": "../",
         "title": "Mgroup Footer Credit & Logo Downloads: Liquid, HTML, React Embed + SVG/PNG in Any Colour | Mgroup",
         "desc": "Copy-paste footer credit for sites built by Mgroup (Liquid, HTML, React, WordPress) with install steps, plus the Mgroup logo — wordmark, round and square mark — downloadable as SVG or PNG in any colour.",
-        "scripts": ["assets/js/snippets.js", "assets/js/brand.js"],
+        "scripts": ["assets/js/snippets.js", "assets/js/brand.js", "assets/js/credit.js"],
         "hero": {"title": 'Mgroup <span class="grad">Footer Credit</span>',
                  "desc": "One dofollow line for the footer of every site we build: “Design and development by Mgroup Shopify Agency” with the round Mgroup mark. Pick the variant for your stack, copy, paste next to the copyright, done in two minutes.",
                  "actions": [("btn-pill--white", "#variants", "Get the code"), ("btn-pill--ghost-light", "#brand", "Download logos")]},
@@ -259,7 +259,22 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
 
   <section class="section" id="variants" aria-labelledby="variants-title">
     <div class="container">
-      <header class="section__head"><span class="eyebrow">Pick your stack</span><h2 class="section__title" id="variants-title">Every install variant, self-contained, one click to copy</h2><p class="section__lead">Each block includes the mark and the styles it needs. The link is the same in all of them: <code>https://mgroupweb.com/</code>, followed, no UTM.</p></header>
+      <header class="section__head"><span class="eyebrow">Pick your stack</span><h2 class="section__title" id="variants-title">Every install variant, self-contained, one click to copy</h2><p class="section__lead">Each block includes the mark and the styles it needs. The link is the same in all of them: <code>https://mgroupweb.com/</code>, followed, no UTM. Change the wording or language once — the preview above and every block below update.</p></header>
+      <style>.credit-text{{margin-bottom:var(--grid-gap)}}
+.credit-text__langs{{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}}
+.credit-text__fields{{display:grid;gap:var(--s-2);grid-template-columns:1fr}}
+@media (min-width:768px){{.credit-text__fields{{grid-template-columns:minmax(0,3fr) minmax(0,2fr) auto;align-items:end}}}}
+.credit-text__fields .field{{margin-bottom:0}}</style>
+      <div class="panel credit-text" id="credit-text">
+        <span class="field__label" id="credit-langs-label">Language of “Design and development by”</span>
+        <div class="credit-text__langs" id="credit-langs" role="group" aria-labelledby="credit-langs-label"></div>
+        <div class="credit-text__fields">
+          <div class="field"><label for="credit-text-input">Credit text (outside the link)</label><input class="input" id="credit-text-input" type="text" value="Design and development by" maxlength="80" autocomplete="off"></div>
+          <div class="field"><label for="credit-anchor-input">Link text (keep the brand in it)</label><input class="input" id="credit-anchor-input" type="text" value="Mgroup Shopify Agency" maxlength="60" autocomplete="off"></div>
+          <button class="btn btn--dark btn--sm" type="button" id="credit-reset">Reset to default</button>
+        </div>
+        <p class="note" id="credit-status" aria-live="polite">Default wording. All code blocks below use it.</p>
+      </div>
       <div id="snippets">{blocks}</div>
       <p class="note">Need the mark as a file? <a href="../assets/img/mark.svg" download="mgroup-mark.svg">Download mgroup-mark.svg</a> (540×540, indigo #5A58E2).</p>
     </div>

@@ -135,7 +135,7 @@ async function checkOne(source, target) {
   const r = { source, target, status: null, found: false, links: [], robots: null, xRobots: null, canonical: null, indexable: null, error: null, finalUrl: null };
   try {
     const c = new AbortController(); const t = setTimeout(() => c.abort(), 12000);
-    const res = await fetch(source, { redirect: 'follow', signal: c.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MgroupBacklinkChecker/1.0; +https://mgroupweb.github.io/backlink-checker/)', 'Accept': 'text/html,*/*' } });
+    const res = await fetch(source, { redirect: 'follow', signal: c.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MgroupMetrics/1.0; +https://mgroupweb.github.io/)', 'Accept': 'text/html,*/*' } });
     clearTimeout(t);
     r.status = res.status; r.finalUrl = res.url;
     r.xRobots = res.headers.get('x-robots-tag');
