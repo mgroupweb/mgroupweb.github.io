@@ -81,7 +81,6 @@ def nav(p):
     <div class="hero-nav__menu-bar" aria-hidden="true"><a class="hero-nav__menu-logo" href="{r}" aria-label="Mgroup home">{MARK}</a></div>
     <ul class="hero-nav__links">
       <li><a href="{r}#authority"{' aria-current="page"' if p["path"] == "/" else ""}>Domain Authority</a></li>
-      <li><a href="{r}backlink-checker/"{' aria-current="page"' if p["path"] == "/backlink-checker/" else ""}>Backlink Checker</a></li>
       <li><a href="{r}shopify-plus-pricing-calculator/"{' aria-current="page"' if p["path"] == "/shopify-plus-pricing-calculator/" else ""}>Plus Pricing</a></li>
       <li><a href="{r}shopify-migration-checklist/"{' aria-current="page"' if p["path"] == "/shopify-migration-checklist/" else ""}>Migration Checklist</a></li>
       <li><a href="{r}shopify-liquid-snippets/"{' aria-current="page"' if p["path"] == "/shopify-liquid-snippets/" else ""}>Liquid Snippets</a></li>
@@ -146,7 +145,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260916b"
+    ver = "20260916c"
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
@@ -331,7 +330,6 @@ PAGES.append({
     {"@type": "CollectionPage", "url": SITE + "/", "name": "Free Shopify Developer Tools by Mgroup", "isPartOf": {"@id": SITE + "/#website"}, "about": {"@id": MG + "/#organization"},
      "hasPart": [
        {"@type": "WebApplication", "name": "Domain Authority Checker", "url": SITE + "/#authority", "applicationCategory": "SEO tool", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
-       {"@type": "WebApplication", "name": "Backlink Checker", "url": SITE + "/backlink-checker/", "applicationCategory": "SEO tool", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
        {"@type": "WebApplication", "name": "Shopify Plus Pricing Calculator", "url": SITE + "/shopify-plus-pricing-calculator/"},
        {"@type": "HowTo", "name": "Shopify Migration Checklist", "url": SITE + "/shopify-migration-checklist/"},
        {"@type": "TechArticle", "name": "Shopify Liquid Snippets", "url": SITE + "/shopify-liquid-snippets/"}]},
@@ -392,11 +390,6 @@ PAGES.append({
           <h3 class="bento__title"><a href="shopify-migration-checklist/">Shopify Migration Checklist</a></h3>
           <p class="bento__desc">9 phases, 74 tasks from pre-migration SEO audit to post-launch monitoring. Progress saves in your browser; export it as a plain-text plan for your team.</p>
           <div class="bento__visual" aria-hidden="true">{visual_check()}</div>
-        </article>
-        <article class="bento__cell">
-          <h3 class="bento__title"><a href="backlink-checker/">Backlink Checker</a></h3>
-          <p class="bento__desc">Verify that a page really links to you — dofollow or nofollow, anchor text, content vs footer, indexable or not — and see any domain's link profile: Open PageRank, referring domains, Moz DA and Spam Score.</p>
-          <ul class="bento__chips"><li><a href="backlink-checker/#verify">Verify backlinks <span aria-hidden="true">→</span></a></li><li><a href="backlink-checker/#profile">Link profile <span aria-hidden="true">→</span></a></li></ul>
         </article>
         <article class="bento__cell">
           <h3 class="bento__title"><a href="shopify-liquid-snippets/">Shopify Liquid Snippets</a></h3>
@@ -685,109 +678,6 @@ PAGES.append({
 """ + faq_html("Shopify Liquid FAQ", SNIP_FAQ) + cta("Shopify Section Partner", "Ready to give your editor <span class=\"grad\">real superpowers</span>?", "Talk to Mgroup about custom Shopify sections — designed for your brand, built on Online Store 2.0, easy to edit, and fast in production.")
 })
 
-
-# ---- BACKLINK CHECKER
-BL_FAQ = [
-  ("Where does the backlinks list come from?", "From the Moz Link Index through Mgroup's proxy, sorted by the authority of the linking page, with anchor text, follow status, target URL and first-seen date. Moz bills one row per link, so the free allowance is a sample rather than the full profile; results are cached for a week and shared between visitors. Complete lists of hundreds of thousands of links exist only in paid indexes (Ahrefs, Moz, Semrush, Majestic)."),
-  ("What does the backlink verifier check?", "It fetches the source page like a crawler and reports the HTTP status, whether an actual <a href> to your domain exists in the HTML, the rel attribute (follow, nofollow, sponsored, ugc), the anchor text, where the link sits (content, nav, footer), whether the page is indexable (meta robots / X-Robots-Tag) and where its canonical points. Links injected by JavaScript are not seen, which is the same thing Google ignores for link equity."),
-  ("Why does a link show as ‘No link’ when I can see it on the page?", "Usually the link is rendered by JavaScript after load, sits behind a redirect script (r.example.com/redirect?...) or is a plain-text mention without an anchor tag. None of those pass authority. Some sites also serve different HTML to crawlers; the verifier identifies itself as a bot."),
-  ("Is a nofollow backlink worthless?", "Not worthless, but it passes no ranking signal by itself. Nofollow links from real sites still bring referral traffic, brand mentions that AI answer engines pick up, and diversity in your link profile. For ranking, prioritise dofollow links inside editorial content on topically related sites."),
-  ("Do you store the URLs I check?", "No. Source pages are fetched by our Cloudflare Worker on demand and the result is returned to your browser; nothing is logged or kept. Link-profile metrics are cached per domain for up to 30 days so repeated checks do not spend API quota."),
-]
-PAGES.append({
-  "path": "/backlink-checker/", "rel": "../",
-  "title": "Free Backlink Checker: Backlinks List, Dofollow Verification and Link Profile | Mgroup",
-  "desc": "Free backlink checker: list backlinks to any site with source DA, anchor and follow status (Moz Link Index), see the link profile (Open PageRank, referring domains, Spam Score) and verify specific backlinks. No sign-up.",
-  "scripts": ["assets/js/backlinks.js"],
-  "hero": {"title": 'Free <span class="grad">Backlink</span><br>Checker',
-           "desc": "See who links to a site — source page, DA, anchor, follow status — check the domain's link profile, and verify the backlinks you are buying or building: does the page really link to you, is it dofollow, is it indexable. Built by Mgroup, a Shopify SEO agency, from the checklist we run before paying for any placement.",
-           "actions": [("btn-pill--white", "#backlinks", "Show backlinks"), ("btn-pill--ghost-light", "#verify", "Verify my backlinks")]},
-  "ld": [
-    ORG,
-    {"@type": "WebApplication", "name": "Backlink Checker", "url": SITE + "/backlink-checker/", "applicationCategory": "SEO tool", "operatingSystem": "Any", "isAccessibleForFree": True,
-     "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "publisher": {"@id": MG + "/#organization"},
-     "description": "Verify backlinks (dofollow/nofollow, anchor, indexability) and check a domain's link profile for free."},
-    bc([("Tools", "/"), ("Backlink Checker", "/backlink-checker/")]),
-    faq_ld(BL_FAQ)
-  ],
-  "body": f"""
-  <section class="section" id="profile" aria-labelledby="profile-title">
-    <div class="container">
-      <header class="section__head section__head--center">
-        <span class="eyebrow">Link profile</span>
-        <h2 class="section__title" id="profile-title">Backlink profile of any domain: PageRank, referring domains, DA and spam</h2>
-        <p class="section__lead">Free metrics from Open PageRank (Common Crawl link graph), Moz and the Tranco ranking, with a 12-month PageRank trend.</p>
-      </header>
-      <div class="tool tool--wide">
-        <form class="panel" id="bl-profile-form" novalidate>
-          <div class="field"><label for="bl-domain">Domain</label><input class="input" id="bl-domain" type="text" placeholder="example.com" autocomplete="off" spellcheck="false"></div>
-          <div class="toolbar"><button class="btn btn--dark" type="submit">Check link profile{ARROW_BTN}</button></div>
-          <p class="note" id="bl-profile-status" aria-live="polite">Results appear here in a few seconds.</p>
-        </form>
-        <div class="panel" id="bl-profile-out" hidden></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="backlinks" aria-labelledby="backlinks-title">
-    <div class="container">
-      <header class="section__head section__head--center">
-        <span class="eyebrow">Backlinks list</span>
-        <h2 class="section__title" id="backlinks-title">Backlinks to a site from other sites: source page, DA, anchor, follow status</h2>
-        <p class="section__lead">Live from the Moz Link Index, sorted by the authority of the linking page. Each backlink is one Moz row, so the free tier shows a sample; results are cached for a week and shared between visitors.</p>
-      </header>
-      <div class="tool tool--wide">
-        <form class="panel" id="bl-list-form" novalidate>
-          <div class="field"><label for="bl-list-domain">Domain</label><input class="input" id="bl-list-domain" type="text" placeholder="example.com" autocomplete="off" spellcheck="false"></div>
-          <div class="field"><label for="bl-list-limit">Links per page</label><select class="input" id="bl-list-limit"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select></div>
-          <div class="toolbar"><button class="btn btn--dark" type="submit">Show backlinks{ARROW_BTN}</button></div>
-          <p class="note" id="bl-list-status" aria-live="polite">Results appear here in a few seconds.</p>
-        </form>
-        <div class="panel" id="bl-list-out" hidden>
-          <div class="alert" id="bl-list-alert" role="status" aria-live="polite" hidden></div>
-          <div class="result-hero" id="bl-list-summary"></div>
-          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Source page</th><th scope="col">DA</th><th scope="col">Spam</th><th scope="col">Anchor</th><th scope="col">rel</th><th scope="col">Target</th><th scope="col">First seen</th></tr></thead><tbody id="bl-list-tbody"></tbody></table></div>
-          <div class="toolbar"><button class="btn btn--dark btn--sm" type="button" id="bl-list-more" hidden>Load more</button><button class="btn btn--ghost btn--sm" type="button" id="bl-list-copy">Copy CSV</button></div>
-          <p class="note">Data: Moz Link Index via Mgroup's proxy. Moz counts one row per link; the shared free allowance is small, so use "Load more" deliberately. When the monthly allowance is spent, cached results keep working and the profile and verifier sections above and below are unaffected.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="verify" aria-labelledby="verify-title">
-    <div class="container">
-      <header class="section__head section__head--center">
-        <span class="eyebrow">Backlink verifier</span>
-        <h2 class="section__title" id="verify-title">Verify backlinks: dofollow or nofollow, anchor text, indexability</h2>
-        <p class="section__lead">Paste the pages that are supposed to link to you — guest posts, directory profiles, partner pages, paid placements — and the domain they should point to. Up to 25 URLs per run.</p>
-      </header>
-      <div class="tool tool--wide">
-        <form class="panel" id="bl-verify-form" novalidate>
-          <div class="field"><label for="bl-target">Target domain (the site that should receive the links)</label><input class="input" id="bl-target" type="text" placeholder="yourstore.com" autocomplete="off" spellcheck="false"></div>
-          <div class="field"><label for="bl-sources">Source page URLs, one per line</label><textarea class="input" id="bl-sources" rows="7" placeholder="https://example.com/blog/article-that-mentions-you/&#10;https://directory.example/profile/your-company" spellcheck="false"></textarea><p class="hint">We fetch each page like a crawler and look for a real &lt;a href&gt; to the target domain. JavaScript-injected links are not counted — Google does not count them for link equity either.</p></div>
-          <div class="toolbar"><button class="btn btn--dark" type="submit">Verify backlinks{ARROW_BTN}</button><button class="btn btn--ghost" type="button" id="bl-sample">Try a sample</button></div>
-          <p class="note" id="bl-verify-status" aria-live="polite">Results appear here in a few seconds.</p>
-        </form>
-        <div class="panel" id="bl-verify-out" hidden>
-          <div class="alert" id="bl-alert" role="status" aria-live="polite" hidden></div>
-          <div class="result-hero" id="bl-verify-summary"></div>
-          <div class="tools-table-wrap"><table class="tools-table auth-table"><thead><tr><th scope="col">Source page</th><th scope="col">HTTP</th><th scope="col">Link</th><th scope="col">rel</th><th scope="col">Anchor</th><th scope="col">Area</th><th scope="col">Indexable</th><th scope="col">Verdict</th></tr></thead><tbody id="bl-tbody"></tbody></table></div>
-          <div class="toolbar"><button class="btn btn--ghost btn--sm" type="button" id="bl-copy">Copy CSV</button><button class="btn btn--ghost btn--sm" type="button" id="bl-download">Download CSV</button></div>
-          <p class="note">Clean dofollow = a real anchor in the content area, no nofollow/sponsored/ugc, page returns 200, indexable, canonical on itself. Footer and nav links are flagged because sitewide links are discounted. Pair this with the <a href="../#authority">Domain Authority Checker</a> to judge the donor itself.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="how-title">
-    <div class="container container-narrow prose">
-      <header class="section__head"><span class="eyebrow">How we use it</span><h2 class="section__title" id="how-title">The four-layer backlink check we run before paying for a placement</h2></header>
-      <p>Most link sellers show a domain metric and stop there. We check four layers before any money moves: the <strong>rel attribute</strong> on links inside recent articles (a site whose posts are all nofollow will nofollow yours too), <strong>robots</strong> at page and header level, whether the link is a real <strong>&lt;a href&gt; in the HTML</strong> rather than injected by script or wrapped in a tracking redirect, and where it sits — <strong>content beats footer</strong> every time. A high authority score with a failing layer is still a wasted placement.</p>
-      <p>The profile section adds the donor-side signals we look at: a reasonable Open PageRank, referring domains that grow steadily rather than in spikes, and a low Moz Spam Score. Pair the verdicts here with the <a href="../#authority">Domain Authority Checker</a>, and read how we vet partners in our <a href="{MG}/blogs/shopify-partner-directory/">guide to the Shopify Partner Directory</a>. Need the whole link-building program run for a Shopify store? That is part of <a href="{MG}/services/shopify-seo-ecommerce-marketing/">Mgroup's Shopify SEO service</a>.</p>
-    </div>
-  </section>
-""" + faq_html("Backlink checker FAQ", BL_FAQ) + cta("Shopify SEO", "Want links that actually <span class=\"grad\">move rankings</span>?", "Mgroup runs technical SEO, content and link programs for Shopify and Shopify Plus stores — with the same vetting you see here. Start with a free audit.", "Book a Free SEO Audit")
-})
 
 # ---------------------------------------------------------------- footer credit page
 import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import footer_credit_page as _fc

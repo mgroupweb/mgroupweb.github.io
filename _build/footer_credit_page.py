@@ -266,42 +266,5 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
   </section>
 
 """ + brand_section(root) + f"""
-  <section class="section" id="install" aria-labelledby="install-title">
-    <div class="container container-narrow prose">
-      <header class="section__head"><span class="eyebrow">For developers</span><h2 class="section__title" id="install-title">Install steps by platform</h2></header>
-      <h3>Shopify (Dawn and any Online Store 2.0 theme)</h3>
-      <ol>
-        <li>Shopify admin → <strong>Online Store → Themes</strong> → current theme → <strong>⋯ → Edit code</strong>.</li>
-        <li><strong>Snippets → Add a new snippet</strong> → name <code>mgroup-credit</code> → paste the <a href="#liquid">Liquid snippet</a> → Save.</li>
-        <li>Open <code>sections/footer.liquid</code>. Find the copyright line (in Dawn: <code>&lt;small class="copyright__content"&gt;…&lt;/small&gt;</code> inside <code>footer__content-bottom</code>). Right after it add <code>{{% render 'mgroup-credit' %}}</code> → Save.</li>
-        <li>Open any storefront page and check the footer. Themes that build the footer from <code>footer-group.json</code>: open the section that JSON references and add the render call there.</li>
-      </ol>
-      <h3>Shopify Hydrogen / Headless</h3>
-      <p>Use the <a href="#react">React component</a> in your footer layout and add the <a href="#css">CSS</a> to the global stylesheet. Server-rendered by default in Hydrogen and Next.js, which is what the link needs.</p>
-      <h3>WordPress</h3>
-      <p>Classic themes: paste the <a href="#wordpress">functions.php hook</a> into the child theme, or drop the <a href="#html">HTML variant</a> into <code>footer.php</code> next to the copyright. Block themes: Appearance → Editor → Footer template part → add a <strong>Custom HTML</strong> block with the HTML variant.</p>
-      <h3>Webflow, Squarespace, Framer, static sites</h3>
-      <p>Paste the <a href="#html">HTML variant</a> into the footer component (Webflow: Embed element in the footer symbol; Squarespace: Code block in the footer; Framer: Code component or the site footer HTML). If the builder strips <code>&lt;svg&gt;</code>, use the <a href="#img">img variant</a> with the downloaded mark.</p>
-
-      <h3>Two-minute check after installing</h3>
-      <ol>
-        <li>Footer shows the credit on every page; the mark is round; the link opens <code>https://mgroupweb.com/</code>.</li>
-        <li>View page source → search <code>mgroupweb.com</code>. The anchor must have <strong>no</strong> <code>rel="nofollow"</code>, <code>rel="sponsored"</code> or <code>rel="ugc"</code>, and must be present in the HTML itself, not injected by JavaScript.</li>
-        <li>The text inside <code>&lt;a&gt;</code> is exactly <em>Mgroup Shopify Agency</em>; “Design and development by” sits outside the link.</li>
-        <li>Nothing hides it: no <code>display:none</code>, <code>visibility:hidden</code>, <code>font-size:0</code> or <code>opacity:0</code>. The 0.85 opacity in the styles is fine.</li>
-        <li>One instance per page. Purge the site cache and CDN after the change.</li>
-      </ol>
-
-      <h3>Rules that keep the link valuable</h3>
-      <ul>
-        <li>Link target is the homepage without UTM parameters. UTM variants create duplicate URLs in Search Console.</li>
-        <li>Keep the brand in the anchor. A bare “shopify agency” anchor repeated across many client sites looks like a link scheme; “Mgroup Shopify Agency” is a normal designer credit.</li>
-        <li>One link per credit. Do not add a second link to a service page or a case study inside the same line.</li>
-        <li>Leave <code>aria-hidden="true"</code> on the mark so the accessible and indexed anchor text stays a single phrase.</li>
-        <li>UK clients: pass <code>anchor: 'Mgroup Shopify Agency UK'</code> and point <code>credit_url</code> at <code>{MG}/shopify-agency-uk-ecommerce-development/</code>. Everyone else: the homepage.</li>
-      </ul>
-      <p>Questions or a platform not covered here? <a href="{MG}/grow-ecommerce-business/">Write to us</a> and we will add the variant. This credit is part of every project delivered by <a href="{MG}/">Mgroup, a Shopify development agency</a>.</p>
-    </div>
-  </section>
 """ + faq_html("Footer credit FAQ", CREDIT_FAQ) + cta("Built by Mgroup", "Need a store that <span class=\"grad\">deserves the credit</span>?", "Mgroup designs, builds and migrates Shopify and Shopify Plus stores — theme development, apps, integrations and SEO — and stays on after launch.", "Talk to Mgroup"),
     }
