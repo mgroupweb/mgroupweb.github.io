@@ -2,6 +2,7 @@
 Imported by build_site.py. Code blocks are pre-rendered in the HTML (SEO + copy buttons via snippets.js)."""
 import html as _html
 import re
+import brand_story
 
 MG = "https://mgroupweb.com"
 MARK_SRC = "assets/img/mark.svg"
@@ -230,7 +231,7 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
         "scripts": ["assets/js/snippets.js", "assets/js/brand.js", "assets/js/credit.js"],
         "hero": {"title": 'Mgroup <span class="grad">Footer Credit</span>',
                  "desc": "One dofollow line for the footer of every site we build: “Design and development by Mgroup Shopify Agency” with the round Mgroup mark. Pick the variant for your stack, copy, paste next to the copyright, done in two minutes.",
-                 "actions": [("btn-pill--white", "#variants", "Get the code"), ("btn-pill--ghost-light", "#brand", "Download logos")]},
+                 "actions": [("btn-pill--white", "#variants", "Get the code"), ("btn-pill--ghost-light", "#story", "Why the monkey?")]},
         "ld": [
             {"@type": "TechArticle", "headline": "Mgroup Footer Credit — install guide", "url": SITE + "/footer-credit/",
              "description": "Footer credit snippet for sites built by Mgroup in Liquid, HTML, React and PHP, with installation steps.",
@@ -283,6 +284,6 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
     </div>
   </section>
 
-""" + brand_section(root) + f"""
+""" + brand_section(root) + brand_story.section() + f"""
 """ + faq_html("Footer credit FAQ", CREDIT_FAQ) + cta("Built by Mgroup", "Need a store that <span class=\"grad\">deserves the credit</span>?", "Mgroup designs, builds and migrates Shopify and Shopify Plus stores — theme development, apps, integrations and SEO — and stays on after launch.", "Talk to Mgroup"),
     }

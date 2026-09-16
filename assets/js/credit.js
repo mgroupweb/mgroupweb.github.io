@@ -67,3 +67,23 @@
 
   apply();
 })();
+
+/* Brand story language switcher */
+(function () {
+  'use strict';
+  var root = document.getElementById('brand-story'); if (!root) return;
+  var blocks = Array.prototype.slice.call(root.querySelectorAll('.story__block'));
+  var chips = Array.prototype.slice.call(root.querySelectorAll('.story-lang'));
+  var titles = { en: 'The story behind the mark', uk: 'Історія знака', de: 'Die Geschichte hinter dem Zeichen', fr: "L'histoire derrière le signe", es: 'La historia detrás de la marca', it: 'La storia dietro il marchio', pt: 'A história por trás da marca', nl: 'Het verhaal achter het beeldmerk', pl: 'Historia znaku' };
+  function show(lang) {
+    blocks.forEach(function (b) { b.hidden = b.dataset.lang !== lang; });
+    chips.forEach(function (c) { c.setAttribute('aria-pressed', c.dataset.lang === lang ? 'true' : 'false'); });
+    var h = document.getElementById('story-title'); if (h && titles[lang]) h.textContent = titles[lang];
+    try { localStorage.setItem('mg-story-lang', lang); } catch (e) {}
+  }
+  root.addEventListener('click', function (e) { var c = e.target.closest('.story-lang'); if (c) show(c.dataset.lang); });
+  var saved = null; try { saved = localStorage.getItem('mg-story-lang'); } catch (e) {}
+  var nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
+  var pick = saved || (titles[nav] ? nav : 'en');
+  if (pick !== 'en') show(pick);
+})();
