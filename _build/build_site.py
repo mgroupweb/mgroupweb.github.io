@@ -85,6 +85,7 @@ def nav(p):
       <li><a href="{r}shopify-plus-pricing-calculator/"{' aria-current="page"' if p["path"] == "/shopify-plus-pricing-calculator/" else ""}>Plus Pricing</a></li>
       <li><a href="{r}shopify-migration-checklist/"{' aria-current="page"' if p["path"] == "/shopify-migration-checklist/" else ""}>Migration Checklist</a></li>
       <li><a href="{r}shopify-liquid-snippets/"{' aria-current="page"' if p["path"] == "/shopify-liquid-snippets/" else ""}>Liquid Snippets</a></li>
+      <li><a href="{r}footer-credit/"{' aria-current="page"' if p["path"] == "/footer-credit/" else ""}>Footer Credit</a></li>
     </ul>
     <a class="hero-nav__cta" href="{CONTACT}">Get in touch{ARROW}</a>
   </div>
@@ -145,7 +146,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260914l"
+    ver = "20260916a"
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
@@ -401,6 +402,11 @@ PAGES.append({
           <h3 class="bento__title"><a href="shopify-liquid-snippets/">Shopify Liquid Snippets</a></h3>
           <p class="bento__desc">Copy-paste Liquid for Online Store 2.0 themes: section schema, free-shipping bar, metafields with fallbacks, responsive images, sale and low-stock badges, breadcrumbs.</p>
           <div class="bento__visual" aria-hidden="true">{visual_liquid()}</div>
+        </article>
+        <article class="bento__cell">
+          <h3 class="bento__title"><a href="footer-credit/">Footer Credit for Client Sites</a></h3>
+          <p class="bento__desc">The “Design and development by Mgroup Shopify Agency” line with the round mark: Shopify Liquid snippet, HTML, React and WordPress variants, one-click copy and the install steps for developers.</p>
+          <ul class="bento__chips"><li><a href="footer-credit/#liquid">Liquid snippet <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#install">Install steps <span aria-hidden="true">→</span></a></li></ul>
         </article>
       </div>
     </div>
@@ -782,6 +788,10 @@ PAGES.append({
   </section>
 """ + faq_html("Backlink checker FAQ", BL_FAQ) + cta("Shopify SEO", "Want links that actually <span class=\"grad\">move rankings</span>?", "Mgroup runs technical SEO, content and link programs for Shopify and Shopify Plus stores — with the same vetting you see here. Start with a free audit.", "Book a Free SEO Audit")
 })
+
+# ---------------------------------------------------------------- footer credit page
+import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import footer_credit_page as _fc
+PAGES.append(_fc.page(OUT, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW))
 
 # ---------------------------------------------------------------- write
 for p in PAGES:
