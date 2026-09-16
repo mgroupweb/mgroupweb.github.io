@@ -261,12 +261,15 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
     <div class="container">
       <header class="section__head"><span class="eyebrow">Pick your stack</span><h2 class="section__title" id="variants-title">Every install variant, self-contained, one click to copy</h2><p class="section__lead">Each block includes the mark and the styles it needs. The link is the same in all of them: <code>https://mgroupweb.com/</code>, followed, no UTM. Change the wording or language once — the preview above and every block below update.</p></header>
       <style>.credit-text{{margin-bottom:var(--grid-gap)}}
-.credit-text__langs{{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}}
-.credit-text__fields{{display:grid;gap:var(--s-2);grid-template-columns:1fr}}
-@media (min-width:768px){{.credit-text__fields{{grid-template-columns:minmax(0,3fr) minmax(0,2fr) auto;align-items:end}}}}
-.credit-text__fields .field{{margin-bottom:0}}</style>
+.credit-text__label{{display:block;margin:0 0 .75rem}}
+.credit-text__langs{{display:flex;flex-wrap:wrap;gap:.6rem .5rem;padding-bottom:1.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--c-line)}}
+.credit-text__fields{{display:grid;gap:1rem;grid-template-columns:1fr}}
+@media (min-width:768px){{.credit-text__fields{{grid-template-columns:minmax(0,3fr) minmax(0,2fr) auto;gap:1.25rem;align-items:end}}}}
+.credit-text__fields .field{{margin-bottom:0;gap:.5rem}}
+.credit-text__fields .btn{{height:50px;align-self:end}}
+.credit-text .note{{margin:1.25rem 0 0}}</style>
       <div class="panel credit-text" id="credit-text">
-        <span class="field__label" id="credit-langs-label">Language of “Design and development by”</span>
+        <span class="field__label credit-text__label" id="credit-langs-label">Language of “Design and development by”</span>
         <div class="credit-text__langs" id="credit-langs" role="group" aria-labelledby="credit-langs-label"></div>
         <div class="credit-text__fields">
           <div class="field"><label for="credit-text-input">Credit text (outside the link)</label><input class="input" id="credit-text-input" type="text" value="Design and development by" maxlength="80" autocomplete="off"></div>
