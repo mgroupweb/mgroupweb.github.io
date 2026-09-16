@@ -226,22 +226,23 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
     preview = markup(svg)
     return {
         "path": "/footer-credit/", "rel": "../",
-        "title": "Mgroup Footer Credit & Logo Downloads: Liquid, HTML, React Embed + SVG/PNG in Any Colour | Mgroup",
+        "title": "Mgroup Brand Kit: Logo in Any Colour, Footer Credit Snippet, Brand Story | Mgroup",
         "desc": "Copy-paste footer credit for sites built by Mgroup (Liquid, HTML, React, WordPress) with install steps, plus the Mgroup logo — wordmark, round and square mark — downloadable as SVG or PNG in any colour.",
         "scripts": ["assets/js/snippets.js", "assets/js/brand.js", "assets/js/credit.js"],
-        "hero": {"title": 'Mgroup <span class="grad">Footer Credit</span>',
-                 "desc": "One dofollow line for the footer of every site we build: “Design and development by Mgroup Shopify Agency” with the round Mgroup mark. Pick the variant for your stack, copy, paste next to the copyright, done in two minutes.",
+        "hero": {"title": 'Mgroup <span class="grad">Brand Kit</span>',
+                 "desc": "Everything you need to show the Mgroup mark correctly: the logo in any colour as SVG or PNG, the “Design and development by Mgroup Shopify Agency” footer credit for Liquid, HTML, React and WordPress, and the story of why a monkey became the letter M.",
                  "actions": [("btn-pill--white", "#variants", "Get the code"), ("btn-pill--ghost-light", "#story", "Why the monkey?")]},
         "ld": [
-            {"@type": "TechArticle", "headline": "Mgroup Footer Credit — install guide", "url": SITE + "/footer-credit/",
-             "description": "Footer credit snippet for sites built by Mgroup in Liquid, HTML, React and PHP, with installation steps.",
+            {"@type": "TechArticle", "headline": "Mgroup Brand Kit: logo, footer credit and brand story", "url": SITE + "/footer-credit/",
+             "description": "Footer credit snippet for sites built by Mgroup in Liquid, HTML, React and PHP, the Mgroup logo in any colour, and the brand story behind the monkey mark in nine languages.",
+             "about": [{"@id": MG + "/#brand"}, {"@id": SITE + "/footer-credit/#snippet"}],
              "proficiencyLevel": "Beginner", "datePublished": "2026-09-16", "dateModified": "2026-09-16",
              "author": {"@id": MG + "/#organization"}, "publisher": {"@id": MG + "/#organization"},
              "isPartOf": {"@id": SITE + "/#website"}, "inLanguage": "en"},
             ORG,
-            bc([("Shopify Developer Tools", "/"), ("Footer Credit", "/footer-credit/")]),
+            bc([("Shopify Developer Tools", "/"), ("Brand Kit", "/footer-credit/")]),
             faq_ld(CREDIT_FAQ),
-        ],
+        ] + brand_story.ld(SITE, MG),
         "body": f"""
   <section class="section" id="preview" aria-labelledby="preview-title">
     <div class="container">

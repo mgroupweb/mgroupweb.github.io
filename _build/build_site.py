@@ -12,9 +12,16 @@ ARROW_BTN = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5
 MARK = ('<svg viewBox="0 0 68 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2.81379 19.4222C4.44167 15.5546 6.84496 12.0652 9.87395 9.17135C12.9882 6.2424 16.6393 3.94925 20.6242 2.4194C29.3958 -0.804248 39.0202 -0.804248 47.7918 2.4194C51.7901 3.94488 55.4544 6.23825 58.5797 9.17135C61.5854 12.077 63.9743 15.5641 65.6023 19.4222C67.2696 23.5452 68.0831 27.9662 67.9933 32.4155C68.0702 36.8612 67.2438 41.2759 65.5646 45.3898C63.9546 49.254 61.578 52.7483 58.5797 55.6596C55.4594 58.5993 51.7938 60.8936 47.7918 62.4116C46.132 63.0696 44.4186 63.5822 42.6708 63.9435V63.7922C40.1292 58.7424 37.2109 55.2813 38.5665 52.312C39.4137 50.4207 42.9156 46.9785 41.9742 47.092C25.5005 48.7942 21.415 36.7655 22.0928 36.1224C22.7705 35.4794 26.6866 42.099 34.7258 43.6877C41.4094 45.0683 52.0279 38.9405 52.0279 38.9405C51.4442 33.0585 45.2501 30.7133 42.0119 28.0655C34.8011 22.1457 37.8887 16.5664 49.5427 15.3748C50.3711 15.2803 47.66 10.325 43.085 10.0792C36.4014 9.682 18.8733 8.05548 14.3172 18.9872C12.4344 23.5074 14.8067 25.3798 12.6039 31.0727C10.8906 35.4794 8.3678 42.4205 3.64219 47.1298C3.34096 46.5624 3.05853 45.9761 2.79494 45.352C1.06866 41.2608 0.19101 36.859 0.215637 32.4155C0.191383 27.9518 1.07554 23.5302 2.81379 19.4222ZM46.1162 18.59C32.1841 21.8053 47.0575 27.4414 49.6368 30.4864C51.5504 32.4605 52.8969 34.9176 53.5341 37.5977C54.3351 37.0506 55.0067 36.3334 55.5013 35.4967C55.9958 34.66 56.3012 33.7243 56.3958 32.7559C56.6217 26.6092 51.689 25.0772 50.2205 23.829C48.545 22.3494 47.1539 20.5737 46.1162 18.59Z" fill="currentColor"/></svg>')
 
 ORG = {
-  "@type": "Organization", "@id": MG + "/#organization", "name": "Mgroup", "url": MG + "/",
-  "logo": SITE + "/assets/img/mark.svg",
-  "sameAs": ["https://www.linkedin.com/company/monkeygroup-llc/", "https://twitter.com/MgroupWeb",
+  "@type": "Organization", "@id": MG + "/#organization", "name": "Mgroup", "alternateName": ["Monkey Group", "Mgroup Shopify Agency", "MgroupWeb"],
+  "legalName": "Monkey Group LLC", "url": MG + "/",
+  "slogan": [{"@language": "en", "@value": "The monkey as the evolution of intelligence. We grow your business from primitive to perfected."},
+             {"@language": "uk", "@value": "Мавпа як еволюція інтелекту. Розвиваємо ваш бізнес від примітивного до досконалого."}],
+  "description": "Shopify Select Partner agency founded in 2015 in Zhytomyr, Ukraine, as Monkey Group. Builds, migrates and grows Shopify and Shopify Plus stores: theme and app development, migrations, B2B, CRO, SEO. 500+ stores supported, $100M+ in client store GMV since 2016.",
+  "foundingDate": "2015", "foundingLocation": {"@type": "Place", "name": "Zhytomyr, Ukraine"},
+  "knowsAbout": ["Shopify", "Shopify Plus", "Shopify theme development", "Shopify app development", "eCommerce migration", "Shopify B2B", "Conversion rate optimization", "Shopify SEO", "Hydrogen headless commerce"],
+  "logo": {"@type": "ImageObject", "@id": SITE + "/#logo-round", "url": SITE + "/assets/img/mark.svg", "contentUrl": SITE + "/assets/img/mark.svg", "encodingFormat": "image/svg+xml", "width": "540", "height": "540", "name": "Mgroup round mark"},
+  "brand": {"@id": MG + "/#brand"},
+  "sameAs": ["https://www.linkedin.com/company/mgroupweb/", "https://twitter.com/MgroupWeb",
              "https://www.facebook.com/mgroup.dp", "https://www.instagram.com/mgroupweb/",
              "https://www.shopify.com/partners/directory/partner/mgroup", "https://github.com/mgroupweb"]
 }
@@ -84,7 +91,7 @@ def nav(p):
       <li><a href="{r}shopify-plus-pricing-calculator/"{' aria-current="page"' if p["path"] == "/shopify-plus-pricing-calculator/" else ""}>Plus Pricing</a></li>
       <li><a href="{r}shopify-migration-checklist/"{' aria-current="page"' if p["path"] == "/shopify-migration-checklist/" else ""}>Migration Checklist</a></li>
       <li><a href="{r}shopify-liquid-snippets/"{' aria-current="page"' if p["path"] == "/shopify-liquid-snippets/" else ""}>Liquid Snippets</a></li>
-      <li><a href="{r}footer-credit/"{' aria-current="page"' if p["path"] == "/footer-credit/" else ""}>Footer Credit &amp; Logo</a></li>
+      <li><a href="{r}footer-credit/"{' aria-current="page"' if p["path"] == "/footer-credit/" else ""}>Brand Kit</a></li>
     </ul>
     <a class="hero-nav__cta" href="{CONTACT}">Get in touch{ARROW}</a>
   </div>
@@ -145,7 +152,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260916h"
+    ver = "20260916j"
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
@@ -397,9 +404,9 @@ PAGES.append({
           <div class="bento__visual" aria-hidden="true">{visual_liquid()}</div>
         </article>
         <article class="bento__cell">
-          <h3 class="bento__title"><a href="footer-credit/">Footer Credit for Client Sites</a></h3>
-          <p class="bento__desc">The “Design and development by Mgroup Shopify Agency” line with the round mark — Liquid, HTML, React and WordPress variants with one-click copy — plus the Mgroup logo (wordmark, round and square mark) downloadable as SVG or PNG in any colour.</p>
-          <ul class="bento__chips"><li><a href="footer-credit/#liquid">Liquid snippet <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#brand">Logo downloads <span aria-hidden="true">→</span></a></li></ul>
+          <h3 class="bento__title"><a href="footer-credit/">Mgroup Brand Kit</a></h3>
+          <p class="bento__desc">Logo downloads in any colour (wordmark, round and square mark, SVG or PNG), the “Design and development by Mgroup Shopify Agency” footer credit in Liquid, HTML, React and WordPress, and the story behind the monkey mark in nine languages.</p>
+          <ul class="bento__chips"><li><a href="footer-credit/#brand">Logo downloads <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#story">Brand story <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#liquid">Footer credit <span aria-hidden="true">→</span></a></li></ul>
         </article>
       </div>
     </div>

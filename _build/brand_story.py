@@ -148,3 +148,36 @@ def section():
     </div>
   </section>
 """
+
+
+def ld(SITE, MG):
+    """Schema.org nodes for the brand: Brand, three logo ImageObjects, the story as an Article with translations, the credit snippet as SoftwareSourceCode."""
+    def img(idn, name, file, w, h, desc):
+        return {"@type": "ImageObject", "@id": f"{SITE}/#{idn}", "name": name, "url": f"{SITE}/assets/img/{file}", "contentUrl": f"{SITE}/assets/img/{file}",
+                "encodingFormat": "image/svg+xml", "width": str(w), "height": str(h), "description": desc,
+                "copyrightHolder": {"@id": MG + "/#organization"}, "creditText": "Mgroup", "license": f"{SITE}/footer-credit/#brand",
+                "acquireLicensePage": f"{SITE}/footer-credit/#brand", "usageInfo": f"{SITE}/footer-credit/#brand"}
+    logos = [
+        img("logo-wordmark", "Mgroup wordmark", "logo.svg", 232, 56, "Full “mgroup” logotype, lowercase, brand indigo #5A58E2. Available in any colour as SVG or PNG."),
+        img("logo-round", "Mgroup round mark", "mark.svg", 540, 540, "Circle badge with the monkey-M mark: a monkey standing up into the letter M. Used as favicon, avatar and footer credit."),
+        img("logo-square", "Mgroup square mark", "mark-square.svg", 500, 500, "Square badge with the monkey-M mark for app icons and tiles."),
+    ]
+    brand = {"@type": "Brand", "@id": MG + "/#brand", "name": "Mgroup", "alternateName": "Monkey Group",
+             "slogan": [{"@language": k, "@value": v} for k, v in TAGLINE.items()],
+             "description": "The Mgroup mark is a monkey standing up into the letter M — the moment of transition. The brand story is about evolution: the team started in 2015 as Monkey Group in Zhytomyr, Ukraine, chose Shopify before anyone around did, and builds stores that can adapt faster than the market.",
+             "logo": {"@id": SITE + "/#logo-round"}, "image": [{"@id": SITE + "/#logo-wordmark"}, {"@id": SITE + "/#logo-round"}, {"@id": SITE + "/#logo-square"}],
+             "url": f"{SITE}/footer-credit/#story"}
+    def body(k): return " ".join(f"{h} {t}" for h, t in SHORT[k]) + " " + TAGLINE[k]
+    translations = [{"@type": "Article", "@id": f"{SITE}/footer-credit/#story-{k}", "inLanguage": k, "headline": UI[k][0], "articleBody": body(k), "url": f"{SITE}/footer-credit/#story", "isPartOf": {"@id": f"{SITE}/footer-credit/#story-en"}} for k in SHORT if k != "en"]
+    story = {"@type": "Article", "@id": f"{SITE}/footer-credit/#story-en", "headline": "The story behind the mark: why a monkey, why the M", "inLanguage": "en",
+             "articleBody": body("en") + " " + " ".join(" ".join(ps) for _, ps in LONG["en"]),
+             "about": [{"@id": MG + "/#brand"}, {"@id": MG + "/#organization"}], "author": {"@id": MG + "/#organization"}, "publisher": {"@id": MG + "/#organization"},
+             "datePublished": "2026-09-16", "dateModified": "2026-09-16", "url": f"{SITE}/footer-credit/#story", "mainEntityOfPage": f"{SITE}/footer-credit/",
+             "workTranslation": [{"@id": t["@id"]} for t in translations],
+             "keywords": ["Mgroup", "Monkey Group", "brand story", "Shopify agency", "evolution", "monkey logo"]}
+    code = {"@type": "SoftwareSourceCode", "@id": f"{SITE}/footer-credit/#snippet", "name": "Mgroup footer credit snippet",
+            "description": "Footer credit “Design and development by Mgroup Shopify Agency” with the round Mgroup mark, for sites built by Mgroup. Shopify Liquid snippet, plain HTML, React component and WordPress hook; one dofollow link to https://mgroupweb.com/.",
+            "programmingLanguage": ["Liquid", "HTML", "JavaScript", "PHP"], "runtimePlatform": ["Shopify", "WordPress", "React"],
+            "codeRepository": "https://github.com/mgroupweb/mgroupweb.github.io", "license": "https://opensource.org/licenses/MIT",
+            "author": {"@id": MG + "/#organization"}, "url": f"{SITE}/footer-credit/#variants", "targetProduct": {"@type": "SoftwareApplication", "name": "Shopify theme", "applicationCategory": "eCommerce"}}
+    return logos + [brand, story] + translations + [code]
