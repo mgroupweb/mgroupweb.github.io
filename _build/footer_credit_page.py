@@ -207,7 +207,7 @@ CREDIT_FAQ = [
     ("Is the Mgroup footer credit dofollow?",
      "Yes, and it must stay that way: no rel=\"nofollow\", \"sponsored\" or \"ugc\" on the link. It is a standard designer credit, the same kind every agency and theme vendor places, and it passes authority to mgroupweb.com only when it is a plain followed link."),
     ("Where exactly should the credit go in a Shopify theme?",
-     "In the footer section next to the copyright line, so it renders on every page. In Dawn and its children that is sections/footer.liquid, the footer__content-bottom block. Add {% render 'mgroup-credit' %} right after the copyright <small> element."),
+     "In the footer section next to the copyright line, so it renders on every page. In Dawn and its children that is sections/footer.liquid, the footer__content-bottom block. Add {% render 'mgroup-credit' %} right after the copyright &lt;small&gt; element."),
     ("Can I change the wording?",
      "Yes. The Liquid snippet takes text, anchor and size parameters. Keep the brand in the anchor (\"Mgroup Shopify Agency\") and keep \"Design and development by\" outside the link; the link should wrap only the anchor phrase."),
     ("Does the credit slow the page down?",
