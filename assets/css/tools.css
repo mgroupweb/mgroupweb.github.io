@@ -131,3 +131,5 @@ textarea.input{resize:vertical;min-height:9.5rem;font-family:var(--font-mono);fo
 .score-pill--spam{background:transparent;box-shadow:inset 0 0 0 1px var(--c-line);color:var(--c-charcoal)}
 .tool--wide .panel + .panel{margin-top:var(--grid-gap)}
 .alert{background:var(--gradient-soft);border:1px solid rgba(90,88,226,.25);border-left:3px solid var(--c-indigo);border-radius:var(--r-md);padding:.9rem 1.1rem;margin:0 0 1rem;color:var(--c-navy);font-size:var(--fs-small);line-height:1.5}
+
+.section__head .section__title--wide,.section__title--wide{max-width:none}

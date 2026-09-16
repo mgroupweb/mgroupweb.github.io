@@ -5,6 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
+VER = "20260916m"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -56,9 +57,9 @@ def head(p):
 <link rel="icon" href="{r}assets/img/mark.svg" type="image/svg+xml">
 <link rel="preload" href="{r}assets/fonts/fivosans/fivosans-bold-webfont.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/fivosans/fivosans-regular-webfont.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{r}assets/css/main-shared.css">
-<link rel="stylesheet" href="{r}assets/css/main-service.css">
-<link rel="stylesheet" href="{r}assets/css/tools.css">
+<link rel="stylesheet" href="{r}assets/css/main-shared.css?v={VER}">
+<link rel="stylesheet" href="{r}assets/css/main-service.css?v={VER}">
+<link rel="stylesheet" href="{r}assets/css/tools.css?v={VER}">
 <script type="application/ld+json">{ld}</script>
 </head>
 <body class="is-page-inner service-page tools-page">
@@ -87,7 +88,7 @@ def nav(p):
   <div class="hero-nav__menu" id="nav-menu">
     <div class="hero-nav__menu-bar" aria-hidden="true"><a class="hero-nav__menu-logo" href="{r}" aria-label="Mgroup home">{MARK}</a></div>
     <ul class="hero-nav__links">
-      <li><a href="{r}#authority"{' aria-current="page"' if p["path"] == "/" else ""}>Domain Authority</a></li>
+      <li><a href="{r}#authority"{' aria-current="page"' if p["path"] == "/" else ""}>DA Checker</a></li>
       <li><a href="{r}shopify-plus-pricing-calculator/"{' aria-current="page"' if p["path"] == "/shopify-plus-pricing-calculator/" else ""}>Plus Pricing</a></li>
       <li><a href="{r}shopify-migration-checklist/"{' aria-current="page"' if p["path"] == "/shopify-migration-checklist/" else ""}>Migration Checklist</a></li>
       <li><a href="{r}shopify-liquid-snippets/"{' aria-current="page"' if p["path"] == "/shopify-liquid-snippets/" else ""}>Liquid Snippets</a></li>
@@ -152,7 +153,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 def footer(p):
     r = p["rel"]
     scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
-    ver = "20260916j"
+    ver = VER
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
 def bc(items):
@@ -377,7 +378,7 @@ PAGES.append({
     <div class="container">
       <header class="section__head section__head--center">
         <span class="eyebrow">Free tools</span>
-        <h2 class="section__title" id="tools-title">Shopify tools that answer the questions merchants ask us most</h2>
+        <h2 class="section__title section__title--wide" id="tools-title">Shopify tools merchants ask us for</h2>
         <p class="section__lead">Each tool is a working app, not a landing page. No sign-up, no tracking, open source on <a href="https://github.com/mgroupweb/mgroupweb.github.io">GitHub</a>.</p>
       </header>
       <div class="bento">
