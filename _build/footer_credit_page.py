@@ -121,6 +121,80 @@ def _react_paths(svg):
     return inner.replace('fill="', 'fill="').replace('<circle', '\n          <circle').replace('<path', '\n          <path')
 
 
+def _raw_svg(root, name):
+    s = open(f"{root}/assets/img/{name}").read()
+    s = re.sub(r'<g clip-path="[^"]*">', '', s).replace('</g>', '')
+    s = re.sub(r'<defs>.*?</defs>', '', s, flags=re.S)
+    return re.sub(r'>\s+<', '><', s).strip()
+
+
+BRAND_CSS = """.brand__controls{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1.25rem;margin-bottom:var(--grid-gap)}
+.brand__swatches{display:flex;flex-wrap:wrap;gap:.5rem}
+.brand__swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--c-line);cursor:pointer;padding:0;position:relative;box-shadow:var(--shadow-sm)}
+.brand__swatch[aria-pressed=true]{outline:3px solid var(--c-indigo);outline-offset:2px}
+.brand__hex{display:flex;align-items:center;gap:.5rem}
+.brand__hex .input{width:9.5rem;font-family:var(--font-mono);text-transform:uppercase}
+.brand__picker{width:34px;height:34px;border:0;padding:0;background:none;cursor:pointer;border-radius:50%;overflow:hidden}
+.brand__styles{display:flex;gap:.5rem}
+.brand__grid{display:grid;gap:var(--grid-gap);grid-template-columns:1fr}
+@media (min-width:768px){.brand__grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.brand__tile{background:var(--c-white);border:1px solid var(--c-line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column}
+.brand__canvas{display:flex;align-items:center;justify-content:center;min-height:190px;padding:2rem;background:linear-gradient(135deg,#f6f7fb,#eef0f8);transition:background .2s}
+.brand__canvas--dark{background:linear-gradient(135deg,#1F2544,#14182e)}
+.brand__canvas svg{max-width:100%;height:auto;max-height:120px;display:block}
+.brand__tile--wordmark .brand__canvas svg{width:min(100%,260px)}
+.brand__meta{padding:1rem 1.25rem 1.25rem;display:flex;flex-direction:column;gap:.6rem}
+.brand__meta h3{margin:0;font-size:1.05rem}
+.brand__meta p{margin:0;font-size:var(--fs-small);color:var(--c-slate)}
+.brand__dl{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.25rem}"""
+
+
+def brand_section(root):
+    swatches = [("#5A58E2", "Indigo (brand)"), ("#40D0FF", "Cyan (brand)"), ("#1F2544", "Navy (brand)"), ("#000000", "Black"), ("#FFFFFF", "White"), ("#6B7280", "Grey")]
+    sw = "".join(f'<button class="brand__swatch" type="button" data-color="{c}" style="background:{c}" aria-label="{n}" title="{n}" aria-pressed="{"true" if c=="#5A58E2" else "false"}"></button>' for c, n in swatches)
+    tiles = ""
+    for kind, title, desc, vb in [
+        ("wordmark", "Wordmark", "Full “mgroup” logotype, 232×56. Use on light or dark surfaces in a colour with enough contrast.", "232×56"),
+        ("round", "Round mark", "Circle badge with the M, 540×540. Favicon, social avatar, footer credit.", "540×540"),
+        ("square", "Square mark", "Square badge with the M, 500×500. App icons, tiles, sharp-corner layouts.", "500×500"),
+    ]:
+        tiles += f"""
+        <article class="brand__tile brand__tile--{kind}" data-kind="{kind}">
+          <div class="brand__canvas" aria-hidden="true"></div>
+          <div class="brand__meta">
+            <h3>{title}</h3><p>{desc}</p>
+            <div class="brand__dl">
+              <button class="btn btn--dark btn--sm" type="button" data-dl="svg" data-kind="{kind}">SVG</button>
+              <button class="btn btn--dark btn--sm" type="button" data-dl="png" data-kind="{kind}" data-size="512">PNG 512</button>
+              <button class="btn btn--dark btn--sm" type="button" data-dl="png" data-kind="{kind}" data-size="2048">PNG 2048</button>
+            </div>
+          </div>
+        </article>"""
+    return f"""
+  <section class="section" id="brand" aria-labelledby="brand-title">
+    <div class="container">
+      <header class="section__head section__head--center"><span class="eyebrow">Brand assets</span><h2 class="section__title" id="brand-title">Download the Mgroup logo in any colour</h2><p class="section__lead">Pick a brand colour or type your own HEX, check the preview, download SVG or PNG. Marks come as a filled badge (colour background, contrasting M) or as a mono glyph (transparent, M in the chosen colour).</p></header>
+      <style>{BRAND_CSS}</style>
+      <div class="brand__controls" role="group" aria-label="Logo colour">
+        <div class="brand__swatches">{sw}</div>
+        <label class="brand__hex"><span class="field__label">HEX</span><input class="input" id="brand-hex" type="text" value="#5A58E2" maxlength="7" spellcheck="false" autocomplete="off" aria-label="Custom HEX colour"><input class="brand__picker" id="brand-picker" type="color" value="#5A58E2" aria-label="Colour picker"></label>
+        <div class="brand__styles" id="brand-style-row" role="group" aria-label="Mark style">
+          <button class="chip brand__style" type="button" data-style="fill" aria-pressed="true">Filled badge</button>
+          <button class="chip brand__style" type="button" data-style="mono" aria-pressed="false">Mono glyph</button>
+        </div>
+        <button class="btn btn--dark btn--sm" type="button" data-dl="all" data-kind="all">Download all 3 as SVG</button>
+      </div>
+      <div class="brand__grid">{tiles}
+      </div>
+      <p class="note">Brand colours: Indigo <code>#5A58E2</code>, Cyan <code>#40D0FF</code>, Navy <code>#1F2544</code>. Keep clear space around the mark of at least the M’s stroke width; do not stretch, rotate or add effects. Wordmark and marks are also available as originals: <a href="../assets/img/logo.svg" download="mgroup-wordmark.svg">wordmark</a>, <a href="../assets/img/mark.svg" download="mgroup-mark-round.svg">round</a>, <a href="../assets/img/mark-square.svg" download="mgroup-mark-square.svg">square</a>.</p>
+      <script type="text/plain" id="brand-src-wordmark">{_raw_svg(root, "logo.svg")}</script>
+      <script type="text/plain" id="brand-src-round">{_raw_svg(root, "mark.svg")}</script>
+      <script type="text/plain" id="brand-src-square">{_raw_svg(root, "mark-square.svg")}</script>
+    </div>
+  </section>
+"""
+
+
 def code_block(vid, title, file, desc, code, lang):
     esc = _html.escape(code, quote=False)
     return f'''<article class="snippet" id="{vid}" data-tags="all">
@@ -151,12 +225,12 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
     preview = markup(svg)
     return {
         "path": "/footer-credit/", "rel": "../",
-        "title": "Mgroup Footer Credit: Liquid Snippet, HTML and React Embed for Client Sites | Mgroup",
-        "desc": "Copy-paste footer credit for sites built by Mgroup: Shopify Liquid snippet, plain HTML with inline SVG, img variant, React component and WordPress hook, with the install steps and SEO rules for developers.",
-        "scripts": ["assets/js/snippets.js"],
+        "title": "Mgroup Footer Credit & Logo Downloads: Liquid, HTML, React Embed + SVG/PNG in Any Colour | Mgroup",
+        "desc": "Copy-paste footer credit for sites built by Mgroup (Liquid, HTML, React, WordPress) with install steps, plus the Mgroup logo — wordmark, round and square mark — downloadable as SVG or PNG in any colour.",
+        "scripts": ["assets/js/snippets.js", "assets/js/brand.js"],
         "hero": {"title": 'Mgroup <span class="grad">Footer Credit</span>',
                  "desc": "One dofollow line for the footer of every site we build: “Design and development by Mgroup Shopify Agency” with the round Mgroup mark. Pick the variant for your stack, copy, paste next to the copyright, done in two minutes.",
-                 "actions": [("btn-pill--white", "#variants", "Get the code"), ("btn-pill--ghost-light", "#install", "Install steps")]},
+                 "actions": [("btn-pill--white", "#variants", "Get the code"), ("btn-pill--ghost-light", "#brand", "Download logos")]},
         "ld": [
             {"@type": "TechArticle", "headline": "Mgroup Footer Credit — install guide", "url": SITE + "/footer-credit/",
              "description": "Footer credit snippet for sites built by Mgroup in Liquid, HTML, React and PHP, with installation steps.",
@@ -191,6 +265,7 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
     </div>
   </section>
 
+""" + brand_section(root) + f"""
   <section class="section" id="install" aria-labelledby="install-title">
     <div class="container container-narrow prose">
       <header class="section__head"><span class="eyebrow">For developers</span><h2 class="section__title" id="install-title">Install steps by platform</h2></header>
