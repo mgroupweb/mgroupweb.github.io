@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260916m"
+VER = "20260916o"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'

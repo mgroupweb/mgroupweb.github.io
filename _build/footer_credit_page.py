@@ -249,9 +249,13 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
       <header class="section__head section__head--center"><span class="eyebrow">Live preview</span><h2 class="section__title" id="preview-title">How the credit renders on a dark and a light footer</h2><p class="section__lead">Colours of the text are inherited from the site footer; the mark keeps its brand indigo. The mark scales with the footer font size.</p></header>
       <style>{CSS}
 .credit-demo{{display:grid;gap:12px;max-width:820px;margin:0 auto}}
+.credit-demo__toggle{{display:flex;align-items:center;justify-content:center;gap:.6rem;max-width:820px;margin:0 auto 1rem;font-family:var(--font-display);font-weight:700;font-size:var(--fs-small);color:var(--c-navy);cursor:pointer}}
+.credit-demo__toggle input{{width:18px;height:18px;accent-color:var(--c-indigo);cursor:pointer}}
+.credit-demo .mg-credit--nomark .mg-credit__mark{{display:none}}
 .credit-demo__footer{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:22px 28px;border-radius:var(--r-lg);font-size:.875rem}}
 .credit-demo__footer--dark{{background:#111318;color:#b8bcc8}}
 .credit-demo__footer--light{{background:#f5f6f9;color:#333a4d;border:1px solid var(--c-line)}}</style>
+      <label class="credit-demo__toggle" for="credit-nomark"><input type="checkbox" id="credit-nomark"> Text only — no mark (removes the logo from the preview and from every code block below)</label>
       <div class="credit-demo">
         <div class="credit-demo__footer credit-demo__footer--dark"><span>© 2026 Client Store. All rights reserved.</span>{preview}</div>
         <div class="credit-demo__footer credit-demo__footer--light"><span>© 2026 Client Store. All rights reserved.</span>{preview}</div>

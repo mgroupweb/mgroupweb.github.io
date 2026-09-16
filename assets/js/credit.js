@@ -25,6 +25,7 @@
   var anchorInput = document.getElementById('credit-anchor-input');
   var langRow = document.getElementById('credit-langs');
   var resetBtn = document.getElementById('credit-reset');
+  var noMark = document.getElementById('credit-nomark');
 
   langRow.innerHTML = LANGS.map(function (l) {
     return '<button class="chip credit-lang" type="button" data-lang="' + l[0] + '" data-text="' + l[2].replace(/"/g, '&quot;') + '" aria-pressed="' + (l[0] === 'en' ? 'true' : 'false') + '" title="' + l[2].replace(/"/g, '&quot;') + '">' + l[1] + '</button>';
@@ -45,16 +46,24 @@
       var s = c.dataset.orig;
       // Liquid defaults and JSX defaults keep quotes; plain markup is bare text — all three are covered by literal replacement
       s = s.replace(new RegExp(esc(DEF_TEXT), 'g'), liqText).replace(new RegExp(esc(DEF_ANCHOR), 'g'), liqAnchor);
+      if (noMark && noMark.checked) {
+        s = s.replace(/<svg class(?:Name)?="mg-credit__mark"[\s\S]*?<\/svg>\s*\n[ \t]*/g, '')   // inline mark (HTML, Liquid, PHP, JSX) — keep the indent of the next line
+             .replace(/<img src="\/assets\/mgroup-mark\.svg"[^>]*>\s*\n[ \t]*/g, '')           // img variant
+             .replace(/\n?\.mg-credit__mark\{[^}]*\}/g, '')                                        // CSS rule
+             .replace(/<!-- Upload mgroup-mark\.svg[^\n]*\n/g, '');
+      }
       c.textContent = s;
     });
     previews.forEach(function (p) {
       var lead = p.querySelector(':scope > span'); if (lead) lead.textContent = text;
       var a = p.querySelector('.mg-credit__link > span'); if (a) a.textContent = anchor;
+      p.classList.toggle('mg-credit--nomark', !!(noMark && noMark.checked));
     });
     // mark the matching language chip
     var chips = Array.prototype.slice.call(langRow.querySelectorAll('.credit-lang'));
     chips.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.text === text ? 'true' : 'false'); });
-    document.getElementById('credit-status').textContent = (text === DEF_TEXT && anchor === DEF_ANCHOR) ? 'Default wording. All code blocks below use it.' : 'Custom wording applied to the preview and all code blocks below — copy any of them.';
+    var nm = noMark && noMark.checked ? ' Mark removed: text-only credit.' : '';
+    document.getElementById('credit-status').textContent = ((text === DEF_TEXT && anchor === DEF_ANCHOR) ? 'Default wording. All code blocks below use it.' : 'Custom wording applied to the preview and all code blocks below — copy any of them.') + nm;
   }
 
   langRow.addEventListener('click', function (e) {
@@ -63,7 +72,8 @@
   });
   textInput.addEventListener('input', apply);
   anchorInput.addEventListener('input', apply);
-  resetBtn.addEventListener('click', function () { textInput.value = DEF_TEXT; anchorInput.value = DEF_ANCHOR; apply(); });
+  resetBtn.addEventListener('click', function () { textInput.value = DEF_TEXT; anchorInput.value = DEF_ANCHOR; if (noMark) noMark.checked = false; apply(); });
+  if (noMark) noMark.addEventListener('change', apply);
 
   apply();
 })();
