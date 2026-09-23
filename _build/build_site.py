@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260923d"
+VER = "20260923e"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -83,9 +83,8 @@ MEGA = [
 
 def nav(p):
     r = p["rel"] or "./"
-    if p.get("fullhero"):
-        return fx_nav(p)
-    return f"""<nav class="hero-nav" aria-label="Primary">
+    mod = " hero-nav--on-dark" if p.get("fullhero") else ""
+    return f"""<nav class="hero-nav{mod}" aria-label="Primary">
   <a class="hero-nav__logo" href="{r}" aria-label="Mgroup Shopify Developer Tools — home"><span class="hero-nav__logo-mark" aria-hidden="true">{MARK}</span></a>
   <div class="hero-nav__menu" id="nav-menu">
     <div class="hero-nav__menu-bar" aria-hidden="true"><a class="hero-nav__menu-logo" href="{r}" aria-label="Mgroup home">{MARK}</a></div>
@@ -125,20 +124,6 @@ def hero(p):
 """
 
 COPY_ICON = '<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor"/><path d="M8.5 1.5h-6a1 1 0 0 0-1 1v6" stroke="currentColor"/></svg>'
-
-def fx_nav(p):
-    r = p["rel"] or "./"
-    links = [(f"{r}#authority", "DA Checker"), (f"{r}shopify-plus-pricing-calculator/", "Plus Pricing"), (f"{r}shopify-migration-checklist/", "Migration Checklist"), (f"{r}shopify-liquid-snippets/", "Liquid Snippets"), (f"{r}footer-credit/", "Brand Kit")]
-    inline = ", ".join(f'<a href="{h}">{t}</a>' for h, t in links)
-    stack = "".join(f'<a href="{h}">{t}</a>' for h, t in links)
-    return f"""<nav class="fx-nav" aria-label="Primary">
-  <a class="fx-nav__logo" href="{r}" aria-label="Mgroup Shopify Developer Tools — home"><span>Mgroup</span>{MARK}</a>
-  <div class="fx-nav__links">{inline}</div>
-  <a class="fx-nav__cta" href="{CONTACT}">Get in touch</a>
-  <button class="fx-burger" id="fx-burger" type="button" aria-expanded="false" aria-controls="fx-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
-</nav>
-<div class="fx-menu" id="fx-menu" aria-hidden="true">{stack}<a class="fx-menu__cta" href="{CONTACT}">Get in touch</a></div>
-"""
 
 def fx_hero(p):
     h = p["hero"]

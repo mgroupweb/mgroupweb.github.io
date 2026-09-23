@@ -1,4 +1,4 @@
-/* Hub hero: full-screen brand-recoloured video scrubbed by horizontal pointer movement, typewriter H1, copy-email pill, fx nav. */
+/* Hub hero: full-screen brand-recoloured video scrubbed by horizontal pointer movement, typewriter H1, copy-email pill. */
 (function () {
   'use strict';
   var hero = document.querySelector('.fx-hero'); if (!hero) return;
@@ -66,13 +66,4 @@
     else window.location.href = 'mailto:' + v;
   });
 
-  /* ---------- fx nav: burger + solid state past the hero ---------- */
-  var nav = document.querySelector('.fx-nav'), burger = document.getElementById('fx-burger'), menu = document.getElementById('fx-menu');
-  function setOpen(o) { document.body.classList.toggle('fx-menu-open', o); burger.setAttribute('aria-expanded', String(o)); burger.setAttribute('aria-label', o ? 'Close menu' : 'Open menu'); menu.setAttribute('aria-hidden', String(!o)); if (o) { var f = menu.querySelector('a'); f && f.focus(); } }
-  if (burger && menu) {
-    burger.addEventListener('click', function () { setOpen(!document.body.classList.contains('fx-menu-open')); });
-    menu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setOpen(false); }); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.body.classList.contains('fx-menu-open')) { setOpen(false); burger.focus(); } });
-  }
-  if (nav) { var onScroll = function () { nav.classList.toggle('is-solid', window.scrollY > hero.offsetHeight - 80); }; window.addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
 })();
