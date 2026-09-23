@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260916o"
+VER = "20260923a"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -276,6 +276,24 @@ def visual_liquid():
       <rect x="190" y="110" width="72" height="14" rx="7" fill="none" stroke="#40D0FF" stroke-opacity="0.7" stroke-dasharray="0.5 4"/><text x="226" y="120" font-size="7" font-weight="700" fill="#40D0FF" text-anchor="middle">OS 2.0 ready</text>
     </svg>"""
 
+
+def visual_brand():
+    mark_inner = '\n<g clip-path="url(#bv-brand-clip)">\n<circle cx="270" cy="270" r="270" fill="#5A58E2"/>\n<path d="M68.7148 184.633C79.1855 159.812 94.6438 137.419 114.127 118.847C134.158 100.05 157.642 85.334 183.274 75.516C239.693 54.828 301.599 54.828 358.018 75.5161C383.736 85.306 407.305 100.024 427.408 118.847C446.741 137.495 462.106 159.873 472.577 184.633C483.302 211.093 488.535 239.465 487.957 268.019C488.452 296.549 483.136 324.881 472.335 351.283C461.979 376.082 446.693 398.506 427.408 417.19C407.338 436.056 383.76 450.779 358.018 460.521C347.342 464.745 336.322 468.034 325.08 470.353L325.08 469.382C308.731 436.974 289.961 414.763 298.68 395.707C304.13 383.569 326.654 361.478 320.599 362.207C214.638 373.131 188.36 295.935 192.719 291.808C197.079 287.682 222.267 330.163 273.976 340.359C316.966 349.219 385.266 309.894 385.266 309.894C381.511 272.146 341.67 257.095 320.841 240.102C274.461 202.111 294.321 166.305 369.281 158.659C374.609 158.052 357.171 126.251 327.744 124.673C284.754 122.125 172.012 111.686 142.706 181.842C130.596 210.851 145.854 222.867 131.686 259.401C120.666 287.682 104.439 332.227 74.0432 362.449C72.1056 358.808 70.289 355.045 68.5936 351.04C57.4899 324.785 51.8448 296.535 52.0032 268.019C51.8472 239.373 57.5342 210.997 68.7148 184.633ZM347.241 179.293C257.628 199.927 353.296 236.097 369.886 255.638C382.194 268.308 390.855 284.076 394.953 301.276C400.106 297.765 404.426 293.162 407.607 287.793C410.788 282.423 412.752 276.418 413.36 270.204C414.813 230.756 383.086 220.925 373.64 212.914C362.863 203.419 353.916 192.023 347.241 179.293Z" fill="white"/>\n<path d="M235.579 268.514C228.17 264.61 222.19 258.447 218.504 250.914C215.63 244.057 214.748 236.525 215.961 229.188C216.922 222.069 220.25 215.484 225.407 210.496C231.891 205.009 239.701 201.325 248.052 199.815C243.457 197.546 238.386 196.417 233.265 196.522C228.144 196.628 223.123 197.965 218.625 200.422C213.818 203.148 209.694 206.938 206.567 211.502C203.441 216.066 201.394 221.284 200.582 226.76C199.701 232.138 199.935 237.64 201.268 242.923C202.601 248.206 205.006 253.157 208.332 257.469C211.501 261.551 215.69 264.723 220.474 266.662C225.259 268.602 230.469 269.24 235.579 268.514Z" fill="white"/>\n</g>\n<defs>\n<clipPath id="bv-brand-clip">\n<rect width="540" height="540" fill="white"/>\n</clipPath>\n</defs>\n'
+    sw = "".join(f'<rect x="{x}" y="128" width="22" height="22" rx="6" fill="{c}"/>' for x, c in [(44, "#5A58E2"), (72, "#40D0FF"), (100, "#1F2544"), (128, "#FFFFFF")])
+    return f"""<svg viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif">
+      <defs><radialGradient id="bv-brand-halo" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#40D0FF" stop-opacity="0.26"/><stop offset="1" stop-color="#40D0FF" stop-opacity="0"/></radialGradient><filter id="bv-brand-sh"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#1F2544" flood-opacity="0.18"/></filter></defs>
+      <ellipse cx="140" cy="90" rx="120" ry="80" fill="url(#bv-brand-halo)"/>
+      <rect x="30" y="22" width="130" height="136" rx="8" fill="none" stroke="#40D0FF" stroke-opacity="0.8" stroke-dasharray="0.5 4" stroke-linecap="round"/>
+      <g filter="url(#bv-brand-sh)"><rect x="56" y="34" width="78" height="78" rx="12" fill="#FFFFFF"/></g>
+      <svg x="65" y="43" width="60" height="60" viewBox="0 0 540 540">{mark_inner}</svg>
+      {sw}
+      <rect x="128" y="128" width="22" height="22" rx="6" fill="none" stroke="#40D0FF" stroke-opacity="0.8" stroke-dasharray="0.5 4"/>
+      <line x1="160" y1="72" x2="182" y2="72" stroke="#40D0FF" stroke-opacity="0.7" stroke-dasharray="0.5 4"/>
+      <rect x="182" y="52" width="80" height="18" rx="9" fill="none" stroke="#40D0FF" stroke-opacity="0.8" stroke-dasharray="0.5 4"/><text x="222" y="64" font-size="7" font-weight="700" fill="#40D0FF" text-anchor="middle">SVG · PNG</text>
+      <rect x="182" y="78" width="80" height="18" rx="9" fill="none" stroke="#40D0FF" stroke-opacity="0.8" stroke-dasharray="0.5 4"/><text x="222" y="90" font-size="7" font-weight="700" fill="#40D0FF" text-anchor="middle">9 languages</text>
+      <rect x="182" y="104" width="80" height="18" rx="9" fill="#1F2544"/><text x="222" y="116" font-size="7" font-weight="700" fill="#FFFFFF" text-anchor="middle">Footer credit</text>
+    </svg>"""
+
 # ---------------------------------------------------------------- pages
 PAGES = []
 
@@ -404,10 +422,13 @@ PAGES.append({
           <p class="bento__desc">Copy-paste Liquid for Online Store 2.0 themes: section schema, free-shipping bar, metafields with fallbacks, responsive images, sale and low-stock badges, breadcrumbs.</p>
           <div class="bento__visual" aria-hidden="true">{visual_liquid()}</div>
         </article>
-        <article class="bento__cell">
-          <h3 class="bento__title"><a href="footer-credit/">Mgroup Brand Kit</a></h3>
-          <p class="bento__desc">Logo downloads in any colour (wordmark, round and square mark, SVG or PNG), the “Design and development by Mgroup Shopify Agency” footer credit in Liquid, HTML, React and WordPress, and the story behind the monkey mark in nine languages.</p>
-          <ul class="bento__chips"><li><a href="footer-credit/#brand">Logo downloads <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#story">Brand story <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#liquid">Footer credit <span aria-hidden="true">→</span></a></li></ul>
+        <article class="bento__cell bento__cell--hero bento__cell--full">
+          <div class="bento__body">
+            <h3 class="bento__title bento__title--lg"><a href="footer-credit/">Mgroup Brand Kit</a></h3>
+            <p class="bento__desc">Logo downloads in any colour (wordmark, round and square mark, SVG or PNG), the “Design and development by Mgroup Shopify Agency” footer credit in Liquid, HTML, React and WordPress, and the story behind the monkey mark in nine languages.</p>
+            <ul class="bento__chips"><li><a href="footer-credit/#brand">Logo downloads <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#story">Brand story <span aria-hidden="true">→</span></a></li><li><a href="footer-credit/#liquid">Footer credit <span aria-hidden="true">→</span></a></li></ul>
+          </div>
+          <div class="bento__visual" aria-hidden="true">{visual_brand()}</div>
         </article>
       </div>
     </div>
