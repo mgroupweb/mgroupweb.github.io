@@ -36,6 +36,7 @@ def head(p):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-site-verification" content="UxmGO-WXx2DRkSGT9gvWTwsmtmUIdBWs4fRpBk4ONsE">
 <title>{html.escape(p["title"])}</title>
 <meta name="description" content="{html.escape(p["desc"])}">
 <link rel="canonical" href="{url}">
