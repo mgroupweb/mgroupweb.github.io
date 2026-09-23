@@ -760,7 +760,7 @@ with open(os.path.join(OUT, "404.html"), "w") as f:
 
 with open(os.path.join(OUT, "sitemap.xml"), "w") as f:
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-            "".join(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-09-14</lastmod><changefreq>monthly</changefreq><priority>{'1.0' if p['path']=='/' else '0.8'}</priority></url>\n" for p in PAGES) +
+            "".join(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-09-23</lastmod><changefreq>monthly</changefreq><priority>{'1.0' if p['path']=='/' else '0.8'}</priority></url>\n" for p in PAGES) +
             "</urlset>\n")
 with open(os.path.join(OUT, "robots.txt"), "w") as f:
     f.write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
