@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260923c"
+VER = "20260923d"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -142,10 +142,12 @@ def fx_nav(p):
 
 def fx_hero(p):
     h = p["hero"]
+    r = p["rel"] or ""
     pills = "".join(f'<a class="fx-pill fx-pill--solid" href="{href}">{label}</a>' for href, label in h["pills"])
     email = h["email"]
     return f"""<section class="fx-hero" aria-labelledby="page-title">
-  <canvas class="fx-hero__bg" aria-hidden="true"></canvas>
+  <video class="fx-hero__video" muted playsinline preload="none" poster="{r}assets/media/hero-aria-poster.jpg" data-src="{r}assets/media/hero-aria.mp4?v={VER}" aria-hidden="true" tabindex="-1"></video>
+  <div class="fx-hero__veil" aria-hidden="true"></div>
   <div class="fx-hero__content">
     <p class="fx-hero__intro" aria-hidden="true">{h["intro"]}</p>
     <h1 class="fx-type" id="page-title">{h["type"]}</h1>
