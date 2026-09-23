@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260923g"
+VER = "20260923h"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -26,6 +26,13 @@ ORG = {
              "https://www.facebook.com/mgroup.dp", "https://www.instagram.com/mgroupweb/",
              "https://www.shopify.com/partners/directory/partner/mgroup", "https://github.com/mgroupweb"]
 }
+
+PERSON = {"@type": "Person", "@id": MG + "/author/oleh-stupak/", "name": "Oleh Stupak", "jobTitle": "CEO at MGROUP",
+  "url": MG + "/author/oleh-stupak/", "image": MG + "/assets/media/2026/07/omgroup-150x150.webp",
+  "worksFor": {"@id": MG + "/#organization"}, "sameAs": ["https://www.linkedin.com/in/olehstupak/"]}
+AUTHOR = {"@id": MG + "/author/oleh-stupak/"}
+PUBLISHED, MODIFIED = "2026-09-11", "2026-09-23"
+INDEXNOW_KEY = "52210f7e790b7e3668cdc74bbb522e22"
 
 def head(p):
     url = SITE + p["path"]
@@ -109,13 +116,18 @@ def hero(p):
     actions = "".join(
         f'<a class="btn-pill {cls}" href="{href}">{label}{ARROW if i == 0 else ""}</a>'
         for i, (cls, href, label) in enumerate(h["actions"]))
+    title = h["title"].replace("<br>", " <br>")
+    desc = h["desc"]
+    if p.get("updated"):
+        d = p["updated"]; nice = f"{int(d[8:])} {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][int(d[5:7])-1]} {d[:4]}"
+        desc += f' <span class="hero-byline">By <a href="{MG}/author/oleh-stupak/">Oleh Stupak</a>, CEO at Mgroup · Updated <time datetime="{d}">{nice}</time></span>'
     return f"""<section class="page-hero" aria-labelledby="page-title">
   <canvas class="hero-aura" aria-hidden="true"></canvas>
   <canvas class="hero-ribbons" aria-hidden="true"></canvas>
   <div class="hero-content">
     <div class="hero-content__text">
-      <h1 class="hero-title" id="page-title">{h["title"]}</h1>
-      <p class="hero-desc">{h["desc"]}</p>
+      <h1 class="hero-title" id="page-title">{title}</h1>
+      <p class="hero-desc">{desc}</p>
       <div class="hero-actions">{actions}</div>
     </div>
   </div>
@@ -370,7 +382,7 @@ SNIP_FAQ = [
 # ---- HUB
 PAGES.append({
   "path": "/", "rel": "",
-  "title": "Free Shopify Developer Tools by Mgroup | Domain Authority Checker, Plus Pricing, Migration",
+  "title": "Free Shopify Developer Tools & Domain Authority Checker | Mgroup",
   "desc": "Free tools from Mgroup, a Shopify Select Partner since 2016: bulk domain authority checker (no sign-up), Shopify Plus pricing calculator, migration checklist and copy-paste Liquid snippets.",
   "hero": {"title": '<span class="grad">Free Shopify</span><br>Developer Tools',
            "desc": "Practical, no-login tools we use in real Shopify projects — built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. Check the authority of any domain in bulk, model your Shopify Plus bill, migrate without losing SEO, or drop production-ready Liquid into your theme.",
@@ -382,8 +394,10 @@ PAGES.append({
   "fullhero": True,
   "ld": [
     {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "Mgroup Shopify Developer Tools", "publisher": {"@id": MG + "/#organization"}, "inLanguage": "en"},
-    ORG,
+    ORG, PERSON,
     {"@type": "CollectionPage", "url": SITE + "/", "name": "Free Shopify Developer Tools by Mgroup", "isPartOf": {"@id": SITE + "/#website"}, "about": {"@id": MG + "/#organization"},
+     "description": "Practical, no-login tools we use in real Shopify projects, built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016: bulk domain authority checker, Shopify Plus pricing calculator, Shopify migration checklist and Liquid snippets.",
+     "datePublished": PUBLISHED, "dateModified": MODIFIED, "author": AUTHOR, "publisher": {"@id": MG + "/#organization"}, "inLanguage": "en",
      "hasPart": [
        {"@type": "WebApplication", "name": "Domain Authority Checker", "url": SITE + "/#authority", "applicationCategory": "SEO tool", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
        {"@type": "WebApplication", "name": "Shopify Plus Pricing Calculator", "url": SITE + "/shopify-plus-pricing-calculator/"},
@@ -500,20 +514,21 @@ PAGES.append({
 
 # ---- CALCULATOR
 PAGES.append({
-  "path": "/shopify-plus-pricing-calculator/", "rel": "../",
+  "path": "/shopify-plus-pricing-calculator/", "rel": "../", "updated": MODIFIED,
   "title": "Shopify Plus Pricing Calculator 2026 | Platform Fee & TCO | Mgroup",
   "desc": "Free Shopify Plus pricing calculator: model the $2,300–$2,500 platform fee vs the 0.25% revenue-based model, gateway fees, apps and development to get your real monthly and first-year cost.",
   "scripts": ["assets/js/calculator.js"],
   "hero": {"title": '<span class="grad">Shopify Plus</span><br>Pricing Calculator',
-           "desc": "Model your real Shopify Plus bill: flat platform fee vs the revenue-based model, third-party gateway fees, apps and development. Numbers mirror our Shopify Plus pricing guide — confirm current terms with Shopify before you sign.",
+           "desc": "Shopify Plus costs about $2,300/month on a three-year term or $2,500/month on a one-year agreement. Above roughly $800k in monthly revenue the fee switches to about 0.25% of sales. Model your real bill with gateway fees, apps and development. Confirm current terms with Shopify before you sign.",
            "actions": [("btn-pill--white", "#calc", "Start calculating"), ("btn-pill--ghost-light", "#how", "How the model works")]},
   "ld": [
     {"@type": "WebApplication", "name": "Shopify Plus Pricing Calculator", "url": SITE + "/shopify-plus-pricing-calculator/",
      "applicationCategory": "BusinessApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript",
      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
      "description": "Estimate Shopify Plus platform fees, revenue-based pricing, gateway fees and total cost of ownership.",
-     "author": {"@id": MG + "/#organization"}, "isPartOf": {"@id": SITE + "/#website"}},
-    ORG,
+     "datePublished": PUBLISHED, "dateModified": MODIFIED,
+     "author": AUTHOR, "publisher": {"@id": MG + "/#organization"}, "isPartOf": {"@id": SITE + "/#website"}},
+    ORG, PERSON,
     bc([("Shopify Developer Tools", "/"), ("Shopify Plus Pricing Calculator", "/shopify-plus-pricing-calculator/")]),
     faq_ld(CALC_FAQ)
   ],
@@ -625,21 +640,22 @@ PAGES.append({
 
 # ---- CHECKLIST
 PAGES.append({
-  "path": "/shopify-migration-checklist/", "rel": "../",
+  "path": "/shopify-migration-checklist/", "rel": "../", "updated": MODIFIED,
   "title": "Shopify Migration Checklist 2026 | 74 Tasks, SEO-Safe | Mgroup",
   "desc": "Interactive Shopify migration checklist from Mgroup's migration experts: 9 phases and 74 tasks covering data, 301 redirects, SEO, theme, apps, payments, QA, launch and post-launch monitoring.",
   "scripts": ["assets/js/checklist.js"],
   "hero": {"title": '<span class="grad">Shopify Migration</span><br>Checklist',
-           "desc": "The checklist our Shopify migration experts run on every WooCommerce, Magento, BigCommerce and Salesforce Commerce Cloud move — full SEO preservation, data transfer audit, 301 redirects and post-launch monitoring. Progress saves in your browser.",
+           "desc": "9 phases and 74 tasks: the checklist our Shopify migration experts run on every WooCommerce, Magento, BigCommerce and Salesforce Commerce Cloud move, from the pre-migration SEO audit and data transfer to 301 redirects and post-launch monitoring. Progress saves in your browser.",
            "actions": [("btn-pill--white", "#phases", "Open the checklist"), ("btn-pill--ghost-light", MG + "/services/shopify-migration-experts/", "Shopify migration services")]},
   "ld": [
     {"@type": "HowTo", "name": "Shopify Migration Checklist", "url": SITE + "/shopify-migration-checklist/",
-     "description": "Step-by-step checklist for migrating an eCommerce store to Shopify without losing data or SEO.",
-     "author": {"@id": MG + "/#organization"}, "isPartOf": {"@id": SITE + "/#website"},
+     "description": "Step-by-step checklist for migrating an eCommerce store to Shopify without losing data or SEO: 9 phases, 74 tasks.",
+     "datePublished": PUBLISHED, "dateModified": MODIFIED,
+     "author": AUTHOR, "publisher": {"@id": MG + "/#organization"}, "isPartOf": {"@id": SITE + "/#website"},
      "step": [{"@type": "HowToStep", "position": i + 1, "name": n, "url": SITE + "/shopify-migration-checklist/#phase-" + str(i + 1)} for i, n in enumerate([
         "Pre-migration audit", "Data inventory & export", "SEO preservation plan", "Theme & storefront rebuild", "Apps & integrations",
         "Payments, taxes & shipping", "Testing & QA", "Launch & cutover", "Post-launch monitoring"])]},
-    ORG,
+    ORG, PERSON,
     bc([("Shopify Developer Tools", "/"), ("Shopify Migration Checklist", "/shopify-migration-checklist/")]),
     faq_ld(CHECK_FAQ)
   ],
@@ -686,20 +702,20 @@ PAGES.append({
 # ---- SNIPPETS
 SNIP_CHIPS, SNIP_ARTS = snippets_html()
 PAGES.append({
-  "path": "/shopify-liquid-snippets/", "rel": "../",
+  "path": "/shopify-liquid-snippets/", "rel": "../", "updated": MODIFIED,
   "title": "Shopify Liquid Snippets Library | Copy-Paste OS 2.0 Code | Mgroup",
   "desc": "Production-ready Shopify Liquid snippets for Online Store 2.0 themes: section schema, free-shipping progress bar, metafields with fallbacks, responsive images, sale and low-stock badges, breadcrumbs, product JSON.",
   "scripts": ["assets/js/snippets.js"],
   "hero": {"title": '<span class="grad">Shopify Liquid</span><br>Snippets',
-           "desc": "Copy-paste Liquid we ship in real themes. Every snippet follows Online Store 2.0 architecture with flexible sections and blocks — the same approach behind our custom Shopify sections and theme development work. MIT licensed.",
+           "desc": "8 copy-paste Liquid snippets we ship in real themes: section schema, free-shipping bar, metafields with fallbacks, responsive images, sale and low-stock badges, SEO breadcrumbs and safe JSON for JavaScript. Every snippet follows Online Store 2.0 architecture. MIT licensed.",
            "actions": [("btn-pill--white", "#snippets", "Browse snippets"), ("btn-pill--ghost-light", MG + "/services/custom-shopify-sections/", "Custom Shopify sections")]},
   "ld": [
     {"@type": "TechArticle", "headline": "Shopify Liquid Snippets Library", "url": SITE + "/shopify-liquid-snippets/",
      "description": "Copy-paste Liquid snippets for Shopify Online Store 2.0 themes, maintained by Mgroup.",
-     "proficiencyLevel": "Beginner", "datePublished": "2026-09-11", "dateModified": "2026-09-11",
-     "author": {"@id": MG + "/#organization"}, "publisher": {"@id": MG + "/#organization"},
+     "proficiencyLevel": "Beginner", "datePublished": "2026-09-11", "dateModified": MODIFIED,
+     "author": AUTHOR, "publisher": {"@id": MG + "/#organization"},
      "isPartOf": {"@id": SITE + "/#website"}, "inLanguage": "en", "license": "https://opensource.org/licenses/MIT"},
-    ORG,
+    ORG, PERSON,
     bc([("Shopify Developer Tools", "/"), ("Shopify Liquid Snippets", "/shopify-liquid-snippets/")]),
     faq_ld(SNIP_FAQ)
   ],
@@ -762,6 +778,31 @@ with open(os.path.join(OUT, "sitemap.xml"), "w") as f:
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
             "".join(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-09-23</lastmod><changefreq>monthly</changefreq><priority>{'1.0' if p['path']=='/' else '0.8'}</priority></url>\n" for p in PAGES) +
             "</urlset>\n")
+AI_BOTS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User", "Google-Extended", "Applebot-Extended", "Bingbot", "CCBot"]
 with open(os.path.join(OUT, "robots.txt"), "w") as f:
-    f.write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
+    f.write("# AI search and answer engines are welcome to crawl and cite these tools.\n" +
+            "".join(f"User-agent: {b}\n" for b in AI_BOTS) + "Allow: /\n\nUser-agent: *\nAllow: /\n\n" +
+            f"Sitemap: {SITE}/sitemap.xml\n")
+with open(os.path.join(OUT, INDEXNOW_KEY + ".txt"), "w") as f:
+    f.write(INDEXNOW_KEY)
+LLMS_FACTS = {
+  "/": ["Bulk domain authority checker: up to 25 domains at once, Moz DA, PA and Spam Score, Open PageRank, Cloudflare Radar rank bucket, Tranco-based authority, domain age and HTTPS. No sign-up, nothing stored."],
+  "/shopify-plus-pricing-calculator/": ["Shopify Plus costs about $2,300/month on a three-year term or about $2,500/month on a one-year agreement.",
+      "Above roughly $800,000 in monthly revenue the fee switches to about 0.25% of monthly sales, with the flat fee as a floor and a reported cap of $40,000/month.",
+      "The calculator adds third-party gateway fees, apps and development to show the monthly all-in and first-year total cost of ownership."],
+  "/shopify-migration-checklist/": ["9 phases and 74 tasks for migrating from WooCommerce, Magento, BigCommerce or Salesforce Commerce Cloud to Shopify.",
+      "Covers the pre-migration SEO audit, data inventory and export, SEO preservation and 301 redirects, theme rebuild, apps, payments, QA, launch and post-launch monitoring.",
+      "Progress saves in the browser and exports as a plain-text plan."],
+  "/shopify-liquid-snippets/": ["8 copy-paste Liquid snippets for Online Store 2.0 themes: section skeleton with blocks, free-shipping progress bar, product metafield with fallback, responsive image with srcset, sale badge, low-stock and sold-out badges, SEO breadcrumbs with BreadcrumbList JSON-LD, safe product JSON for JavaScript.",
+      "MIT licensed."],
+  "/footer-credit/": ["Mgroup logo downloads (wordmark, round and square mark, SVG or PNG, any colour), the footer credit snippet for Liquid, HTML, React and WordPress, and the brand story in nine languages."],
+}
+with open(os.path.join(OUT, "llms.txt"), "w") as f:
+    f.write("# Mgroup Shopify Developer Tools\n\n"
+            "> Free, no-login Shopify tools built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. "
+            "Maintained by Oleh Stupak, CEO at Mgroup. Last updated " + MODIFIED + ".\n\n"
+            "Agency site: " + MG + "/ . Contact: " + CONTACT + " . Source code: https://github.com/mgroupweb/mgroupweb.github.io\n\n## Tools\n\n" +
+            "".join(f"- [{html.unescape(p['title'].split(' | ')[0])}]({SITE}{p['path']}): {html.unescape(p['desc'])}\n" +
+                    "".join(f"  - {x}\n" for x in LLMS_FACTS.get(p['path'], [])) for p in PAGES) +
+            "\n## Optional\n\n- [Shopify Plus pricing guide](" + MG + "/blogs/shopify-plus-pricing-cost/)\n- [Shopify migration services](" + MG + "/services/shopify-migration-experts/)\n- [Mgroup services](" + MG + "/services/)\n")
 print("done")

@@ -190,3 +190,7 @@ body:not(.is-menu-open) .hero-nav--on-dark:not(.is-scrolled) .menuicon__bar,body
 .fx-pill svg{width:12px;height:12px;flex:0 0 12px}
 .fx-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.fx-pills{transition:none}.fx-cursor{animation:none}}
+
+/* Hero byline: author + updated date (E-E-A-T / freshness) */
+.hero-byline{display:block;margin-top:.75rem;font-size:.875em;opacity:.72}
+.hero-byline a{color:inherit;text-decoration:underline;text-underline-offset:3px}

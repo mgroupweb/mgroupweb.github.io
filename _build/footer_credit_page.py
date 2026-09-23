@@ -226,7 +226,7 @@ def page(root, ORG, bc, faq_html, faq_ld, cta, SITE, ARROW):
     preview = markup(svg)
     return {
         "path": "/footer-credit/", "rel": "../",
-        "title": "Mgroup Brand Kit: Logo in Any Colour, Footer Credit Snippet, Brand Story | Mgroup",
+        "title": "Mgroup Brand Kit: Logo, Footer Credit & Brand Story | Mgroup",
         "desc": "Copy-paste footer credit for sites built by Mgroup (Liquid, HTML, React, WordPress) with install steps, plus the Mgroup logo — wordmark, round and square mark — downloadable as SVG or PNG in any colour.",
         "scripts": ["assets/js/snippets.js", "assets/js/brand.js", "assets/js/credit.js"],
         "hero": {"title": 'Mgroup <span class="grad">Brand Kit</span>',

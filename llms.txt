@@ -1,0 +1,29 @@
+# Mgroup Shopify Developer Tools
+
+> Free, no-login Shopify tools built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. Maintained by Oleh Stupak, CEO at Mgroup. Last updated 2026-09-23.
+
+Agency site: https://mgroupweb.com/ . Contact: https://mgroupweb.com/grow-ecommerce-business/ . Source code: https://github.com/mgroupweb/mgroupweb.github.io
+
+## Tools
+
+- [Free Shopify Developer Tools & Domain Authority Checker](https://mgroupweb.github.io/): Free tools from Mgroup, a Shopify Select Partner since 2016: bulk domain authority checker (no sign-up), Shopify Plus pricing calculator, migration checklist and copy-paste Liquid snippets.
+  - Bulk domain authority checker: up to 25 domains at once, Moz DA, PA and Spam Score, Open PageRank, Cloudflare Radar rank bucket, Tranco-based authority, domain age and HTTPS. No sign-up, nothing stored.
+- [Shopify Plus Pricing Calculator 2026](https://mgroupweb.github.io/shopify-plus-pricing-calculator/): Free Shopify Plus pricing calculator: model the $2,300–$2,500 platform fee vs the 0.25% revenue-based model, gateway fees, apps and development to get your real monthly and first-year cost.
+  - Shopify Plus costs about $2,300/month on a three-year term or about $2,500/month on a one-year agreement.
+  - Above roughly $800,000 in monthly revenue the fee switches to about 0.25% of monthly sales, with the flat fee as a floor and a reported cap of $40,000/month.
+  - The calculator adds third-party gateway fees, apps and development to show the monthly all-in and first-year total cost of ownership.
+- [Shopify Migration Checklist 2026](https://mgroupweb.github.io/shopify-migration-checklist/): Interactive Shopify migration checklist from Mgroup's migration experts: 9 phases and 74 tasks covering data, 301 redirects, SEO, theme, apps, payments, QA, launch and post-launch monitoring.
+  - 9 phases and 74 tasks for migrating from WooCommerce, Magento, BigCommerce or Salesforce Commerce Cloud to Shopify.
+  - Covers the pre-migration SEO audit, data inventory and export, SEO preservation and 301 redirects, theme rebuild, apps, payments, QA, launch and post-launch monitoring.
+  - Progress saves in the browser and exports as a plain-text plan.
+- [Shopify Liquid Snippets Library](https://mgroupweb.github.io/shopify-liquid-snippets/): Production-ready Shopify Liquid snippets for Online Store 2.0 themes: section schema, free-shipping progress bar, metafields with fallbacks, responsive images, sale and low-stock badges, breadcrumbs, product JSON.
+  - 8 copy-paste Liquid snippets for Online Store 2.0 themes: section skeleton with blocks, free-shipping progress bar, product metafield with fallback, responsive image with srcset, sale badge, low-stock and sold-out badges, SEO breadcrumbs with BreadcrumbList JSON-LD, safe product JSON for JavaScript.
+  - MIT licensed.
+- [Mgroup Brand Kit: Logo, Footer Credit & Brand Story](https://mgroupweb.github.io/footer-credit/): Copy-paste footer credit for sites built by Mgroup (Liquid, HTML, React, WordPress) with install steps, plus the Mgroup logo — wordmark, round and square mark — downloadable as SVG or PNG in any colour.
+  - Mgroup logo downloads (wordmark, round and square mark, SVG or PNG, any colour), the footer credit snippet for Liquid, HTML, React and WordPress, and the brand story in nine languages.
+
+## Optional
+
+- [Shopify Plus pricing guide](https://mgroupweb.com/blogs/shopify-plus-pricing-cost/)
+- [Shopify migration services](https://mgroupweb.com/services/shopify-migration-experts/)
+- [Mgroup services](https://mgroupweb.com/services/)
