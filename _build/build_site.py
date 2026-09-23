@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260923a"
+VER = "20260923c"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -83,6 +83,8 @@ MEGA = [
 
 def nav(p):
     r = p["rel"] or "./"
+    if p.get("fullhero"):
+        return fx_nav(p)
     return f"""<nav class="hero-nav" aria-label="Primary">
   <a class="hero-nav__logo" href="{r}" aria-label="Mgroup Shopify Developer Tools — home"><span class="hero-nav__logo-mark" aria-hidden="true">{MARK}</span></a>
   <div class="hero-nav__menu" id="nav-menu">
@@ -101,6 +103,8 @@ def nav(p):
 """
 
 def hero(p):
+    if p.get("fullhero"):
+        return fx_hero(p)
     h = p["hero"]
     actions = "".join(
         f'<a class="btn-pill {cls}" href="{href}">{label}{ARROW if i == 0 else ""}</a>'
@@ -114,6 +118,39 @@ def hero(p):
       <p class="hero-desc">{h["desc"]}</p>
       <div class="hero-actions">{actions}</div>
     </div>
+  </div>
+</section>
+
+<main id="main">
+"""
+
+COPY_ICON = '<svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor"/><path d="M8.5 1.5h-6a1 1 0 0 0-1 1v6" stroke="currentColor"/></svg>'
+
+def fx_nav(p):
+    r = p["rel"] or "./"
+    links = [(f"{r}#authority", "DA Checker"), (f"{r}shopify-plus-pricing-calculator/", "Plus Pricing"), (f"{r}shopify-migration-checklist/", "Migration Checklist"), (f"{r}shopify-liquid-snippets/", "Liquid Snippets"), (f"{r}footer-credit/", "Brand Kit")]
+    inline = ", ".join(f'<a href="{h}">{t}</a>' for h, t in links)
+    stack = "".join(f'<a href="{h}">{t}</a>' for h, t in links)
+    return f"""<nav class="fx-nav" aria-label="Primary">
+  <a class="fx-nav__logo" href="{r}" aria-label="Mgroup Shopify Developer Tools — home"><span>Mgroup</span>{MARK}</a>
+  <div class="fx-nav__links">{inline}</div>
+  <a class="fx-nav__cta" href="{CONTACT}">Get in touch</a>
+  <button class="fx-burger" id="fx-burger" type="button" aria-expanded="false" aria-controls="fx-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
+</nav>
+<div class="fx-menu" id="fx-menu" aria-hidden="true">{stack}<a class="fx-menu__cta" href="{CONTACT}">Get in touch</a></div>
+"""
+
+def fx_hero(p):
+    h = p["hero"]
+    pills = "".join(f'<a class="fx-pill fx-pill--solid" href="{href}">{label}</a>' for href, label in h["pills"])
+    email = h["email"]
+    return f"""<section class="fx-hero" aria-labelledby="page-title">
+  <canvas class="fx-hero__bg" aria-hidden="true"></canvas>
+  <div class="fx-hero__content">
+    <p class="fx-hero__intro" aria-hidden="true">{h["intro"]}</p>
+    <h1 class="fx-type" id="page-title">{h["type"]}</h1>
+    <div class="fx-pills">{pills}<button class="fx-pill fx-pill--outline" type="button" data-copy="{email}">Reach us: <u>{email}</u>{COPY_ICON}</button></div>
+    <p class="fx-sr" aria-live="polite" role="status"><span class="fx-copy-status"></span></p>
   </div>
 </section>
 
@@ -152,7 +189,7 @@ FOOTER = f"""<footer class="mg-footer" role="contentinfo">
 
 def footer(p):
     r = p["rel"]
-    scripts = ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"] + p.get("scripts", [])
+    scripts = (["assets/js/main.js", "assets/js/fx-hero.js"] if p.get("fullhero") else ["assets/js/main.js", "assets/js/hero-aura.js", "assets/js/hero-ribbons.js"]) + p.get("scripts", [])
     ver = VER
     return FOOTER.replace("__REL__", r) + "".join(f'<script src="{r}{s}?v={ver}" defer></script>\n' for s in scripts) + "</body>\n</html>\n"
 
@@ -349,7 +386,12 @@ PAGES.append({
   "desc": "Free tools from Mgroup, a Shopify Select Partner since 2016: bulk domain authority checker (no sign-up), Shopify Plus pricing calculator, migration checklist and copy-paste Liquid snippets.",
   "hero": {"title": '<span class="grad">Free Shopify</span><br>Developer Tools',
            "desc": "Practical, no-login tools we use in real Shopify projects — built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. Check the authority of any domain in bulk, model your Shopify Plus bill, migrate without losing SEO, or drop production-ready Liquid into your theme.",
-           "actions": [("btn-pill--white", "#authority", "Domain Authority Checker"), ("btn-pill--ghost-light", "#tools", "See all tools")]},
+           "actions": [("btn-pill--white", "#authority", "Domain Authority Checker"), ("btn-pill--ghost-light", "#tools", "See all tools")],
+           "intro": "Hey there, meet the Mgroup toolkit,<br>free Shopify tools from a Shopify Select Partner since 2016",
+           "type": "Free Shopify developer tools. Glad you stopped in: pick one, run your numbers, then tell us what we are building.",
+           "pills": [("#authority", "Check domain authority"), ("shopify-plus-pricing-calculator/", "Model my Plus bill"), ("shopify-migration-checklist/", "Plan a migration"), ("shopify-liquid-snippets/", "Grab Liquid snippets")],
+           "email": "info@mgroupweb.com"},
+  "fullhero": True,
   "ld": [
     {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "Mgroup Shopify Developer Tools", "publisher": {"@id": MG + "/#organization"}, "inLanguage": "en"},
     ORG,
