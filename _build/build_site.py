@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260923f"
+VER = "20260923g"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -428,7 +428,7 @@ PAGES.append({
         <h2 class="section__title section__title--wide" id="tools-title">Shopify tools merchants ask us for</h2>
         <p class="section__lead">Each tool is a working app, not a landing page. No sign-up, no tracking, open source on <a href="https://github.com/mgroupweb/mgroupweb.github.io">GitHub</a>.</p>
       </header>
-      <div class="bento">
+      <div class="bento bento--staggered">
         <article class="bento__cell bento__cell--hero">
           <div class="bento__body">
             <h3 class="bento__title bento__title--lg"><a href="shopify-plus-pricing-calculator/">Shopify Plus Pricing Calculator</a></h3>
@@ -451,7 +451,7 @@ PAGES.append({
           <p class="bento__desc">Copy-paste Liquid for Online Store 2.0 themes: section schema, free-shipping bar, metafields with fallbacks, responsive images, sale and low-stock badges, breadcrumbs.</p>
           <div class="bento__visual" aria-hidden="true">{visual_liquid()}</div>
         </article>
-        <article class="bento__cell bento__cell--hero bento__cell--full">
+        <article class="bento__cell bento__cell--hero">
           <div class="bento__body">
             <h3 class="bento__title bento__title--lg"><a href="footer-credit/">Mgroup Brand Kit</a></h3>
             <p class="bento__desc">Logo downloads in any colour (wordmark, round and square mark, SVG or PNG), the “Design and development by Mgroup Shopify Agency” footer credit in Liquid, HTML, React and WordPress, and the story behind the monkey mark in nine languages.</p>

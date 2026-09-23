@@ -142,7 +142,12 @@ textarea.input{resize:vertical;min-height:9.5rem;font-family:var(--font-mono);fo
 .section__head .section__title--wide,.section__title--wide{max-width:none}
 
 /* Hub bento: 2 full rows — hero + 2 tools on top, Brand Kit across the full width below */
-@media (min-width:992px){.bento__cell--full{grid-column:1/-1}.bento__cell--full .bento__visual{max-width:520px;justify-self:end;width:100%}}
+/* Hub bento: two rows of two, staggered widths (3:2 on top, 2:3 below) */
+@media (min-width:992px){.bento--staggered{grid-template-columns:repeat(5,minmax(0,1fr))}
+.bento--staggered>.bento__cell:nth-child(1),.bento--staggered>.bento__cell:nth-child(4){grid-column:span 3}
+.bento--staggered>.bento__cell:nth-child(2),.bento--staggered>.bento__cell:nth-child(3){grid-column:span 2}
+.bento--staggered .bento__cell--hero{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+.bento--staggered>.bento__cell:not(.bento__cell--hero) .bento__visual{padding-top:clamp(1.5rem,3vw,2.5rem)}.bento--staggered>.bento__cell:not(.bento__cell--hero) .bento__visual svg{max-height:220px}}
 @media (min-width:640px) and (max-width:991px){.bento__cell--hero{grid-column:1/-1}}
 
 /* ===== Hub full-screen hero (brand palette only) ===== */
