@@ -44,6 +44,7 @@ def head(p):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google-site-verification" content="UxmGO-WXx2DRkSGT9gvWTwsmtmUIdBWs4fRpBk4ONsE">
+<meta name="msvalidate.01" content="BE5C955C7502CD74549031795096844D">
 <title>{html.escape(p["title"])}</title>
 <meta name="description" content="{html.escape(p["desc"])}">
 <link rel="canonical" href="{url}">
