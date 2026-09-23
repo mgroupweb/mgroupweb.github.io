@@ -1,3 +1,10 @@
+/* ===== One type family site-wide: the header's Fivo Sans (all weights under one name, same files as main-shared). Monospace only for real code. ===== */
+@font-face{font-family:"Fivo";src:url("../fonts/fivosans/fivosans-light-webfont.woff2") format("woff2"),url("../fonts/fivosans/fivosans-light-webfont.woff") format("woff");font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:"Fivo";src:url("../fonts/fivosans/fivosans-regular-webfont.woff2") format("woff2"),url("../fonts/fivosans/fivosans-regular-webfont.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Fivo";src:url("../fonts/fivosans/fivosans-medium-webfont.woff2") format("woff2"),url("../fonts/fivosans/fivosans-medium-webfont.woff") format("woff");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Fivo";src:url("../fonts/fivosans/fivosans-bold-webfont.woff2") format("woff2"),url("../fonts/fivosans/fivosans-bold-webfont.woff") format("woff");font-weight:700;font-style:normal;font-display:swap}
+body.tools-page{--font-inter:"Fivo","Fivo Sans Regular",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--font-mono:"Fivo","Fivo Sans Regular",system-ui,sans-serif;--font-eyebrow:"Fivo","Fivo Sans Regular",system-ui,sans-serif;--font-code:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace}
+body.tools-page svg text{font-family:"Fivo","Fivo Sans Bold",system-ui,sans-serif}
 /* Tool-specific UI on top of the Mgroup site bundles (main-shared.css + main-service.css).
    Uses only canonical tokens from the design system. */
 
@@ -87,7 +94,7 @@
 .snippet__desc{color:var(--c-text-muted);font-size:var(--fs-small);padding:0 1.5rem;margin:.5rem 0 1rem;line-height:1.55}
 .snippet__desc a{color:var(--c-indigo);font-weight:500}
 .snippet pre{margin:0;background:var(--c-navy);color:#E7ECFF;font-size:13px;line-height:1.6;padding:1.25rem 1.5rem;overflow-x:auto;tab-size:2;border-top:1px solid rgba(255,255,255,.08)}
-.snippet pre code{font-family:var(--font-mono);background:none;padding:0;color:inherit}
+.snippet pre code{font-family:var(--font-code);background:none;padding:0;color:inherit}
 .tok-tag{color:var(--c-cyan)}.tok-obj{color:#B7B5FF}.tok-str{color:#9AE6B4}.tok-cmt{color:rgba(255,255,255,.45);font-style:italic}
 .copy-btn.is-copied{background:var(--c-indigo);color:var(--c-white)}
 
@@ -96,7 +103,7 @@
 .prose ul{padding-left:1.25rem;margin:0 0 1em}
 .prose li{margin-bottom:.4rem}
 .prose a{color:var(--c-indigo);font-weight:500}
-.prose code{font-family:var(--font-mono);font-size:.9em;background:var(--c-paper);border:1px solid var(--c-line);border-radius:6px;padding:.1em .4em}
+.prose code{font-family:var(--font-code);font-size:.9em;background:var(--c-paper);border:1px solid var(--c-line);border-radius:6px;padding:.1em .4em}
 .prose .section__title{margin-bottom:1rem}
 
 /* Bento chips used as in-page anchors on the hub */
