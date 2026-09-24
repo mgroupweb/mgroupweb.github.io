@@ -64,7 +64,12 @@ def head(p):
 <meta name="twitter:title" content="{html.escape(p["title"])}">
 <meta name="twitter:description" content="{html.escape(p["desc"])}">
 <meta name="twitter:image" content="{SITE}/assets/img/og.png">
+<link rel="icon" href="{SITE}/favicon.ico" sizes="any">
 <link rel="icon" href="{r}assets/img/mark.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="32x32" href="{r}assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="{r}assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="{r}assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="{r}assets/icons/site.webmanifest">
 <link rel="preload" href="{r}assets/fonts/fivosans/fivosans-bold-webfont.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/fivosans/fivosans-regular-webfont.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{r}assets/css/main-shared.css?v={VER}">
