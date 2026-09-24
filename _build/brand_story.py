@@ -155,7 +155,7 @@ def ld(SITE, MG):
     def img(idn, name, file, w, h, desc):
         return {"@type": "ImageObject", "@id": f"{SITE}/#{idn}", "name": name, "url": f"{SITE}/assets/img/{file}", "contentUrl": f"{SITE}/assets/img/{file}",
                 "encodingFormat": "image/svg+xml", "width": str(w), "height": str(h), "description": desc,
-                "copyrightHolder": {"@id": MG + "/#organization"}, "creditText": "Mgroup", "license": f"{SITE}/footer-credit/#brand",
+                "copyrightHolder": {"@id": MG + "/#organization"}, "creator": {"@id": MG + "/#organization"}, "copyrightNotice": "© 2015–2026 Monkey Group LLC (Mgroup)", "creditText": "Mgroup", "license": f"{SITE}/footer-credit/#brand",
                 "acquireLicensePage": f"{SITE}/footer-credit/#brand", "usageInfo": f"{SITE}/footer-credit/#brand"}
     logos = [
         img("logo-wordmark", "Mgroup wordmark", "logo.svg", 232, 56, "Full “mgroup” logotype, lowercase, brand indigo #5A58E2. Available in any colour as SVG or PNG."),
