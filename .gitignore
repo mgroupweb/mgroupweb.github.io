@@ -3,5 +3,6 @@ worker/.moz-token
 worker/.ahrefs-token
 worker/.opr-key
 worker/.cf-radar-token
+worker/.origin-ips
 _build/__pycache__/
 worker/.slack-webhook

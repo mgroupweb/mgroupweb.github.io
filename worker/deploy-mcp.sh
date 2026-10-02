@@ -13,16 +13,23 @@ H=(-H "Authorization: Bearer $TOKEN")
 echo "→ verify token"
 curl -s "${H[@]}" https://api.cloudflare.com/client/v4/user/tokens/verify | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['success'], d; print('  ok', d['result']['status'])"
 
-echo "→ upload script (bindings: RL 30/60s, METRICS → mgroup-metrics)"
-cat > /tmp/mcp-metadata.json <<'JSON'
-{"main_module":"mcp-worker.js","compatibility_date":"2026-09-01",
- "bindings":[
-  {"type":"ratelimit","name":"RL","namespace_id":"1002","simple":{"limit":30,"period":60}},
-  {"type":"service","name":"METRICS","service":"mgroup-metrics"}
- ]}
-JSON
+echo "→ upload script (bindings: RL 30/60s, METRICS → mgroup-metrics, secret ORIGIN_IPS)"
+# ORIGIN_IPS = our nginx proxy IP(s), comma-separated, from gitignored .origin-ips (never commit it:
+# the repo is public and the IP would let anyone bypass Cloudflare). Without the file the existing secret is kept.
+META="$(mktemp)"; trap 'rm -f "$META"' EXIT
+ORIGIN_IPS="$( [ -s .origin-ips ] && tr -d '[:space:]' < .origin-ips || true)" python3 - > "$META" <<'PY'
+import os, json
+b = [{"type": "ratelimit", "name": "RL", "namespace_id": "1002", "simple": {"limit": 30, "period": 60}},
+     {"type": "service", "name": "METRICS", "service": "mgroup-metrics"}]
+m = {"main_module": "mcp-worker.js", "compatibility_date": "2026-09-01", "bindings": b}
+if os.environ.get("ORIGIN_IPS"):
+    b.append({"type": "secret_text", "name": "ORIGIN_IPS", "text": os.environ["ORIGIN_IPS"]})
+else:
+    m["keep_bindings"] = ["secret_text"]
+print(json.dumps(m))
+PY
 curl -s -X PUT "${H[@]}" "$API/workers/scripts/$NAME" \
-  -F "metadata=@/tmp/mcp-metadata.json;type=application/json" \
+  -F "metadata=@$META;type=application/json" \
   -F "mcp-worker.js=@mcp-worker.js;type=application/javascript+module" \
   -F "mcp-tools.js=@mcp-tools.js;type=application/javascript+module" \
   -F "mcp-data.js=@mcp-data.js;type=application/javascript+module" \

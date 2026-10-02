@@ -26,6 +26,6 @@ Fallback chain: Moz (30-day KV cache) → Cloudflare Radar rank bucket (CF_RADAR
 - Endpoint: `https://mgroupweb.com/mcp` (nginx proxies to `https://mgroup-mcp.stupak-ol.workers.dev/mcp`). Streamable HTTP, stateless JSON-RPC (POST only; GET → 405).
 - Card: `https://mgroupweb.com/mcp/server-card` (`application/mcp-server-card+json`), static copies at `/.well-known/mcp/server-card.json` and `/.well-known/ai-catalog.json`.
 - Tools: search_mgroupweb, read_mgroupweb_page (Accept: text/markdown), list_shopify_services, estimate_shopify_plus_cost, shopify_migration_checklist, shopify_liquid_snippet, check_domain_authority (service binding → mgroup-metrics).
-- Bindings: RL (30 calls/60 s per IP; X-Real-IP trusted only from 164.92.211.78), METRICS (service binding).
+- Bindings: RL (30 calls/60 s per IP; X-Real-IP trusted only from the IPs in secret ORIGIN_IPS, set by deploy-mcp.sh from gitignored `worker/.origin-ips`), METRICS (service binding).
 - Regenerate + deploy: `python3 _build/build_agent_files.py && worker/deploy-mcp.sh`. Then upload `agent/` to the WP root of DEV/PROD (`.well-known/`, `auth.md`).
 - Smoke test: `curl -X POST https://mgroupweb.com/mcp -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`
