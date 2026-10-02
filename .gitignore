@@ -4,3 +4,4 @@ worker/.ahrefs-token
 worker/.opr-key
 worker/.cf-radar-token
 _build/__pycache__/
+worker/.slack-webhook
