@@ -6,7 +6,7 @@
 //
 // Alerts go to a Slack incoming webhook (secret SLACK_WEBHOOK) only on state changes:
 // DOWN after 2 consecutive failed runs (~10 min), RECOVERED when it answers again.
-// State lives in KV (binding STATE) under "state:<target>".
+// State lives in KV (binding STATE) under one key, written only on change or hourly (see KV budget).
 //
 // Manual endpoints on workers.dev:  GET /status  → last stored state of every target (no secrets).
 
@@ -81,28 +81,49 @@ function human(ms) {
   return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`;
 }
 
-async function runChecks(env) {
-  const now = Date.now();
-  const results = await Promise.all(TARGETS.map(async (t) => [t, await probe(t)]));
-  for (const [t, res] of results) {
-    const key = 'state:' + t.id;
-    const prev = (await env.STATE.get(key, 'json')) || { down: false, fails: 0, since: now };
-    const next = { ...prev, last: res, checkedAt: now };
+// KV budget: the free tier allows 1,000 writes/day for the whole account (shared with mgroup-metrics).
+// One key holds every target; it is written only when something changes (a failure, DOWN, RECOVERED)
+// or once an hour as a heartbeat for /status. Healthy day = 24 writes, not 1,440 (2026-10-04 lesson).
+const STATE_KEY = 'state:v2';
+const HEARTBEAT_MS = 55 * 60000;
+
+export function evaluate(prevState, results, now) {
+  const targets = { ...((prevState && prevState.targets) || {}) };
+  const alerts = [];
+  let changed = !prevState;
+  for (const { t, res } of results) {
+    const prev = targets[t.id] || { down: false, fails: 0, since: now };
+    const next = { down: prev.down, fails: prev.fails || 0, since: prev.since || now, last: res };
     if (res.ok) {
       if (prev.down) {
-        await slack(env, `:white_check_mark: RECOVERED — ${t.name}\nHTTP ${res.status} in ${res.ms} ms. Was down for ${human(now - prev.since)}.`);
+        alerts.push(`:white_check_mark: RECOVERED — ${t.name}\nHTTP ${res.status} in ${res.ms} ms. Was down for ${human(now - prev.since)}.`);
+        next.since = now;
       }
-      next.down = false; next.fails = 0; next.since = prev.down ? now : (prev.since || now);
+      if (prev.down || next.fails) changed = true;
+      next.down = false; next.fails = 0;
     } else {
-      next.fails = (prev.fails || 0) + 1;
+      next.fails += 1;
+      if (!prev.down) changed = true;           // count failures until DOWN; no writes while already DOWN
       if (!prev.down && next.fails >= FAIL_THRESHOLD) {
         next.down = true; next.since = now - (FAIL_THRESHOLD - 1) * 5 * 60000;
-        await slack(env, `:rotating_light: DOWN — ${t.name}\n${res.error ? 'Error: ' + res.error : 'HTTP ' + res.status}${res.cache ? ' (cf-cache-status ' + res.cache + ')' : ''}, ${FAIL_THRESHOLD} checks in a row.\nFirst check on the server: systemctl status nginx php8.4-fpm mariadb --no-pager`);
+        alerts.push(`:rotating_light: DOWN — ${t.name}\n${res.error ? 'Error: ' + res.error : 'HTTP ' + res.status}${res.cache ? ' (cf-cache-status ' + res.cache + ')' : ''}, ${FAIL_THRESHOLD} checks in a row.\nFirst check on the server: systemctl status nginx php8.4-fpm mariadb --no-pager`);
       }
     }
-    await env.STATE.put(key, JSON.stringify(next));
+    targets[t.id] = next;
   }
-  return results.map(([t, r]) => ({ id: t.id, ...r }));
+  const heartbeatDue = !prevState || !prevState.writtenAt || now - prevState.writtenAt >= HEARTBEAT_MS;
+  const write = changed || heartbeatDue;
+  return { next: { targets, checkedAt: now, writtenAt: write ? now : prevState.writtenAt }, alerts, write };
+}
+
+async function runChecks(env) {
+  const now = Date.now();
+  const results = await Promise.all(TARGETS.map(async (t) => ({ t, res: await probe(t) })));
+  const prev = await env.STATE.get(STATE_KEY, 'json');
+  const { next, alerts, write } = evaluate(prev, results, now);
+  for (const a of alerts) await slack(env, a);
+  if (write) await env.STATE.put(STATE_KEY, JSON.stringify(next));
+  return { write, alerts: alerts.length };
 }
 
 export default {
@@ -112,9 +133,8 @@ export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (url.pathname === '/status') {
-      const out = {};
-      for (const t of TARGETS) out[t.id] = await env.STATE.get('state:' + t.id, 'json');
-      return new Response(JSON.stringify(out, null, 2), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+      const st = await env.STATE.get(STATE_KEY, 'json');
+      return new Response(JSON.stringify(st, null, 2), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
     }
     return new Response('Mgroup uptime monitor. GET /status for the last results.\n', { headers: { 'Content-Type': 'text/plain' } });
   },
