@@ -194,3 +194,10 @@ body:not(.is-menu-open) .hero-nav--on-dark:not(.is-scrolled) .menuicon__bar,body
 /* Hero byline: author + updated date (E-E-A-T / freshness) */
 .hero-byline{display:block;margin-top:.75rem;font-size:.875em;opacity:.72}
 .hero-byline a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+/* fees calculator (2026-10-07) */
+.tools-table tbody tr.is-best th,.tools-table tbody tr.is-best td{background:rgba(64,208,255,.08);color:var(--c-navy)}
+.badge{display:inline-block;margin-left:.4rem;padding:.1rem .55rem;border-radius:var(--r-pill);background:var(--c-navy);color:var(--c-white);font-family:var(--font-display);font-weight:700;font-size:.72rem;letter-spacing:.02em;vertical-align:.1em}
+.field[hidden]{display:none}
+.tool>*{min-width:0}
+.tools-table-wrap .tools-table{min-width:640px}
+@media (min-width:992px) and (max-width:1199px){.hero-nav__links{gap:22px}}

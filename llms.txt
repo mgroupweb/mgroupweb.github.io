@@ -1,6 +1,6 @@
 # Mgroup Shopify Developer Tools
 
-> Free, no-login Shopify tools built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. Maintained by Oleh Stupak, CEO at Mgroup. Last updated 2026-09-23.
+> Free, no-login Shopify tools built and maintained by Mgroup, a Shopify development agency and certified Shopify Select Partner since 2016. Maintained by Oleh Stupak, CEO at Mgroup. Last updated 2026-10-07.
 
 Agency site: https://mgroupweb.com/ . Contact: https://mgroupweb.com/grow-ecommerce-business/ . Source code: https://github.com/mgroupweb/mgroupweb.github.io
 
@@ -12,6 +12,10 @@ Agency site: https://mgroupweb.com/ . Contact: https://mgroupweb.com/grow-ecomme
   - Shopify Plus costs about $2,300/month on a three-year term or about $2,500/month on a one-year agreement.
   - Above roughly $800,000 in monthly revenue the fee switches to about 0.25% of monthly sales, with the flat fee as a floor and a reported cap of $40,000/month.
   - The calculator adds third-party gateway fees, apps and development to show the monthly all-in and first-year total cost of ownership.
+- [Shopify Fees Calculator 2026](https://mgroupweb.github.io/shopify-fees-calculator/): Free Shopify fees calculator: enter your monthly sales and average order to see card fees, third-party transaction fees, currency conversion and the cheapest plan, Basic vs Grow vs Advanced.
+  - US 2026: Basic $39/mo ($29 yearly), Grow $105 ($79), Advanced $399 ($299); Shopify Payments online rates 2.9%, 2.7%, 2.5% + 30¢.
+  - Third-party gateway fee: 2% Basic, 1% Grow, 0.6% Advanced, 0.2% Plus; currency conversion 1.5% (US stores) or 2% (other regions).
+  - Shows card fees, Shopify fees, conversion and subscription per plan and picks the cheapest plan for the entered sales.
 - [Shopify Migration Checklist 2026](https://mgroupweb.github.io/shopify-migration-checklist/): Interactive Shopify migration checklist from Mgroup's migration experts: 9 phases and 74 tasks covering data, 301 redirects, SEO, theme, apps, payments, QA, launch and post-launch monitoring.
   - 9 phases and 74 tasks for migrating from WooCommerce, Magento, BigCommerce or Salesforce Commerce Cloud to Shopify.
   - Covers the pre-migration SEO audit, data inventory and export, SEO preservation and 301 redirects, theme rebuild, apps, payments, QA, launch and post-launch monitoring.

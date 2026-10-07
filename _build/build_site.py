@@ -5,7 +5,7 @@ Run:  python3 _build/build_site.py   (from the repo root or anywhere)."""
 import json, os, html
 OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://mgroupweb.github.io"
-VER = "20260923h"
+VER = "20261007c"
 MG = "https://mgroupweb.com"
 CONTACT = MG + "/grow-ecommerce-business/"
 ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
@@ -32,7 +32,7 @@ PERSON = {"@type": "Person", "@id": MG + "/author/oleh-stupak/", "name": "Oleh S
   "url": MG + "/author/oleh-stupak/", "image": MG + "/assets/media/2026/07/omgroup-150x150.webp",
   "worksFor": {"@id": MG + "/#organization"}, "sameAs": ["https://www.linkedin.com/in/olehstupak/"]}
 AUTHOR = {"@id": MG + "/author/oleh-stupak/"}
-PUBLISHED, MODIFIED = "2026-09-11", "2026-09-23"
+PUBLISHED, MODIFIED = "2026-09-11", "2026-10-07"
 INDEXNOW_KEY = "52210f7e790b7e3668cdc74bbb522e22"
 
 def head(p):
@@ -106,6 +106,7 @@ def nav(p):
     <ul class="hero-nav__links">
       <li><a href="{r}#authority"{' aria-current="page"' if p["path"] == "/" else ""}>DA Checker</a></li>
       <li><a href="{r}shopify-plus-pricing-calculator/"{' aria-current="page"' if p["path"] == "/shopify-plus-pricing-calculator/" else ""}>Plus Pricing</a></li>
+      <li><a href="{r}shopify-fees-calculator/"{' aria-current="page"' if p["path"] == "/shopify-fees-calculator/" else ""}>Fees</a></li>
       <li><a href="{r}shopify-migration-checklist/"{' aria-current="page"' if p["path"] == "/shopify-migration-checklist/" else ""}>Migration Checklist</a></li>
       <li><a href="{r}shopify-liquid-snippets/"{' aria-current="page"' if p["path"] == "/shopify-liquid-snippets/" else ""}>Liquid Snippets</a></li>
       <li><a href="{r}footer-credit/"{' aria-current="page"' if p["path"] == "/footer-credit/" else ""}>Brand Kit</a></li>
@@ -408,6 +409,7 @@ PAGES.append({
      "hasPart": [
        {"@type": "WebApplication", "name": "Domain Authority Checker", "url": SITE + "/#authority", "applicationCategory": "SEO tool", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
        {"@type": "WebApplication", "name": "Shopify Plus Pricing Calculator", "url": SITE + "/shopify-plus-pricing-calculator/"},
+       {"@type": "WebApplication", "name": "Shopify Fees Calculator", "url": SITE + "/shopify-fees-calculator/"},
        {"@type": "HowTo", "name": "Shopify Migration Checklist", "url": SITE + "/shopify-migration-checklist/"},
        {"@type": "TechArticle", "name": "Shopify Liquid Snippets", "url": SITE + "/shopify-liquid-snippets/"}]},
     faq_ld(HUB_FAQ)
@@ -511,7 +513,7 @@ PAGES.append({
   <section class="section" aria-labelledby="why-title">
     <div class="container container-narrow prose">
       <header class="section__head"><span class="eyebrow">Why free tools</span><h2 class="section__title" id="why-title">Why a Shopify development agency publishes free developer tools</h2></header>
-      <p>Every tool on this site started as an internal spreadsheet, checklist or theme snippet that our team reused across client projects. The <a href="shopify-plus-pricing-calculator/">Shopify Plus pricing calculator</a> is the model we walk merchants through before they sign a Plus contract. The <a href="shopify-migration-checklist/">Shopify migration checklist</a> is the runbook behind our <a href="{MG}/services/shopify-migration-experts/">Shopify migration services</a>. The <a href="shopify-liquid-snippets/">Liquid snippets</a> are patterns we ship inside <a href="{MG}/services/expert-shopify-theme-development/">custom Shopify themes</a> and <a href="{MG}/services/custom-shopify-sections/">Online Store 2.0 sections</a>.</p>
+      <p>Every tool on this site started as an internal spreadsheet, checklist or theme snippet that our team reused across client projects. The <a href="shopify-plus-pricing-calculator/">Shopify Plus pricing calculator</a> is the model we walk merchants through before they sign a Plus contract. The <a href="shopify-fees-calculator/">Shopify fees calculator</a> shows what Basic, Grow and Advanced really cost at your sales volume. The <a href="shopify-migration-checklist/">Shopify migration checklist</a> is the runbook behind our <a href="{MG}/services/shopify-migration-experts/">Shopify migration services</a>. The <a href="shopify-liquid-snippets/">Liquid snippets</a> are patterns we ship inside <a href="{MG}/services/expert-shopify-theme-development/">custom Shopify themes</a> and <a href="{MG}/services/custom-shopify-sections/">Online Store 2.0 sections</a>.</p>
       <p>Publishing them saves merchants a discovery call for questions that have a clear answer, and gives Shopify developers copy-paste code that follows current platform architecture. No sign-up, no tracking, no gated PDF — the source is on <a href="https://github.com/mgroupweb/mgroupweb.github.io">GitHub</a> under the MIT license, and pull requests are welcome when Shopify changes its pricing, APIs or theme conventions.</p>
       <p>Prefer to hand the work over? Mgroup builds, migrates, optimizes and supports Shopify and Shopify Plus stores for eCommerce brands in the US, UK, EU, Canada and Australia. Start with a <a href="{CONTACT}">free store audit</a> or browse <a href="{MG}/case-studies/">Shopify case studies</a> with real results.</p>
     </div>
@@ -639,11 +641,15 @@ PAGES.append({
         </tbody>
       </table>
       </div>
-      <p>If you would only use a fraction of these, the maths is harder to justify. If B2B, checkout customisation and international expansion are on your roadmap, they quickly move Plus from “expensive” to “cheaper than building the same capability with apps and workarounds.” Related reading: <a href="{MG}/blogs/benefits-shopify-plus-when-should-you-migrate/">when to upgrade to Shopify Plus</a>, <a href="{MG}/blogs/best-shopify-plan-pricing/">which Shopify plan fits your store</a>, and <a href="{MG}/blogs/migrate-shopify-scripts-to-functions/">migrating Shopify Scripts to Functions</a>.</p>
+      <p>If you would only use a fraction of these, the maths is harder to justify. If B2B, checkout customisation and international expansion are on your roadmap, they quickly move Plus from “expensive” to “cheaper than building the same capability with apps and workarounds.” Related reading: <a href="{MG}/blogs/benefits-shopify-plus-when-should-you-migrate/">when to upgrade to Shopify Plus</a>, <a href="{MG}/blogs/best-shopify-plan-pricing/">which Shopify plan fits your store</a>, the <a href="../shopify-fees-calculator/">Shopify fees calculator</a> for Basic, Grow and Advanced, and <a href="{MG}/blogs/migrate-shopify-scripts-to-functions/">migrating Shopify Scripts to Functions</a>.</p>
     </div>
   </section>
 """ + faq_html("Shopify Plus pricing FAQ", CALC_FAQ) + cta("Shopify Plus Partner", "Planning a move to <span class=\"grad\">Shopify Plus</span>?", "Talk to Mgroup about custom development, B2B, checkout extensibility, ERP/CRM integrations, and retained support for scaling brands.")
 })
+
+# ---- FEES CALCULATOR (2026-10-07)
+import sys as _sys; _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import fees_page_block as _fees
+PAGES.append(_fees.page(SITE, MG, CONTACT, PUBLISHED, MODIFIED, AUTHOR, ORG, PERSON, bc, faq_html, faq_ld, cta))
 
 # ---- CHECKLIST
 PAGES.append({
@@ -783,7 +789,7 @@ with open(os.path.join(OUT, "404.html"), "w") as f:
 
 with open(os.path.join(OUT, "sitemap.xml"), "w") as f:
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-            "".join(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-09-23</lastmod><changefreq>monthly</changefreq><priority>{'1.0' if p['path']=='/' else '0.8'}</priority></url>\n" for p in PAGES) +
+            "".join(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>{'1.0' if p['path']=='/' else '0.8'}</priority></url>\n" for p in PAGES) +
             "</urlset>\n")
 AI_BOTS = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User", "Google-Extended", "Applebot-Extended", "Bingbot", "CCBot"]
 with open(os.path.join(OUT, "robots.txt"), "w") as f:
@@ -797,6 +803,9 @@ LLMS_FACTS = {
   "/shopify-plus-pricing-calculator/": ["Shopify Plus costs about $2,300/month on a three-year term or about $2,500/month on a one-year agreement.",
       "Above roughly $800,000 in monthly revenue the fee switches to about 0.25% of monthly sales, with the flat fee as a floor and a reported cap of $40,000/month.",
       "The calculator adds third-party gateway fees, apps and development to show the monthly all-in and first-year total cost of ownership."],
+  "/shopify-fees-calculator/": ["US 2026: Basic $39/mo ($29 yearly), Grow $105 ($79), Advanced $399 ($299); Shopify Payments online rates 2.9%, 2.7%, 2.5% + 30¢.",
+      "Third-party gateway fee: 2% Basic, 1% Grow, 0.6% Advanced, 0.2% Plus; currency conversion 1.5% (US stores) or 2% (other regions).",
+      "Shows card fees, Shopify fees, conversion and subscription per plan and picks the cheapest plan for the entered sales."],
   "/shopify-migration-checklist/": ["9 phases and 74 tasks for migrating from WooCommerce, Magento, BigCommerce or Salesforce Commerce Cloud to Shopify.",
       "Covers the pre-migration SEO audit, data inventory and export, SEO preservation and 301 redirects, theme rebuild, apps, payments, QA, launch and post-launch monitoring.",
       "Progress saves in the browser and exports as a plain-text plan."],
